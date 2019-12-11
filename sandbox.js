@@ -73,7 +73,7 @@ exports.messagePassedFilters = function(message) {
     if(!message.content.startsWith('!') || message.author.bot) return false;
 
     // Check for appropriate channels
-    if(!config.channels.includes(message.channel.id)) return false;
+    //if(!config.channels.includes(message.channel.id)) return false;
     
 	// Filter @everyone and @here
 	if(message.content.includes("@everyone") || message.content.includes("@here")) {
