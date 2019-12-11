@@ -7,13 +7,19 @@ var sanitizeHTML = require('sanitize-html');
 
 var config = require('./config.json');
 const sandbox = require('./sandbox.js');
+
 const types = sandbox.types;
 //#endregion
 
 var momGuild;
+
 const guildID = "639487053725171713";
 const perms = ['ADMINISTRATOR', 'KICK_MEMBERS', 'BAN_MEMBERS', 'MANAGE_CHANNELS', 'MANAGE_GUILD', 'MANAGE_MESSAGES', 'MENTION_EVERYONE',
 'MUTE_MEMBERS', 'DEAFEN_MEMBERS', 'MOVE_MEMBERS', 'MANAGE_NICKNAMES', 'MANAGE_ROLES', 'MANAGE_WEBHOOKS', 'MANAGE_EMOJIS'];
+
+var faqRole;
+const guildID = "639487053725171713";
+
 //#region init
 var bot = new Discord.Client({
 	token: config.token,
@@ -24,10 +30,29 @@ bot.on('ready', function() {
     console.log('Connected');
     
     momGuild = bot.guilds.get(guildID);
+
+    faqRole = momGuild.roles.find('name', 'faq-role');
 });
 //#endregion
 
-bot.on('message', function(message) {
+bot.on('guildMemberAdd', member => {
+
+    member.addRole(faqRole);
+});
+
+bot.on('message', async function(message) {
+
+    if(message.channel.id == config.faqChannelID) {
+        let guildUser = await momGuild.fetchMember(message.author.id);
+        message.delete(1);
+
+        if(guildUser.roles.find(r => r.name == "faq-role")) {
+
+            if(message.content == "accept") {
+                guildUser.removeRole(faqRole);
+            }
+        }
+    }
 
     // Filter message for unwanted input
 	if(!sandbox.messagePassedFilters(message)) return;
