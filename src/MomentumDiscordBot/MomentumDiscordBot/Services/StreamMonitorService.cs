@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using TwitchLib.Api.Helix.Models.Streams;
 
 namespace MomentumDiscordBot.Services
 {
@@ -17,6 +19,7 @@ namespace MomentumDiscordBot.Services
         private readonly DiscordSocketClient _discordClient;
         private readonly TwitchApiService _twitchApiService;
         private readonly SocketTextChannel _textChannel;
+        private Dictionary<string, ulong> _cachedStreamsIds;
         public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId)
         {
             _discordClient = discordClient;
@@ -25,29 +28,41 @@ namespace MomentumDiscordBot.Services
 
             _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, updateInterval);
             DeleteAllChannelEmbedsAsync().GetAwaiter().GetResult();
+            _cachedStreamsIds = new Dictionary<string, ulong>();
         }
 
         private async void UpdateCurrentStreamersAsync(object state)
         {
-            await DeleteAllChannelEmbedsAsync();
-            
             var streams = await _twitchApiService.GetLiveMomentumModStreamersAsync();
+            var streamIds = streams.Select(x => x.Id);
 
-            var embedTasks = streams.Select(async x => new EmbedBuilder
+            var endedStreams = _cachedStreamsIds.Where(x => !streamIds.Contains(x.Key));
+            foreach (var (endedStreamId, messageId) in endedStreams)
             {
-                Title = x.Title,
-                Color = Color.Purple,
-                Author = new EmbedAuthorBuilder { Name = x.UserName, IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(x.UserId), Url = $"https://twitch.tv/{x.UserName}"},
-                ImageUrl = x.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
-                Description = x.ViewerCount + " viewers",
-                Url = $"https://twitch.tv/{x.UserName}"
-            }.Build());
+                await _textChannel.DeleteMessageAsync(messageId);
+            }
 
-            var embeds = await Task.WhenAll(embedTasks);
-
-            foreach (var embed in embeds)
+            var newStreams = streams.Where(x => !_cachedStreamsIds.ContainsKey(x.Id)).ToList();
+            foreach (var newStream in newStreams)
             {
-                await _textChannel.SendMessageAsync(embed: embed);
+                var embed = new EmbedBuilder
+                {
+                    Title = newStream.Title,
+                    Color = Color.Purple,
+                    Author = new EmbedAuthorBuilder
+                    {
+                        Name = newStream.UserName,
+                        IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(newStream.UserId),
+                        Url = $"https://twitch.tv/{newStream.UserName}"
+                    },
+                    ImageUrl = newStream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
+                    Description = newStream.ViewerCount + " viewers",
+                    Url = $"https://twitch.tv/{newStream.UserName}"
+                }.Build();
+
+                var message = await _textChannel.SendMessageAsync(embed: embed);
+
+                _cachedStreamsIds.Add(newStream.Id, message.Id);
             }
         }
 
