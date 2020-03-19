@@ -37,6 +37,23 @@ namespace MomentumDiscordBot.Services
             await Task.WhenAll(deleteTasks);
 
             var streams = await _twitchApiService.GetLiveMomentumModStreamersAsync();
+
+            var embedTasks = streams.Select(async x => new EmbedBuilder
+            {
+                Title = x.Title,
+                Color = Color.Purple,
+                Author = new EmbedAuthorBuilder { Name = x.UserName, IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(x.Id), Url = $"https://twitch.tv/{x.UserName}"},
+                ImageUrl = x.ThumbnailUrl,
+                Description = x.ViewerCount + " viewers",
+                Url = $"https://twitch.tv/{x.UserName}"
+            }.Build());
+
+            var embeds = await Task.WhenAll(embedTasks);
+
+            foreach (var embed in embeds)
+            {
+                await _textChannel.SendMessageAsync(embed: embed);
+            }
         }
     }
 }
