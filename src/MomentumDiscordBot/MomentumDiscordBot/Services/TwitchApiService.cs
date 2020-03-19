@@ -28,10 +28,15 @@ namespace MomentumDiscordBot.Services
             }
         }
 
+        public async Task<string> GetMomentumModIdAsync()
+        {
+            var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> {"Momentum Mod"});
+            return games.Games.First().Id;
+        }
         public async Task<List<Stream>> GetLiveMomentumModStreamersAsync()
         {
             var streams = await _apiService.Helix.Streams.GetStreamsAsync(gameIds: new List<string>
-                {BotConstants.MomentumModTwitchID.ToString()});
+                {await GetMomentumModIdAsync()});
             return streams.Streams.ToList();
         }
 
