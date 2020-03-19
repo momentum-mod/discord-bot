@@ -42,8 +42,8 @@ namespace MomentumDiscordBot.Services
             {
                 Title = x.Title,
                 Color = Color.Purple,
-                Author = new EmbedAuthorBuilder { Name = x.UserName, IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(x.Id), Url = $"https://twitch.tv/{x.UserName}"},
-                ImageUrl = x.ThumbnailUrl,
+                Author = new EmbedAuthorBuilder { Name = x.UserName, IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(x.UserId), Url = $"https://twitch.tv/{x.UserName}"},
+                ImageUrl = x.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
                 Description = x.ViewerCount + " viewers",
                 Url = $"https://twitch.tv/{x.UserName}"
             }.Build());
