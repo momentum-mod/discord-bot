@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Discord
@@ -11,9 +12,12 @@ namespace MomentumDiscordBot.Discord
         private readonly string _discordToken;
         private readonly DiscordSocketClient _discordClient;
         private readonly LogService _logService;
-        public MomentumBot(string discordToken)
+        private StreamMonitorService _streamMonitorService;
+        private readonly Config _config;
+        public MomentumBot(string discordToken, Config config)
         {
             _discordToken = discordToken;
+            _config = config;
 
             var discordClientConfig = new DiscordSocketConfig
             {
@@ -21,9 +25,19 @@ namespace MomentumDiscordBot.Discord
             };
 
             _discordClient = new DiscordSocketClient(discordClientConfig);
-
+            _discordClient.Ready += _discordClient_Ready;
+            
             _logService = new LogService(_discordClient);
         }
+
+        private Task _discordClient_Ready()
+        {
+            // Start updating streams
+            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5), _config.MomentumModStreamerChannelId);
+
+            return Task.CompletedTask;
+        }
+
         internal async Task<Exception> RunAsync()
         {
             try
