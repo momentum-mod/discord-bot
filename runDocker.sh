@@ -5,7 +5,7 @@ echo '-= Removing Old momentum-discord Production Container =-'
 docker container rm momentum-discord-production
 
 echo '-= Building Docker Image from Dockerfile =-\n'
-docker build -t momentum-discord ./src/MomentumDiscordBot/MomentumDiscordBot/
+docker build -t momentum-discord -f ./src/MomentumDiscordBot/MomentumDiscordBot/Dockerfile .
 
 echo '-= Runnning the Image =-\n'
 docker run --network host --restart on-failure:5 --name "momentum-discord-production" -d momentum-discord
