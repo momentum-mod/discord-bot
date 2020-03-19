@@ -34,5 +34,14 @@ namespace MomentumDiscordBot.Services
                 {BotConstants.MomentumModTwitchID.ToString()});
             return streams.Streams.ToList();
         }
+
+        public async Task<string> GetStreamerIconUrlAsync(string id)
+        {
+            var users = await _apiService.Helix.Users.GetUsersAsync(ids: new List<string> {id});
+
+            // Selected through ID, should only return one
+            var user = users.Users.First();
+            return user.ProfileImageUrl;
+        }
     }
 }
