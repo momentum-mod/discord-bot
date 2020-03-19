@@ -24,24 +24,12 @@ namespace MomentumDiscordBot.Services
             _textChannel = _discordClient.GetChannel(channelId) as SocketTextChannel;
 
             _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, updateInterval);
+            DeleteAllChannelEmbedsAsync().GetAwaiter().GetResult();
         }
 
         private async void UpdateCurrentStreamersAsync(object state)
         {
-            try
-            {
-                // Delete current messages
-                var messages = await _textChannel.GetMessagesAsync().FlattenAsync();
-
-                // Delete existing bot messages simultaneously
-                var deleteTasks = messages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id)
-                    .Select(async x => await x.DeleteAsync());
-                await Task.WhenAll(deleteTasks);
-            }
-            catch 
-            {
-                // Could have old messages
-            }
+            await DeleteAllChannelEmbedsAsync();
             
             var streams = await _twitchApiService.GetLiveMomentumModStreamersAsync();
 
@@ -60,6 +48,24 @@ namespace MomentumDiscordBot.Services
             foreach (var embed in embeds)
             {
                 await _textChannel.SendMessageAsync(embed: embed);
+            }
+        }
+
+        private async Task DeleteAllChannelEmbedsAsync()
+        {
+            try
+            {
+                // Delete current messages
+                var messages = await _textChannel.GetMessagesAsync().FlattenAsync();
+
+                // Delete existing bot messages simultaneously
+                var deleteTasks = messages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id)
+                    .Select(async x => await x.DeleteAsync());
+                await Task.WhenAll(deleteTasks);
+            }
+            catch
+            {
+                // Could have old messages, safe to ignore
             }
         }
     }
