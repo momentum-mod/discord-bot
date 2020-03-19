@@ -26,9 +26,10 @@ namespace MomentumDiscordBot.Services
             _twitchApiService = new TwitchApiService();
             _textChannel = _discordClient.GetChannel(channelId) as SocketTextChannel;
 
+            _cachedStreamsIds = new Dictionary<string, ulong>();
+
             _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, updateInterval);
             DeleteAllChannelEmbedsAsync().GetAwaiter().GetResult();
-            _cachedStreamsIds = new Dictionary<string, ulong>();
         }
 
         private async void UpdateCurrentStreamersAsync(object state)
@@ -40,6 +41,7 @@ namespace MomentumDiscordBot.Services
             foreach (var (endedStreamId, messageId) in endedStreams)
             {
                 await _textChannel.DeleteMessageAsync(messageId);
+                _cachedStreamsIds.Remove(endedStreamId);
             }
 
             var newStreams = streams.Where(x => !_cachedStreamsIds.ContainsKey(x.Id)).ToList();
