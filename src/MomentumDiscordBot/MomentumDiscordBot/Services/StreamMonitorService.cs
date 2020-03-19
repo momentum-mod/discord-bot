@@ -45,35 +45,34 @@ namespace MomentumDiscordBot.Services
             }
 
             // New streams are not in the cache
-            var newStreams = streams.Where(x => !_cachedStreamsIds.ContainsKey(x.Id)).ToList();
-            foreach (var newStream in newStreams)
+            foreach (var stream in streams)
             {
                 var embed = new EmbedBuilder
                 {
-                    Title = newStream.Title,
+                    Title = stream.Title,
                     Color = Color.Purple,
                     Author = new EmbedAuthorBuilder
                     {
-                        Name = newStream.UserName,
-                        IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(newStream.UserId),
-                        Url = $"https://twitch.tv/{newStream.UserName}"
+                        Name = stream.UserName,
+                        IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(stream.UserId),
+                        Url = $"https://twitch.tv/{stream.UserName}"
                     },
-                    ImageUrl = newStream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
-                    Description = newStream.ViewerCount + " viewers",
-                    Url = $"https://twitch.tv/{newStream.UserName}"
+                    ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
+                    Description = stream.ViewerCount + " viewers",
+                    Url = $"https://twitch.tv/{stream.UserName}"
                 }.Build();
 
-                if (!_cachedStreamsIds.ContainsKey(newStream.Id))
+                if (!_cachedStreamsIds.ContainsKey(stream.Id))
                 {
                     // New stream, send a new message
                     var message = await _textChannel.SendMessageAsync(embed: embed);
 
-                    _cachedStreamsIds.Add(newStream.Id, message.Id);
+                    _cachedStreamsIds.Add(stream.Id, message.Id);
                 }
                 else
                 {
                     // Existing stream, update message with new information
-                    if (_cachedStreamsIds.TryGetValue(newStream.Id, out var messageId))
+                    if (_cachedStreamsIds.TryGetValue(stream.Id, out var messageId))
                     {
                         var oldMessage = await _textChannel.GetMessageAsync(messageId);
                         if (oldMessage is RestUserMessage oldRestMessage)
