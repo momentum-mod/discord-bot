@@ -11,6 +11,6 @@ FROM mcr.microsoft.com/dotnet/core/runtime:3.1 AS runtime
 WORKDIR /app
 COPY --from=build /app/out ./
 
-COPY /config /app/config
+COPY ../../../config /app/config
 
 ENTRYPOINT ["dotnet", "MomentumDiscordBot.dll"]
