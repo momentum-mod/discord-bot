@@ -28,14 +28,21 @@ namespace MomentumDiscordBot.Services
 
         private async void UpdateCurrentStreamersAsync(object state)
         {
-            // Delete current messages
-            var messages = await _textChannel.GetMessagesAsync().FlattenAsync();
+            try
+            {
+                // Delete current messages
+                var messages = await _textChannel.GetMessagesAsync().FlattenAsync();
 
-            // Delete existing bot messages simultaneously
-            var deleteTasks = messages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id)
-                .Select(async x => await x.DeleteAsync());
-            await Task.WhenAll(deleteTasks);
-
+                // Delete existing bot messages simultaneously
+                var deleteTasks = messages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id)
+                    .Select(async x => await x.DeleteAsync());
+                await Task.WhenAll(deleteTasks);
+            }
+            catch 
+            {
+                // Could have old messages
+            }
+            
             var streams = await _twitchApiService.GetLiveMomentumModStreamersAsync();
 
             var embedTasks = streams.Select(async x => new EmbedBuilder
