@@ -2,6 +2,8 @@
 using System.IO;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord;
+using MomentumDiscordBot.Models;
+using Newtonsoft.Json;
 
 namespace MomentumDiscordBot
 {
@@ -14,8 +16,14 @@ namespace MomentumDiscordBot
                 // No token, quit
                 return;
             }
-            
-            var bot = new MomentumBot(discordToken);
+
+            if (!TryGetConfig(out var config))
+            {
+                // No config, quit
+                return;
+            }
+
+            var bot = new MomentumBot(discordToken, config);
 
             var closingException = bot.RunAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -45,6 +53,25 @@ namespace MomentumDiscordBot
                     $"No discord token file exists, expected it at: '{PathConstants.DiscordTokenFilePath}'");
 
                 discordToken = null;
+                return false;
+            }
+        }
+
+        private static bool TryGetConfig(out Config config)
+        {
+            if (File.Exists(PathConstants.ConfigFilePath))
+            {
+                // File exists, get the text
+                var configString = File.ReadAllText(PathConstants.ConfigFilePath);
+                config = JsonConvert.DeserializeObject<Config>(configString);
+                return true;
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"No config file exists, expected it at: '{PathConstants.ConfigFilePath}'");
+
+                config = null;
                 return false;
             }
         }
