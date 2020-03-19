@@ -11,12 +11,14 @@ namespace MomentumDiscordBot
     {
         public static void Main()
         {
+            Console.WriteLine("Loading discord token...");
             if (!TryGetDiscordToken(out var discordToken))
             {
                 // No token, quit
                 return;
             }
 
+            Console.WriteLine("Loading config file...");
             if (!TryGetConfig(out var config))
             {
                 // No config, quit
