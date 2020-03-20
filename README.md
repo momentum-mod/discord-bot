@@ -4,6 +4,8 @@
 
 > A Discord bot for Momentum Mod's Official Discord, running in a [dockerized](https://www.docker.com/) [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/) container, using [Discord.NET](https://discord.foxbot.me/).
 
+![.NET Core](https://github.com/momentum-mod/discord-bot/workflows/.NET%20Core/badge.svg?branch=net-core)
+
 ## Purpose
 
 The bot is used to manage and accompany the Discord server:
