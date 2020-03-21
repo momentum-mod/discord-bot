@@ -49,6 +49,25 @@ namespace MomentumDiscordBot.Services
             }
         }
 
+        internal async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        {
+            // Since commands are run in an async context, errors have to be manually handled
+            if (!string.IsNullOrEmpty(result?.ErrorReason))
+            {
+                var embedBuilder = new EmbedBuilder
+                {
+                    Timestamp = DateTime.Now,
+                    Color = Color.Red
+                };
+                await context.Channel.SendMessageAsync(embed: embedBuilder.WithDescription(result.ErrorReason).Build());
+                var commandName = command.IsSpecified ? command.Value.Name : "An unknown command";
+
+                await _logService.LogAsync(new LogMessage(LogSeverity.Error,
+                    "MomentumCommandService",
+                    $"{commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}"));
+            }
+        }
+
         public static CommandService BuildBaseCommandService()
         {
             var commandServiceConfig = new CommandServiceConfig
