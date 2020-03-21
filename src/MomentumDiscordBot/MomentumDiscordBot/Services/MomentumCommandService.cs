@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -22,6 +24,21 @@ namespace MomentumDiscordBot.Services
             _serviceProvider = serviceProvider;
             _logService = logService;
             _config = config;
+        }
+
+        internal async Task InitializeAsync()
+        {
+            // Main handler for command input
+            _discordClient.MessageReceived += HandleCommandAsync;
+            await _logService.LogInfoAsync("CommandService", "Registered MessageReceived event");
+
+            // Post execution handler
+            _baseCommandService.CommandExecuted += OnCommandExecutedAsync;
+            await _logService.LogInfoAsync("CommandService", "Registered CommandExecuted event");
+
+            // Install discord commands
+            await _baseCommandService.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: _serviceProvider);
+            await _logService.LogInfoAsync("CommandService", $"Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
         }
 
         internal async Task HandleCommandAsync(SocketMessage inputMessage)
