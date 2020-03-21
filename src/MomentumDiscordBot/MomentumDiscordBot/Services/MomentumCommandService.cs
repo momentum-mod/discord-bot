@@ -16,7 +16,7 @@ namespace MomentumDiscordBot.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly LogService _logService;
         private readonly Config _config;
-        public MomentumCommandService(DiscordSocketClient discordClient, CommandService baseCommandService, IServiceProvider serviceProvider, LogService logService, Config config)
+        public MomentumCommandService(DiscordSocketClient discordClient, CommandService baseCommandService, LogService logService, Config config, IServiceProvider serviceProvider)
         {
             // Parameters are injected
             _discordClient = discordClient;
