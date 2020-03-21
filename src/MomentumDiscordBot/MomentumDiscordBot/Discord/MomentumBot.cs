@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
@@ -14,6 +15,9 @@ namespace MomentumDiscordBot.Discord
         private readonly LogService _logService;
         private StreamMonitorService _streamMonitorService;
         private readonly Config _config;
+        private DependencyInjectionService _dependencyInjectionService;
+        private IServiceProvider _services;
+        private MomentumCommandService _momentumCommandService;
         public MomentumBot(string discordToken, Config config)
         {
             _discordToken = discordToken;
@@ -26,8 +30,13 @@ namespace MomentumDiscordBot.Discord
 
             _discordClient = new DiscordSocketClient(discordClientConfig);
             _discordClient.Ready += _discordClient_Ready;
-            
-            _logService = new LogService(_discordClient);
+
+            var baseCommandService = MomentumCommandService.BuildBaseCommandService();
+            _dependencyInjectionService = new DependencyInjectionService(baseCommandService, _discordClient, config);
+            _services = _dependencyInjectionService.BuildServiceProvider();
+
+            var logger = _services.GetRequiredService<LogService>();
+            _momentumCommandService = new MomentumCommandService(_discordClient, baseCommandService, logger, config, _services);
         }
 
         private Task _discordClient_Ready()
@@ -42,6 +51,9 @@ namespace MomentumDiscordBot.Discord
         {
             try
             {
+                // Register commands
+                await _momentumCommandService.InitializeAsync();
+
                 // Login and start bot
                 await _discordClient.LoginAsync(TokenType.Bot, _discordToken, validateToken: true);
                 await _discordClient.StartAsync();
