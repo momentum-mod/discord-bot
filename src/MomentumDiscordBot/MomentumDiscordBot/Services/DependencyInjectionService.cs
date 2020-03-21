@@ -1,6 +1,7 @@
 ﻿namespace MomentumDiscordBot.Services
 {
-    public class DependecyInjectionService
+    public class DependencyInjectionService
     {
+
     }
 }
