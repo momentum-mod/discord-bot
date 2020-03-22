@@ -8,4 +8,4 @@ echo '-= Building Docker Image from Dockerfile =-\n'
 docker build -t momentum-discord -f ./src/MomentumDiscordBot/MomentumDiscordBot/Dockerfile .
 
 echo '-= Runnning the Image =-\n'
-docker run -v /config:/app/config --network host --restart on-failure:5 --name "momentum-discord-production" -d momentum-discord
+docker run -v $PWD/config:/app/config --network host --restart on-failure:5 --name "momentum-discord-production" -d momentum-discord
