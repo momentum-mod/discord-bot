@@ -24,7 +24,7 @@ namespace MomentumDiscordBot.Models
             if (File.Exists(PathConstants.ConfigFilePath))
             {
                 // File exists, get the text
-                var configString = File.ReadAllText(PathConstants.ConfigFilePath);
+                var configString = File.ReadAllText(PathConstants.ConfigFilePath, Encoding.UTF8);
                 return JsonConvert.DeserializeObject<Config>(configString);
             }
             else
