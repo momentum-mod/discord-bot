@@ -27,7 +27,7 @@ namespace MomentumDiscordBot.Discord
 
             var discordClientConfig = new DiscordSocketConfig
             {
-                AlwaysDownloadUsers = false,
+                AlwaysDownloadUsers = true,
                 MessageCacheSize = 200
             };
 
