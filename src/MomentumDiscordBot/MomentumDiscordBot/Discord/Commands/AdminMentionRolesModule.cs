@@ -62,6 +62,8 @@ namespace MomentumDiscordBot.Discord.Commands
                  Config.MentionRoles = roles.Where(x => x != role.Id).ToArray();
             }
 
+            await ReactionBasedRoleService.RemoveRoleEmbed(role);
+
             await ReplyNewEmbedAsync("Done", Color.Blue);
         }
         [Command("list")]

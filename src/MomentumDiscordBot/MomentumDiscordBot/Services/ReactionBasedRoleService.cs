@@ -137,5 +137,17 @@ namespace MomentumDiscordBot.Services
                 _existingRoleEmbeds.Add(role.Id, message.Id);
             }
         }
+
+        public async Task RemoveRoleEmbed(IRole role)
+        {
+            // If the role is sent
+            if (_existingRoleEmbeds.TryGetValue(role.Id, out var messageId))
+            {
+                var message = await _textChannel.GetMessageAsync(messageId);
+                await message.DeleteAsync();
+
+                _existingRoleEmbeds.Remove(role.Id);
+            }
+        }
     }
 }
