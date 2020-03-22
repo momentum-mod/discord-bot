@@ -22,6 +22,7 @@ namespace MomentumDiscordBot.Services
         private readonly SocketTextChannel _textChannel;
         private readonly TwitchApiService _twitchApiService;
         private Timer _intervalFunctionTimer;
+        private List<string> _streamSoftBanList = new List<string>();
 
         public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId,
             Config config)
@@ -46,12 +47,20 @@ namespace MomentumDiscordBot.Services
             var endedStreams = _cachedStreamsIds.Where(x => !streamIds.Contains(x.Key));
             foreach (var (endedStreamId, messageId) in endedStreams)
             {
+                // If the stream was soft banned, remove it
+                if (_streamSoftBanList.Contains(endedStreamId))
+                {
+                    _streamSoftBanList.Remove(endedStreamId);
+                }
+
                 await _textChannel.DeleteMessageAsync(messageId);
                 _cachedStreamsIds.Remove(endedStreamId);
             }
 
-            // New streams are not in the cache
-            foreach (var stream in streams)
+            // Filter out soft banned streams
+            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id));
+
+            foreach (var stream in filteredStreams)
             {
                 var embed = new EmbedBuilder
                 {
@@ -68,6 +77,7 @@ namespace MomentumDiscordBot.Services
                     Url = $"https://twitch.tv/{stream.UserName}"
                 }.Build();
 
+                // New streams are not in the cache
                 if (!_cachedStreamsIds.ContainsKey(stream.Id))
                 {
                     // New stream, send a new message
@@ -90,6 +100,11 @@ namespace MomentumDiscordBot.Services
                     }
                 }
             }
+
+            // Check for soft-banned stream, when a mod deletes the message
+            var existingSelfMessages = (await _textChannel.GetMessagesAsync(limit: 200).FlattenAsync()).FromSelf(_discordClient);
+            var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
+            _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
         }
 
         private async Task DeleteAllChannelEmbedsAsync()
