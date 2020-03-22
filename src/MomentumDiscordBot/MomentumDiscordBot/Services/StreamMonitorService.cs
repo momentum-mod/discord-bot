@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Services
 {
@@ -19,8 +20,10 @@ namespace MomentumDiscordBot.Services
         private readonly TwitchApiService _twitchApiService;
         private readonly SocketTextChannel _textChannel;
         private readonly Dictionary<string, ulong> _cachedStreamsIds;
-        public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId)
+        private readonly Config _config;
+        public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId, Config config)
         {
+            _config = config;
             _discordClient = discordClient;
             _twitchApiService = new TwitchApiService();
             _textChannel = _discordClient.GetChannel(channelId) as SocketTextChannel;
@@ -65,7 +68,7 @@ namespace MomentumDiscordBot.Services
                 if (!_cachedStreamsIds.ContainsKey(stream.Id))
                 {
                     // New stream, send a new message
-                    var message = await _textChannel.SendMessageAsync(embed: embed);
+                    var message = await _textChannel.SendMessageAsync(text: MentionUtils.MentionRole(_config.LivestreamMentionRoleId), embed: embed);
 
                     _cachedStreamsIds.Add(stream.Id, message.Id);
                 }
