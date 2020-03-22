@@ -11,17 +11,19 @@ using MomentumDiscordBot.Models;
 namespace MomentumDiscordBot.Services
 {
     /// <summary>
-    /// Service to provide a list of current streamers playing Momentum Mod.
+    ///     Service to provide a list of current streamers playing Momentum Mod.
     /// </summary>
     public class StreamMonitorService
     {
-        private Timer _intervalFunctionTimer;
-        private readonly DiscordSocketClient _discordClient;
-        private readonly TwitchApiService _twitchApiService;
-        private readonly SocketTextChannel _textChannel;
         private readonly Dictionary<string, ulong> _cachedStreamsIds;
         private readonly Config _config;
-        public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId, Config config)
+        private readonly DiscordSocketClient _discordClient;
+        private readonly SocketTextChannel _textChannel;
+        private readonly TwitchApiService _twitchApiService;
+        private Timer _intervalFunctionTimer;
+
+        public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId,
+            Config config)
         {
             _config = config;
             _discordClient = discordClient;
@@ -42,7 +44,7 @@ namespace MomentumDiscordBot.Services
             // If the cached stream id's isn't in the fetched stream id, it is an ended stream
             var endedStreams = _cachedStreamsIds.Where(x => !streamIds.Contains(x.Key));
             foreach (var (endedStreamId, messageId) in endedStreams)
-            { 
+            {
                 await _textChannel.DeleteMessageAsync(messageId);
                 _cachedStreamsIds.Remove(endedStreamId);
             }
@@ -68,7 +70,9 @@ namespace MomentumDiscordBot.Services
                 if (!_cachedStreamsIds.ContainsKey(stream.Id))
                 {
                     // New stream, send a new message
-                    var message = await _textChannel.SendMessageAsync(text: MentionUtils.MentionRole(_config.LivestreamMentionRoleId), embed: embed);
+                    var message =
+                        await _textChannel.SendMessageAsync(MentionUtils.MentionRole(_config.LivestreamMentionRoleId),
+                            embed: embed);
 
                     _cachedStreamsIds.Add(stream.Id, message.Id);
                 }
@@ -84,7 +88,6 @@ namespace MomentumDiscordBot.Services
                         }
                     }
                 }
-                
             }
         }
 

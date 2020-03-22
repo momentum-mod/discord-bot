@@ -11,12 +11,14 @@ namespace MomentumDiscordBot.Services
 {
     public class MomentumCommandService
     {
-        private readonly DiscordSocketClient _discordClient;
         private readonly CommandService _baseCommandService;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly LogService _logService;
         private readonly Config _config;
-        public MomentumCommandService(DiscordSocketClient discordClient, CommandService baseCommandService, LogService logService, Config config, IServiceProvider serviceProvider)
+        private readonly DiscordSocketClient _discordClient;
+        private readonly LogService _logService;
+        private readonly IServiceProvider _serviceProvider;
+
+        public MomentumCommandService(DiscordSocketClient discordClient, CommandService baseCommandService,
+            LogService logService, Config config, IServiceProvider serviceProvider)
         {
             // Parameters are injected
             _discordClient = discordClient;
@@ -37,8 +39,9 @@ namespace MomentumDiscordBot.Services
             await _logService.LogInfoAsync("CommandService", "Registered CommandExecuted event");
 
             // Install discord commands
-            await _baseCommandService.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: _serviceProvider);
-            await _logService.LogInfoAsync("CommandService", $"Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
+            await _baseCommandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
+            await _logService.LogInfoAsync("CommandService",
+                $"Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
         }
 
         internal async Task HandleCommandAsync(SocketMessage inputMessage)
@@ -60,13 +63,14 @@ namespace MomentumDiscordBot.Services
                 // Execute the command with the command context we just
                 // created, along with the service provider for precondition checks.
                 await _baseCommandService.ExecuteAsync(
-                    context: context,
-                    argPos: argPosition,
-                    services: _serviceProvider);
+                    context,
+                    argPosition,
+                    _serviceProvider);
             }
         }
 
-        internal async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        internal async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context,
+            IResult result)
         {
             // Since commands are run in an async context, errors have to be manually handled
             if (!string.IsNullOrEmpty(result?.ErrorReason))

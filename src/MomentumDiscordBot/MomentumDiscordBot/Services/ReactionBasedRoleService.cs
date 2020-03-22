@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -10,12 +9,14 @@ namespace MomentumDiscordBot.Services
 {
     public class ReactionBasedRoleService
     {
-        private readonly DiscordSocketClient _discordClient;
-        private SocketTextChannel _textChannel;
-
         private readonly Config _config;
+
+        private readonly DiscordSocketClient _discordClient;
+
         // <RoleID, MessageID>
         private Dictionary<ulong, ulong> _existingRoleEmbeds;
+        private SocketTextChannel _textChannel;
+
         public ReactionBasedRoleService(DiscordSocketClient discordClient, Config config)
         {
             _config = config;
@@ -50,8 +51,8 @@ namespace MomentumDiscordBot.Services
         {
             _existingRoleEmbeds = new Dictionary<ulong, ulong>();
 
-            var existingMessages = await _textChannel.GetMessagesAsync(limit: 200).FlattenAsync();
-            
+            var existingMessages = await _textChannel.GetMessagesAsync(200).FlattenAsync();
+
             // Filter only messages from this bot
             existingMessages = existingMessages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id);
 
@@ -65,7 +66,7 @@ namespace MomentumDiscordBot.Services
         }
 
         /// <summary>
-        /// The role should be @Mentioned in the Title of the Embed
+        ///     The role should be @Mentioned in the Title of the Embed
         /// </summary>
         private bool TryParseRoleFromEmbed(IMessage input, out IRole role)
         {
@@ -85,7 +86,8 @@ namespace MomentumDiscordBot.Services
             return false;
         }
 
-        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore, ISocketMessageChannel messageAfter, SocketReaction reaction)
+        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
+            ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
             if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
@@ -97,14 +99,12 @@ namespace MomentumDiscordBot.Services
                     .Users.First(x => x.Id == reaction.UserId);
 
                 var message = await messageBefore.GetOrDownloadAsync();
-                if (TryParseRoleFromEmbed(message, out var role))
-                { 
-                    await user.AddRoleAsync(role);
-                }
+                if (TryParseRoleFromEmbed(message, out var role)) await user.AddRoleAsync(role);
             }
         }
 
-        private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore, ISocketMessageChannel messageAfter, SocketReaction reaction)
+        private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore,
+            ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
             if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
@@ -115,12 +115,10 @@ namespace MomentumDiscordBot.Services
                 var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
                     .Users.First(x => x.Id == reaction.UserId);
                 var message = await messageBefore.GetOrDownloadAsync();
-                if (TryParseRoleFromEmbed(message, out var role))
-                {
-                    await user.RemoveRoleAsync(role);
-                }
+                if (TryParseRoleFromEmbed(message, out var role)) await user.RemoveRoleAsync(role);
             }
         }
+
         public async Task SendRoleEmbed(IRole role)
         {
             // If the role isn't already sent

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
@@ -34,7 +30,6 @@ namespace MomentumDiscordBot.Discord.Commands
                     mentionRoles[^1] = role.Id;
 
                     Config.MentionRoles = mentionRoles;
-
                 }
                 else
                 {
@@ -44,13 +39,14 @@ namespace MomentumDiscordBot.Discord.Commands
             }
             else
             {
-                Config.MentionRoles = new[] { role.Id };
+                Config.MentionRoles = new[] {role.Id};
             }
 
             await ReplyNewEmbedAsync("Done", Color.Blue);
 
             await ReactionBasedRoleService.SendRoleEmbed(role);
         }
+
         [Command("remove")]
         [Alias("delete", "del", "rem")]
         [Summary("Removes an officer note")]
@@ -59,13 +55,14 @@ namespace MomentumDiscordBot.Discord.Commands
             if (Config.MentionRoles != null && Config.MentionRoles.Length > 0)
             {
                 var roles = Config.MentionRoles.ToList();
-                 Config.MentionRoles = roles.Where(x => x != role.Id).ToArray();
+                Config.MentionRoles = roles.Where(x => x != role.Id).ToArray();
             }
 
             await ReactionBasedRoleService.RemoveRoleEmbed(role);
 
             await ReplyNewEmbedAsync("Done", Color.Blue);
         }
+
         [Command("list")]
         [Alias("ls", "get", "")]
         [Summary("Returns a list of the officer notes against a user")]

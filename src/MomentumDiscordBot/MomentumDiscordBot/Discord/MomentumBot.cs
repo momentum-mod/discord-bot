@@ -10,15 +10,15 @@ namespace MomentumDiscordBot.Discord
 {
     public class MomentumBot
     {
-        private readonly string _discordToken;
-        private readonly DiscordSocketClient _discordClient;
-        private readonly LogService _logService;
-        private StreamMonitorService _streamMonitorService;
         private readonly Config _config;
-        private DependencyInjectionService _dependencyInjectionService;
-        private IServiceProvider _services;
-        private MomentumCommandService _momentumCommandService;
+        private readonly DiscordSocketClient _discordClient;
+        private readonly string _discordToken;
+        private readonly LogService _logService;
+        private readonly DependencyInjectionService _dependencyInjectionService;
+        private readonly MomentumCommandService _momentumCommandService;
         private ReactionBasedRoleService _reactionBasedRoleService;
+        private readonly IServiceProvider _services;
+        private StreamMonitorService _streamMonitorService;
 
         public MomentumBot(string discordToken, Config config)
         {
@@ -39,13 +39,15 @@ namespace MomentumDiscordBot.Discord
             _services = _dependencyInjectionService.BuildServiceProvider();
 
             var logger = _services.GetRequiredService<LogService>();
-            _momentumCommandService = new MomentumCommandService(_discordClient, baseCommandService, logger, config, _services);
+            _momentumCommandService =
+                new MomentumCommandService(_discordClient, baseCommandService, logger, config, _services);
         }
 
         private Task _discordClient_Ready()
         {
             // Start updating streams
-            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5), _config.MomentumModStreamerChannelId, _config);
+            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5),
+                _config.MomentumModStreamerChannelId, _config);
             _reactionBasedRoleService = _services.GetRequiredService<ReactionBasedRoleService>();
 
             return Task.CompletedTask;
@@ -59,7 +61,7 @@ namespace MomentumDiscordBot.Discord
                 await _momentumCommandService.InitializeAsync();
 
                 // Login and start bot
-                await _discordClient.LoginAsync(TokenType.Bot, _discordToken, validateToken: true);
+                await _discordClient.LoginAsync(TokenType.Bot, _discordToken);
                 await _discordClient.StartAsync();
 
                 // Block the task indefinitely

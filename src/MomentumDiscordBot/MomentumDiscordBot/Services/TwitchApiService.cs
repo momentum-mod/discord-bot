@@ -12,6 +12,7 @@ namespace MomentumDiscordBot.Services
     public class TwitchApiService
     {
         private readonly TwitchAPI _apiService;
+
         public TwitchApiService()
         {
             if (File.Exists(PathConstants.DiscordTokenFilePath))
@@ -23,7 +24,8 @@ namespace MomentumDiscordBot.Services
             }
             else
             {
-                throw new Exception($"No Twitch API token file exists, expected it at: '{PathConstants.TwitchAPIClientIdFilePath}'");
+                throw new Exception(
+                    $"No Twitch API token file exists, expected it at: '{PathConstants.TwitchAPIClientIdFilePath}'");
             }
         }
 
@@ -32,6 +34,7 @@ namespace MomentumDiscordBot.Services
             var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> {"Momentum Mod"});
             return games.Games.First().Id;
         }
+
         public async Task<List<Stream>> GetLiveMomentumModStreamersAsync()
         {
             var streams = await _apiService.Helix.Streams.GetStreamsAsync(gameIds: new List<string>
@@ -41,7 +44,7 @@ namespace MomentumDiscordBot.Services
 
         public async Task<string> GetStreamerIconUrlAsync(string id)
         {
-            var users = await _apiService.Helix.Users.GetUsersAsync(ids: new List<string> {id});
+            var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> {id});
 
             // Selected through ID, should only return one
             var user = users.Users.First();

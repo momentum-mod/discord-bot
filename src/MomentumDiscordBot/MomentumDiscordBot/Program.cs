@@ -3,7 +3,6 @@ using System.IO;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord;
 using MomentumDiscordBot.Models;
-using Newtonsoft.Json;
 
 namespace MomentumDiscordBot
 {
@@ -13,10 +12,8 @@ namespace MomentumDiscordBot
         {
             Console.WriteLine("Loading discord token...");
             if (!TryGetDiscordToken(out var discordToken))
-            {
                 // No token, quit
                 return;
-            }
 
             Console.WriteLine("Loading config file...");
             var config = Config.LoadFromFile();
@@ -45,14 +42,12 @@ namespace MomentumDiscordBot
                 discordToken = File.ReadAllText(PathConstants.DiscordTokenFilePath);
                 return true;
             }
-            else
-            {
-                Console.WriteLine(
-                    $"No discord token file exists, expected it at: '{PathConstants.DiscordTokenFilePath}'");
 
-                discordToken = null;
-                return false;
-            }
+            Console.WriteLine(
+                $"No discord token file exists, expected it at: '{PathConstants.DiscordTokenFilePath}'");
+
+            discordToken = null;
+            return false;
         }
     }
 }

@@ -3,8 +3,5 @@
 namespace MomentumDiscordBot.Discord.Commands
 {
     [AdminPrecondition]
-    public class AdminModule : MomentumModuleBase
-    {
-
-    }
+    public class AdminModule : MomentumModuleBase { }
 }
