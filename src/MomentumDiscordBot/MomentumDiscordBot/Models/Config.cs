@@ -11,7 +11,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("streamer_channel")] private ulong _momentumModStreamerChannelId;
         [JsonProperty("roles_channel")] private ulong _rolesChannelId;
         [JsonProperty("command_prefix")] private string _commandPrefix;
-        [JsonProperty("mention_roles")] private IRole[] _mentionRoles;
+        [JsonProperty("mention_roles")] private ulong[] _mentionRoles;
         [JsonProperty("moderator_id")] private ulong _moderatorRoleID;
         [JsonProperty("admin_id")] private ulong _adminRoleID;
 
@@ -31,35 +31,40 @@ namespace MomentumDiscordBot.Models
         }
         private void SaveToFile()
         {
-            var configString = JsonConvert.SerializeObject(this);
+            var configString = JsonConvert.SerializeObject(this, Formatting.Indented,
+                new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
             File.WriteAllText(PathConstants.ConfigFilePath, configString);
         }
-        public ulong MomentumModStreamerChannelId
+        
+        [JsonIgnore] public ulong MomentumModStreamerChannelId
         {
             get => _momentumModStreamerChannelId;
             set { _momentumModStreamerChannelId = value; SaveToFile(); }
         }
-        public ulong RolesChannelId
+        [JsonIgnore] public ulong RolesChannelId
         {
             get => _rolesChannelId;
             set { _rolesChannelId = value; SaveToFile(); }
         }
-        public string CommandPrefix
+        [JsonIgnore] public string CommandPrefix
         {
             get => _commandPrefix;
             set { _commandPrefix = value; SaveToFile(); }
         }
-        public IRole[] MentionRoles
+        [JsonIgnore] public ulong[] MentionRoles
         {
             get => _mentionRoles;
             set { _mentionRoles = value; SaveToFile(); }
         }
-        public ulong ModeratorRoleID
+        [JsonIgnore] public ulong ModeratorRoleID
         {
             get => _moderatorRoleID;
             set { _moderatorRoleID = value; SaveToFile(); }
         }
-        public ulong AdminRoleID
+        [JsonIgnore] public ulong AdminRoleID
         {
             get => _adminRoleID;
             set { _adminRoleID = value; SaveToFile(); }
