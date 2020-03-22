@@ -12,6 +12,7 @@ namespace MomentumDiscordBot.Services
     public class TwitchApiService
     {
         private readonly TwitchAPI _apiService;
+        private string _momentumModGameId = null;
 
         public TwitchApiService()
         {
@@ -37,8 +38,9 @@ namespace MomentumDiscordBot.Services
 
         public async Task<List<Stream>> GetLiveMomentumModStreamersAsync()
         {
+            // Get the game ID once, then reuse it
             var streams = await _apiService.Helix.Streams.GetStreamsAsync(gameIds: new List<string>
-                {await GetMomentumModIdAsync()});
+                {_momentumModGameId ?? await GetMomentumModIdAsync()});
             return streams.Streams.ToList();
         }
 
