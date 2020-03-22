@@ -133,7 +133,8 @@ namespace MomentumDiscordBot.Services
                 }.Build();
 
                 var message = await _textChannel.SendMessageAsync(embed: embed);
-                
+                await message.AddReactionAsync(new Emoji(_config.MentionRoleEmoji));
+
                 _existingRoleEmbeds.Add(role.Id, message.Id);
             }
         }
