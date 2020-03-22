@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using Discord;
 using MomentumDiscordBot.Constants;
 using Newtonsoft.Json;
 
@@ -10,6 +10,7 @@ namespace MomentumDiscordBot.Models
         private ulong _momentumModStreamerChannelId;
         private ulong _rolesChannelId;
         private string _commandPrefix;
+        private IRole[] _mentionRoles;
 
         [JsonConstructor]
         public Config() { }
@@ -53,6 +54,12 @@ namespace MomentumDiscordBot.Models
         {
             get => _commandPrefix;
             set { _commandPrefix = value; SaveToFile(); }
+        }
+
+        public IRole[] MentionRoles
+        {
+            get => _mentionRoles;
+            set { _mentionRoles = value; SaveToFile(); }
         }
     }
 }
