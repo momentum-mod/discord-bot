@@ -20,6 +20,9 @@ namespace MomentumDiscordBot.Services
             _textChannel = _discordClient.GetChannel(config.RolesChannelId) as SocketTextChannel;
 
             LoadExistingRoleEmbedsAsync().GetAwaiter().GetResult();
+
+            _discordClient.ReactionAdded += ReactionAdded;
+            _discordClient.ReactionRemoved += ReactionRemoved;
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
@@ -42,6 +45,15 @@ namespace MomentumDiscordBot.Services
                     }
                 }
             }
+        }
+
+        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore, ISocketMessageChannel messageAfter, SocketReaction reaction)
+        {
+            
+        }
+
+        private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore, ISocketMessageChannel messageAfter, SocketReaction reaction)
+        {
 
         }
     }
