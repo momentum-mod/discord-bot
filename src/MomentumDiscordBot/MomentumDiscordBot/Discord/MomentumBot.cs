@@ -45,7 +45,7 @@ namespace MomentumDiscordBot.Discord
         private Task _discordClient_Ready()
         {
             // Start updating streams
-            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5), _config.MomentumModStreamerChannelId);
+            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5), _config.MomentumModStreamerChannelId, _config);
             _reactionBasedRoleService = _services.GetRequiredService<ReactionBasedRoleService>();
 
             return Task.CompletedTask;
