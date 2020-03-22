@@ -22,7 +22,7 @@ namespace MomentumDiscordBot.Discord.Precondition
                 }
                 else
                 {
-                    return Task.FromResult(PreconditionResult.FromError($"You must be a Moderator to use that command"));
+                    return Task.FromResult(PreconditionResult.FromError($"You must be an Admin to use that command"));
                 }
             }
             else
