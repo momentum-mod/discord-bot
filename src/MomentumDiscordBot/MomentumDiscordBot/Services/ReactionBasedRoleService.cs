@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Services
 {
@@ -13,10 +14,10 @@ namespace MomentumDiscordBot.Services
         private readonly SocketTextChannel _textChannel;
         // <RoleID, MessageID>
         private Dictionary<ulong, ulong> _existingRoleEmbeds;
-        public ReactionBasedRoleService(DiscordSocketClient discordClient, ulong channelId)
+        public ReactionBasedRoleService(DiscordSocketClient discordClient, Config config)
         {
             _discordClient = discordClient;
-            _textChannel = _discordClient.GetChannel(channelId) as SocketTextChannel;
+            _textChannel = _discordClient.GetChannel(config.RolesChannelId) as SocketTextChannel;
 
             LoadExistingRoleEmbedsAsync().GetAwaiter().GetResult();
         }
