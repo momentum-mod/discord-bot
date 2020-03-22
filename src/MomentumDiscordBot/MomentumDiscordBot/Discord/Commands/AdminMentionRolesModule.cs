@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
@@ -13,7 +12,6 @@ namespace MomentumDiscordBot.Discord.Commands
     public class AdminMentionRolesModule : AdminModule
     {
         public Config Config { get; set; }
-        public DiscordSocketClient DiscordClient { get; set; }
         public ReactionBasedRoleService ReactionBasedRoleService { get; set; }
 
         [Command("add")]

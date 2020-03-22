@@ -44,7 +44,7 @@ namespace MomentumDiscordBot.Services
                 $"Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
         }
 
-        internal async Task HandleCommandAsync(SocketMessage inputMessage)
+        private async Task HandleCommandAsync(SocketMessage inputMessage)
         {
             // Don't process the command if it was a system message
             if (inputMessage is SocketUserMessage message)
@@ -69,7 +69,7 @@ namespace MomentumDiscordBot.Services
             }
         }
 
-        internal async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context,
+        private async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context,
             IResult result)
         {
             // Since commands are run in an async context, errors have to be manually handled
