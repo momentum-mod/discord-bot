@@ -54,8 +54,7 @@ namespace MomentumDiscordBot.Discord.Commands
         {
             if (Config.MentionRoles != null && Config.MentionRoles.Length > 0)
             {
-                var roles = Config.MentionRoles.ToList();
-                Config.MentionRoles = roles.Where(x => x != role.Id).ToArray();
+                Config.MentionRoles = Config.MentionRoles.Where(x => x != role.Id).ToArray();
             }
 
             await ReactionBasedRoleService.RemoveRoleEmbed(role);
