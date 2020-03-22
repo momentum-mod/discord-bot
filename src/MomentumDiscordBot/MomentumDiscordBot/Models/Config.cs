@@ -31,11 +31,7 @@ namespace MomentumDiscordBot.Models
         }
         private void SaveToFile()
         {
-            var configString = JsonConvert.SerializeObject(this, Formatting.Indented,
-                new JsonSerializerSettings()
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+            var configString = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(PathConstants.ConfigFilePath, configString);
         }
         
