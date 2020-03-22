@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Services
 {
@@ -54,7 +55,7 @@ namespace MomentumDiscordBot.Services
             var existingMessages = await _textChannel.GetMessagesAsync(200).FlattenAsync();
 
             // Filter only messages from this bot
-            existingMessages = existingMessages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id);
+            existingMessages = existingMessages.FromSelf(_discordClient);
 
             foreach (var message in existingMessages)
             {

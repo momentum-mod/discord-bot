@@ -7,6 +7,7 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Services
 {
@@ -99,7 +100,7 @@ namespace MomentumDiscordBot.Services
                 var messages = await _textChannel.GetMessagesAsync().FlattenAsync();
 
                 // Delete existing bot messages simultaneously
-                var deleteTasks = messages.Where(x => x.Author.Id == _discordClient.CurrentUser.Id)
+                var deleteTasks = messages.FromSelf(_discordClient)
                     .Select(async x => await x.DeleteAsync());
                 await Task.WhenAll(deleteTasks);
             }
