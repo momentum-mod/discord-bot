@@ -24,6 +24,7 @@ namespace MomentumDiscordBot.Services
                 .AddSingleton<LogService>()
                 .AddSingleton(_baseCommandService)
                 .AddSingleton(_discordClient)
+                .AddSingleton<ReactionBasedRoleService>()
                 .BuildServiceProvider();
         }
     }
