@@ -66,7 +66,7 @@ namespace MomentumDiscordBot.Services
         }
 
         /// <summary>
-        ///     The role should be @Mentioned in the Title of the Embed
+        ///     The role should be @Mentioned in the Description of the Embed
         /// </summary>
         private bool TryParseRoleFromEmbed(IMessage input, out IRole role)
         {
