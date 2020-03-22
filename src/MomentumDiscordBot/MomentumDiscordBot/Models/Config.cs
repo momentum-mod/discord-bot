@@ -14,6 +14,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("mention_roles")] private ulong[] _mentionRoles;
         [JsonProperty("moderator_id")] private ulong _moderatorRoleID;
         [JsonProperty("admin_id")] private ulong _adminRoleID;
+        [JsonProperty("mention_role_emoji")] private string _mentionRoleEmoji;
 
         public Config() { }
         public static Config LoadFromFile()
@@ -64,6 +65,12 @@ namespace MomentumDiscordBot.Models
         {
             get => _adminRoleID;
             set { _adminRoleID = value; SaveToFile(); }
+        }
+
+        [JsonIgnore] public string MentionRoleEmoji
+        {
+            get => _mentionRoleEmoji;
+            set { _mentionRoleEmoji = value; SaveToFile(); }
         }
     }
 }
