@@ -18,6 +18,8 @@ namespace MomentumDiscordBot.Discord
         private DependencyInjectionService _dependencyInjectionService;
         private IServiceProvider _services;
         private MomentumCommandService _momentumCommandService;
+        private ReactionBasedRoleService _reactionBasedRoleService;
+
         public MomentumBot(string discordToken, Config config)
         {
             _discordToken = discordToken;
@@ -44,6 +46,7 @@ namespace MomentumDiscordBot.Discord
         {
             // Start updating streams
             _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5), _config.MomentumModStreamerChannelId);
+            _reactionBasedRoleService = _services.GetRequiredService<ReactionBasedRoleService>();
 
             return Task.CompletedTask;
         }
