@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using Discord;
 using MomentumDiscordBot.Constants;
 using Newtonsoft.Json;
@@ -34,7 +35,7 @@ namespace MomentumDiscordBot.Models
         private void SaveToFile()
         {
             var configString = JsonConvert.SerializeObject(this, Formatting.Indented);
-            File.WriteAllText(PathConstants.ConfigFilePath, configString);
+            File.WriteAllText(PathConstants.ConfigFilePath, configString, Encoding.UTF8);
         }
         
         [JsonIgnore] public ulong MomentumModStreamerChannelId
