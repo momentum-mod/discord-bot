@@ -83,9 +83,8 @@ namespace MomentumDiscordBot.Services
                 await context.Channel.SendMessageAsync(embed: embedBuilder.WithDescription(result.ErrorReason).Build());
                 var commandName = command.IsSpecified ? command.Value.Name : "An unknown command";
 
-                await _logService.LogAsync(new LogMessage(LogSeverity.Error,
-                    "MomentumCommandService",
-                    $"{commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}"));
+                await _logService.LogError("MomentumCommandService",
+                    $"{commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}");
             }
         }
 
