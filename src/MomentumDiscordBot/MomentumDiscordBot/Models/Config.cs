@@ -18,6 +18,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("streamer_channel")] private ulong _momentumModStreamerChannelId;
         [JsonProperty("roles_channel")] private ulong _rolesChannelId;
         [JsonProperty("twitch_user_bans")] private string[] _twitchUserBans;
+        [JsonProperty("admin_bot_channel")] private ulong _adminBotChannel;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -116,6 +117,15 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _twitchUserBans = value.Distinct().ToArray();
+                SaveToFile();
+            }
+        }
+        [JsonIgnore] public ulong AdminBotChannel
+        {
+            get => _adminBotChannel;
+            set
+            {
+                _adminBotChannel = value;
                 SaveToFile();
             }
         }
