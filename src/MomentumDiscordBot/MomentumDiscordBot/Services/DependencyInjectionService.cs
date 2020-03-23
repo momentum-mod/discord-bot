@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,13 +21,14 @@ namespace MomentumDiscordBot.Services
             _config = config;
         }
 
-        public IServiceProvider BuildServiceProvider() =>
+        public IServiceProvider BuildServiceProvider(StreamMonitorService streamMonitorService) =>
             new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton<LogService>()
                 .AddSingleton(_baseCommandService)
                 .AddSingleton(_discordClient)
                 .AddSingleton<ReactionBasedRoleService>()
+                .AddSingleton(streamMonitorService)
                 .BuildServiceProvider();
     }
 }
