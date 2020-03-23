@@ -54,7 +54,7 @@ namespace MomentumDiscordBot.Services
             var streamIds = streams.Select(x => x.Id);
 
             // Get streams from banned users
-            var bannedStreams = streams.Where(x => _config.TwitchUserBans.Contains(x.UserId));
+            var bannedStreams = streams.Where(x => (_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
             foreach (var bannedStream in bannedStreams)
             {
                 if (_cachedStreamsIds.TryGetValue(bannedStream.Id, out var messageId))
