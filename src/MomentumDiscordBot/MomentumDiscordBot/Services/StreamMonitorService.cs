@@ -8,6 +8,7 @@ using Discord.Rest;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
+using TwitchLib.Api.Helix.Models.Streams;
 
 namespace MomentumDiscordBot.Services
 {
@@ -16,25 +17,34 @@ namespace MomentumDiscordBot.Services
     /// </summary>
     public class StreamMonitorService
     {
-        private readonly Dictionary<string, ulong> _cachedStreamsIds;
+        private ulong _channelId;
+        private TimeSpan _updateInterval;
+        private Dictionary<string, ulong> _cachedStreamsIds;
         private readonly Config _config;
         private readonly DiscordSocketClient _discordClient;
-        private readonly SocketTextChannel _textChannel;
+        private SocketTextChannel _textChannel;
         private readonly TwitchApiService _twitchApiService;
         private Timer _intervalFunctionTimer;
         private List<string> _streamSoftBanList = new List<string>();
+        private List<Stream> _previousStreams;
 
         public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId,
             Config config)
         {
+            _channelId = channelId;
+            _updateInterval = updateInterval;
             _config = config;
             _discordClient = discordClient;
             _twitchApiService = new TwitchApiService();
-            _textChannel = _discordClient.GetChannel(channelId) as SocketTextChannel;
+        }
+
+        public void Start()
+        {
+            _textChannel = _discordClient.GetChannel(_channelId) as SocketTextChannel;
 
             _cachedStreamsIds = new Dictionary<string, ulong>();
 
-            _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, updateInterval);
+            _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
             DeleteAllChannelEmbedsAsync().GetAwaiter().GetResult();
         }
 
@@ -58,7 +68,7 @@ namespace MomentumDiscordBot.Services
             }
 
             // Filter out soft banned streams
-            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id));
+            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && !_config.TwitchUserBans.Contains(x.UserId));
 
             foreach (var stream in filteredStreams)
             {
@@ -105,6 +115,7 @@ namespace MomentumDiscordBot.Services
             var existingSelfMessages = (await _textChannel.GetMessagesAsync(limit: 200).FlattenAsync()).FromSelf(_discordClient);
             var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
             _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
+            _previousStreams = streams;
         }
 
         private async Task DeleteAllChannelEmbedsAsync()
@@ -122,6 +133,32 @@ namespace MomentumDiscordBot.Services
             catch
             {
                 // Could have old messages, safe to ignore
+            }
+        }
+
+        public async Task<string> GetTwitchIDAsync(string username)
+        { 
+            if (ulong.TryParse(username, out _))
+            {
+                // Input is a explicit Twitch ID
+                return username;
+            }
+            else
+            {
+                // Input is the Twitch username
+                var cachedUser = _previousStreams.FirstOrDefault(x =>
+                    string.Equals(username, x.UserName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (cachedUser != null)
+                {
+                    // User is in the cache
+                    return cachedUser.UserId;
+                }
+                else
+                {
+                    // Search the API, throws exception if not found
+                    return await _twitchApiService.GetStreamerIDAsync(username);
+                }
             }
         }
     }
