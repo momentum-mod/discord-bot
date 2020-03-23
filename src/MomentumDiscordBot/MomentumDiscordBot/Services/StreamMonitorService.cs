@@ -114,7 +114,7 @@ namespace MomentumDiscordBot.Services
                     if (_cachedStreamsIds.TryGetValue(stream.Id, out var messageId))
                     {
                         var oldMessage = await _textChannel.GetMessageAsync(messageId);
-                        if (oldMessage is RestUserMessage oldRestMessage)
+                        if (oldMessage is IUserMessage oldRestMessage)
                         {
                             await oldRestMessage.ModifyAsync(x => x.Embed = embed);
                         }
