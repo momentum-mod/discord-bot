@@ -16,6 +16,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("moderator_id")] private ulong _moderatorRoleID;
         [JsonProperty("streamer_channel")] private ulong _momentumModStreamerChannelId;
         [JsonProperty("roles_channel")] private ulong _rolesChannelId;
+        [JsonProperty("twitch_user_bans")] private string[] _twitchUserBans;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -106,6 +107,17 @@ namespace MomentumDiscordBot.Models
         }
 
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
+
+        [JsonIgnore]
+        public string[] TwitchUserBans
+        {
+            get => _twitchUserBans;
+            set
+            {
+                _twitchUserBans = value;
+                SaveToFile();
+            }
+        }
 
         public static Config LoadFromFile()
         {
