@@ -10,5 +10,10 @@ namespace MomentumDiscordBot.Utilities
         public static IEnumerable<IMessage> FromSelf(this IEnumerable<IMessage> source,
             DiscordSocketClient discordClient)
             => source.Where(x => x.Author.Id == discordClient.CurrentUser.Id);
+        public static string EscapeDiscordChars(this string source)
+        {
+            var chars = new List<string> { "*", "_", "~", "`", "@", ">", "||" };
+            return chars.Aggregate(source, (current, character) => current.Replace($"{character}", $@"\{character}"));
+        }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
+using TwitchLib.Api.Helix.Models.Streams;
 
 namespace MomentumDiscordBot.Discord
 {
@@ -35,8 +37,10 @@ namespace MomentumDiscordBot.Discord
             _discordClient.Ready += _discordClient_Ready;
 
             var baseCommandService = MomentumCommandService.BuildBaseCommandService();
+            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5),
+                _config.MomentumModStreamerChannelId, _config);
             _dependencyInjectionService = new DependencyInjectionService(baseCommandService, _discordClient, config);
-            _services = _dependencyInjectionService.BuildServiceProvider();
+            _services = _dependencyInjectionService.BuildServiceProvider(_streamMonitorService);
 
             var logger = _services.GetRequiredService<LogService>();
             _momentumCommandService =
@@ -46,8 +50,7 @@ namespace MomentumDiscordBot.Discord
         private Task _discordClient_Ready()
         {
             // Start updating streams
-            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5),
-                _config.MomentumModStreamerChannelId, _config);
+            _streamMonitorService.Start();
             _reactionBasedRoleService = _services.GetRequiredService<ReactionBasedRoleService>();
 
             return Task.CompletedTask;

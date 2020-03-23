@@ -16,7 +16,6 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("add")]
         [Alias("create")]
-        [Summary("Adds an officers notes categories")]
         public async Task CreateMentionRoleAsync(IRole role)
         {
             if (Config.MentionRoles != null)
@@ -47,7 +46,6 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("remove")]
         [Alias("delete", "del", "rem")]
-        [Summary("Removes an officer note")]
         public async Task RemoveMentionRoleAsync(IRole role)
         {
             if (Config.MentionRoles != null && Config.MentionRoles.Length > 0)
@@ -62,7 +60,6 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("list")]
         [Alias("ls", "get", "")]
-        [Summary("Returns a list of the officer notes against a user")]
         public async Task ListMentionRolesAsync()
         {
             var mentionRoles = Context.Guild.Roles.Where(x => Config.MentionRoles.Contains(x.Id));

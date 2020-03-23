@@ -52,5 +52,41 @@ namespace MomentumDiscordBot.Services
             var user = users.Users.First();
             return user.ProfileImageUrl;
         }
+
+        public async Task<string> GetStreamerIDAsync(string name)
+        {
+            var response = await _apiService.Helix.Users.GetUsersAsync(logins: new List<string> {name});
+            var users = response.Users;
+
+            if (users.Length == 0)
+            {
+                throw new Exception("No user was found for that input");
+            }
+
+            if (users.Length > 1)
+            {
+                throw new Exception("More than one user was found for that input");
+            }
+
+            return users.First().Id;
+        }
+
+        public async Task<string> GetStreamerNameAsync(string id)
+        {
+            var response = await _apiService.Helix.Users.GetUsersAsync(ids: new List<string> { id });
+            var users = response.Users;
+
+            if (users.Length == 0)
+            {
+                throw new Exception("No user was found for that input");
+            }
+
+            if (users.Length > 1)
+            {
+                throw new Exception("More than one user was found for that input");
+            }
+
+            return users.First().DisplayName;
+        }
     }
 }
