@@ -9,7 +9,7 @@ using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Discord.Commands
 {
-    [Group("twitchban")]
+    [Group("twitchBan")]
     public class AdminTwitchBanModule : AdminModule
     {
         public Config Config { get; set; }
@@ -17,6 +17,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("add")]
         [Alias("create")]
+        [Summary("Hard ban a twitch user from the livestream channel")]
         public async Task AddTwitchBanAsync([Remainder] string username)
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
@@ -34,6 +35,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("remove")]
         [Alias("delete", "del", "rem")]
+        [Summary("Hard unban a twitch user from the livestream channel")]
         public async Task RemoveTwitchBanAsync([Remainder] string username)
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
@@ -50,6 +52,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("list")]
         [Alias("ls", "get")]
+        [Summary("Get a list of Twitch users hard banned from the livestream channel")]
         public async Task ListTwitchBanAsync()
         {
             var bans = Config.TwitchUserBans ?? new string[0];

@@ -16,6 +16,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("add")]
         [Alias("create")]
+        [Summary("Create a role for mentioning, and add it to the react channel")]
         public async Task CreateMentionRoleAsync(IRole role)
         {
             if (Config.MentionRoles != null)
@@ -46,6 +47,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("remove")]
         [Alias("delete", "del", "rem")]
+        [Summary("Removes a role for mentioning, and removes it from the react channel")]
         public async Task RemoveMentionRoleAsync(IRole role)
         {
             if (Config.MentionRoles != null && Config.MentionRoles.Length > 0)
@@ -60,6 +62,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
         [Command("list")]
         [Alias("ls", "get", "")]
+        [Summary("Get a list of the mention roles")]
         public async Task ListMentionRolesAsync()
         {
             var mentionRoles = Context.Guild.Roles.Where(x => Config.MentionRoles.Contains(x.Id));

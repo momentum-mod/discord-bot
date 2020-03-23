@@ -13,6 +13,7 @@ namespace MomentumDiscordBot.Discord.Commands
         public StreamMonitorService StreamMonitorService { get; set; }
 
         [Command("updatestreams")]
+        [Summary("Force an update of Twitch livestreams")]
         public async Task ForceUpdateStreamsAsync()
         {
             StreamMonitorService.UpdateCurrentStreamersAsync(null);
