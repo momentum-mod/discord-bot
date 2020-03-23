@@ -23,7 +23,7 @@ namespace MomentumDiscordBot.Services
         private readonly Config _config;
         private readonly DiscordSocketClient _discordClient;
         private SocketTextChannel _textChannel;
-        private readonly TwitchApiService _twitchApiService;
+        public readonly TwitchApiService TwitchApiService;
         private Timer _intervalFunctionTimer;
         private List<string> _streamSoftBanList = new List<string>();
         private List<Stream> _previousStreams;
@@ -35,7 +35,7 @@ namespace MomentumDiscordBot.Services
             _updateInterval = updateInterval;
             _config = config;
             _discordClient = discordClient;
-            _twitchApiService = new TwitchApiService();
+            TwitchApiService = new TwitchApiService();
         }
 
         public void Start()
@@ -48,13 +48,24 @@ namespace MomentumDiscordBot.Services
             DeleteAllChannelEmbedsAsync().GetAwaiter().GetResult();
         }
 
-        private async void UpdateCurrentStreamersAsync(object state)
+        public async void UpdateCurrentStreamersAsync(object state)
         {
-            var streams = await _twitchApiService.GetLiveMomentumModStreamersAsync();
+            var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
             var streamIds = streams.Select(x => x.Id);
+
+            // Get streams from banned users
+            var bannedStreams = streams.Where(x => _config.TwitchUserBans.Contains(x.UserId));
+            foreach (var bannedStream in bannedStreams)
+            {
+                if (_cachedStreamsIds.TryGetValue(bannedStream.Id, out var messageId))
+                {
+                    await _textChannel.DeleteMessageAsync(messageId);
+                }
+            }
 
             // If the cached stream id's isn't in the fetched stream id, it is an ended stream
             var endedStreams = _cachedStreamsIds.Where(x => !streamIds.Contains(x.Key));
+            
             foreach (var (endedStreamId, messageId) in endedStreams)
             {
                 // If the stream was soft banned, remove it
@@ -79,7 +90,7 @@ namespace MomentumDiscordBot.Services
                     Author = new EmbedAuthorBuilder
                     {
                         Name = stream.UserName,
-                        IconUrl = await _twitchApiService.GetStreamerIconUrlAsync(stream.UserId),
+                        IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
                         Url = $"https://twitch.tv/{stream.UserName}"
                     },
                     ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
@@ -157,7 +168,7 @@ namespace MomentumDiscordBot.Services
                 else
                 {
                     // Search the API, throws exception if not found
-                    return await _twitchApiService.GetStreamerIDAsync(username);
+                    return await TwitchApiService.GetStreamerIDAsync(username);
                 }
             }
         }
