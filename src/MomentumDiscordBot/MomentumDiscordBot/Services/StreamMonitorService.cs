@@ -79,7 +79,7 @@ namespace MomentumDiscordBot.Services
             }
 
             // Filter out soft banned streams
-            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && !_config.TwitchUserBans.Contains(x.UserId));
+            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
 
             foreach (var stream in filteredStreams)
             {
