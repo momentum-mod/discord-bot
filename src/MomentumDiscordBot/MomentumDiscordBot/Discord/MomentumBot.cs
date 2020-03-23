@@ -37,8 +37,7 @@ namespace MomentumDiscordBot.Discord
             _discordClient.Ready += _discordClient_Ready;
 
             var baseCommandService = MomentumCommandService.BuildBaseCommandService();
-            _streamMonitorService = new StreamMonitorService(_discordClient, TimeSpan.FromMinutes(5),
-                _config.MomentumModStreamerChannelId, _config);
+            _streamMonitorService = new StreamMonitorService(_discordClient, _config);
             _dependencyInjectionService = new DependencyInjectionService(baseCommandService, _discordClient, config);
             _services = _dependencyInjectionService.BuildServiceProvider(_streamMonitorService);
 

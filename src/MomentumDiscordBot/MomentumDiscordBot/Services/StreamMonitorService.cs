@@ -28,14 +28,14 @@ namespace MomentumDiscordBot.Services
         private List<string> _streamSoftBanList = new List<string>();
         private List<Stream> _previousStreams;
 
-        public StreamMonitorService(DiscordSocketClient discordClient, TimeSpan updateInterval, ulong channelId,
-            Config config)
+        public StreamMonitorService(DiscordSocketClient discordClient, Config config)
         {
-            _channelId = channelId;
-            _updateInterval = updateInterval;
             _config = config;
             _discordClient = discordClient;
             TwitchApiService = new TwitchApiService();
+
+            _channelId = _config.MomentumModStreamerChannelId;
+            _updateInterval = TimeSpan.FromMinutes(_config.StreamUpdateInterval);
         }
 
         public void Start()
