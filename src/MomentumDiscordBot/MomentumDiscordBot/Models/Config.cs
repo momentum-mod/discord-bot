@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using Discord;
 using MomentumDiscordBot.Constants;
@@ -57,7 +58,7 @@ namespace MomentumDiscordBot.Models
             get => _mentionRoles;
             set
             {
-                _mentionRoles = value;
+                _mentionRoles = value.Distinct().ToArray();
                 SaveToFile();
             }
         }
@@ -114,7 +115,7 @@ namespace MomentumDiscordBot.Models
             get => _twitchUserBans;
             set
             {
-                _twitchUserBans = value;
+                _twitchUserBans = value.Distinct().ToArray();
                 SaveToFile();
             }
         }
