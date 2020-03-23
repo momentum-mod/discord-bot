@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
+using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Discord.Commands
 {
@@ -26,6 +27,9 @@ namespace MomentumDiscordBot.Discord.Commands
             bans.Add(userToBanId);
             Config.TwitchUserBans = bans.ToArray();
 
+            // Force update
+            StreamMonitorService.UpdateCurrentStreamersAsync(null);
+
             await ReplyNewEmbedAsync($"Banned user with ID: {userToBanId}", Color.Orange);
         }
 
@@ -40,6 +44,8 @@ namespace MomentumDiscordBot.Discord.Commands
             bans.Remove(userToUnbanId);
             Config.TwitchUserBans = bans.ToArray();
 
+            StreamMonitorService.UpdateCurrentStreamersAsync(null);
+
             await ReplyNewEmbedAsync($"Unbanned user with ID: {userToUnbanId}", Color.Orange);
         }
 
@@ -49,10 +55,13 @@ namespace MomentumDiscordBot.Discord.Commands
         {
             var bans = Config.TwitchUserBans ?? new string[0];
 
+            var banUsernameTasks = bans.Select(async x => await StreamMonitorService.TwitchApiService.GetStreamerNameAsync(x));
+            var usernames = await Task.WhenAll(banUsernameTasks);
+
             var embed = new EmbedBuilder
             {
                 Title = "Twitch Banned IDs",
-                Description = string.Join(Environment.NewLine, bans),
+                Description = string.Join(Environment.NewLine, usernames).EscapeDiscordChars(),
                 Color = Color.Blue
             }.Build();
 
