@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
-using TwitchLib.Api.Helix.Models.Streams;
 
 namespace MomentumDiscordBot.Discord
 {
