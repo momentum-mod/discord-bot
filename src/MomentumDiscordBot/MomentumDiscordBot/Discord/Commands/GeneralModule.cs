@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Discord.Commands
@@ -13,6 +14,7 @@ namespace MomentumDiscordBot.Discord.Commands
     {
         public CommandService CommandService { get; set; }
         public IServiceProvider Services { get; set; }
+        public Config Config { get; set; }
         [Command("help")]
         [Summary("The command you are running")]
         public async Task HelpAsync()
@@ -20,7 +22,7 @@ namespace MomentumDiscordBot.Discord.Commands
             var message = await ReplyNewEmbedAsync("Building the help command... This message will be deleted when all help messages are sent", Color.Blue);
             foreach (var module in CommandService.Modules.Where(x => !x.Name.Contains("ModuleBase")))
             {
-                var moduleHelpEmbed = HelpCommandUtilities.GetModuleHelpEmbed(module, Context, Services);
+                var moduleHelpEmbed = HelpCommandUtilities.GetModuleHelpEmbed(module, Context, Services, Config);
                 if (moduleHelpEmbed.Fields.Length > 0)
                 {
                     await ReplyAsync(embed: moduleHelpEmbed);
