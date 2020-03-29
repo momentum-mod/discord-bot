@@ -91,8 +91,11 @@ namespace MomentumDiscordBot.Services
                         !usersWithMentionRoles.Any(x => x.Roles.Any(y => y.Id == roleId) && x.Id == user.Id))
                     .Select(user => _textChannel.Guild.GetUser(user.Id)))
                 {
-                    // User without role
-                    await guildUser.AddRoleAsync(role);
+                    // Make sure the user is not null, in case they have been banned/left the server
+                    if (guildUser != null)
+                    {
+                        await guildUser.AddRoleAsync(role);
+                    }
                 }
 
                 var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
