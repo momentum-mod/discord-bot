@@ -79,35 +79,30 @@ namespace MomentumDiscordBot.Services
             foreach (var (roleId, messageId) in _existingRoleEmbeds)
             {
                 var message = await _textChannel.GetMessageAsync(messageId);
-                if (message is IUserMessage userMessage)
+                var role = _textChannel.Guild.GetRole(roleId);
+
+                if (!(message is IUserMessage userMessage)) continue;
+
+                // Get all users who have reacted to the embed
+                var reactionUsers = (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, 5000).FlattenAsync()).ToList();
+
+                foreach (var guildUser in reactionUsers.Where(user => !user.IsSelf(_discordClient))
+                    .Where(user =>
+                        !usersWithMentionRoles.Any(x => x.Roles.Any(y => y.Id == roleId) && x.Id == user.Id))
+                    .Select(user => _textChannel.Guild.GetUser(user.Id)))
                 {
-                    // Get all users who have reacted to the embed
-                    var reactionUsers = (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, 5000).FlattenAsync()).ToList();
+                    // User without role
+                    await guildUser.AddRoleAsync(role);
+                }
 
-                    foreach (var user in reactionUsers)
-                    {
-                        // Ignore the bot
-                        if (user.IsSelf(_discordClient)) continue;
-
-                        // If the user doesn't have the role, give it to them
-                        if (!usersWithMentionRoles.Any(x => x.Roles.Any(y => y.Id == roleId) && x.Id == user.Id))
-                        {
-                            var guildUser = _textChannel.Guild.GetUser(user.Id);
-                            await guildUser.AddRoleAsync(_textChannel.Guild.GetRole(roleId));
-                        }
-                    }
-
-                    var role = _textChannel.Guild.GetRole(roleId);
-                    var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
-                    foreach (var user in userWithRole)
-                    {
-                        if (reactionUsers.All(x => x.Id != user.Id) || user.IsSelf(_discordClient))
-                        {
-                            // User has not reacted, remove the role
-                            var guildUser = _textChannel.Guild.GetUser(user.Id);
-                            await guildUser.RemoveRoleAsync(_textChannel.Guild.GetRole(roleId));
-                        }
-                    }
+                var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
+                foreach (var user in userWithRole)
+                {
+                    if (reactionUsers.Any(x => x.Id == user.Id) && !user.IsSelf(_discordClient)) continue;
+                        
+                    // User has not reacted, remove the role
+                    var guildUser = _textChannel.Guild.GetUser(user.Id);
+                    await guildUser.RemoveRoleAsync(role);
                 }
             }
 
