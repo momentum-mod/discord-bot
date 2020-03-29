@@ -16,7 +16,7 @@ namespace MomentumDiscordBot.Services
 
         public TwitchApiService()
         {
-            if (File.Exists(PathConstants.DiscordTokenFilePath))
+            if (File.Exists(PathConstants.TwitchAPIClientIdFilePath))
             {
                 // File exists, get the text
                 var twitchClientId = File.ReadAllText(PathConstants.TwitchAPIClientIdFilePath);
