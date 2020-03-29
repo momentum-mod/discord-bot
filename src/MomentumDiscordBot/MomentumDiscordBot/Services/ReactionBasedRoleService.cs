@@ -33,19 +33,8 @@ namespace MomentumDiscordBot.Services
             _textChannel = _discordClient.GetChannel(_config.RolesChannelId) as SocketTextChannel;
 
             await LoadExistingRoleEmbedsAsync();
-
-            // If there are roles added to the config, but aren't sent yet, send them
-            if (_config.MentionRoles != null)
-            {
-                foreach (var mentionRole in _config.MentionRoles)
-                {
-                    if (!_existingRoleEmbeds.ContainsKey(mentionRole))
-                    {
-                        var role = _textChannel.Guild.Roles.First(x => x.Id == mentionRole);
-                        await SendRoleEmbed(role);
-                    }
-                }
-            }
+            await SendRoleEmbedsAsync();
+            await VerifyCurrentUserRolesAsync();
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
@@ -64,6 +53,64 @@ namespace MomentumDiscordBot.Services
                     _existingRoleEmbeds.Add(role.Id, message.Id);
                 }
             }
+        }
+
+        private async Task SendRoleEmbedsAsync()
+        {
+            // If there are roles added to the config, but aren't sent yet, send them
+            if (_config.MentionRoles != null)
+            {
+                foreach (var mentionRole in _config.MentionRoles)
+                {
+                    if (!_existingRoleEmbeds.ContainsKey(mentionRole))
+                    {
+                        var role = _textChannel.Guild.Roles.First(x => x.Id == mentionRole);
+                        await SendRoleEmbed(role);
+                    }
+                }
+            }
+        }
+
+        private async Task VerifyCurrentUserRolesAsync()
+        {
+            var usersWithMentionRoles = _textChannel.Guild.Users.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
+
+            // Check users who have reacted to the embed
+            foreach (var (roleId, messageId) in _existingRoleEmbeds)
+            {
+                var message = await _textChannel.GetMessageAsync(messageId);
+                if (message is IUserMessage userMessage)
+                {
+                    // Get all users who have reacted to the embed
+                    var reactionUsers = (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, 5000).FlattenAsync()).ToList();
+
+                    foreach (var user in reactionUsers)
+                    {
+                        // Ignore the bot
+                        if (user.IsSelf(_discordClient)) continue;
+
+                        // If the user doesn't have the role, give it to them
+                        if (!usersWithMentionRoles.Any(x => x.Roles.Any(y => y.Id == roleId) && x.Id == user.Id))
+                        {
+                            var guildUser = _textChannel.Guild.GetUser(user.Id);
+                            await guildUser.AddRoleAsync(_textChannel.Guild.GetRole(roleId));
+                        }
+                    }
+
+                    var role = _textChannel.Guild.GetRole(roleId);
+                    var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
+                    foreach (var user in userWithRole)
+                    {
+                        if (reactionUsers.All(x => x.Id != user.Id) || user.IsSelf(_discordClient))
+                        {
+                            // User has not reacted, remove the role
+                            var guildUser = _textChannel.Guild.GetUser(user.Id);
+                            await guildUser.RemoveRoleAsync(_textChannel.Guild.GetRole(roleId));
+                        }
+                    }
+                }
+            }
+
         }
 
         /// <summary>
@@ -99,6 +146,9 @@ namespace MomentumDiscordBot.Services
                 var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
                     .Users.First(x => x.Id == reaction.UserId);
 
+                // Ignore actions from the bot
+                if (user.IsSelf(_discordClient)) return;
+
                 var message = await messageBefore.GetOrDownloadAsync();
                 if (TryParseRoleFromEmbed(message, out var role)) await user.AddRoleAsync(role);
             }
@@ -115,6 +165,10 @@ namespace MomentumDiscordBot.Services
                 // Get the user as a SocketGuildContext
                 var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
                     .Users.First(x => x.Id == reaction.UserId);
+
+                // Ignore actions from the bot
+                if (user.IsSelf(_discordClient)) return;
+
                 var message = await messageBefore.GetOrDownloadAsync();
                 if (TryParseRoleFromEmbed(message, out var role)) await user.RemoveRoleAsync(role);
             }
