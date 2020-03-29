@@ -84,7 +84,7 @@ namespace MomentumDiscordBot.Services
                 if (!(message is IUserMessage userMessage)) continue;
 
                 // Get all users who have reacted to the embed
-                var reactionUsers = (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, 5000).FlattenAsync()).ToList();
+                var reactionUsers = (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount).FlattenAsync()).ToList();
 
                 foreach (var guildUser in reactionUsers.Where(user => !user.IsSelf(_discordClient))
                     .Where(user =>
