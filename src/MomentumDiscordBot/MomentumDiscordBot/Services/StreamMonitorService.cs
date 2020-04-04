@@ -43,8 +43,9 @@ namespace MomentumDiscordBot.Services
 
             _cachedStreamsIds = new Dictionary<string, ulong>();
 
+            TryParseExistingEmbedsAsync().GetAwaiter().GetResult();
+
             _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
-            DeleteAllChannelEmbedsAsync().GetAwaiter().GetResult();
         }
 
         public async void UpdateCurrentStreamersAsync(object state)
@@ -128,22 +129,44 @@ namespace MomentumDiscordBot.Services
             _previousStreams = streams;
         }
 
-        private async Task DeleteAllChannelEmbedsAsync()
+        private async Task TryParseExistingEmbedsAsync()
         {
-            try
-            {
-                // Delete current messages
-                var messages = await _textChannel.GetMessagesAsync().FlattenAsync();
+            // Reset cache
+            _cachedStreamsIds = new Dictionary<string, ulong>();
 
-                // Delete existing bot messages simultaneously
-                var deleteTasks = messages.FromSelf(_discordClient)
-                    .Select(async x => await x.DeleteAsync());
-                await Task.WhenAll(deleteTasks);
-            }
-            catch
-            {
-                // Could have old messages, safe to ignore
-            }
+            // Get all messages
+            var messages = (await _textChannel.GetMessagesAsync().FlattenAsync()).FromSelf(_discordClient).ToList();
+
+            if (!messages.Any()) return;
+
+            // Get current streams
+            var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
+
+            // Delete existing bot messages simultaneously
+            var deleteTasks = messages
+                .Select(async x =>
+                {
+                    if (x.Embeds.Count == 1)
+                    {
+                        var matchingStream = streams.FirstOrDefault(y => y.UserName == x.Embeds.First().Author?.Name);
+                        if (matchingStream == null)
+                        {
+                            // No matching stream
+                            await x.DeleteAsync();
+                        }
+                        else
+                        {
+                            // Found the matching stream
+                            _cachedStreamsIds.Add(matchingStream.Id, x.Id);
+                        }
+                    }
+                    else
+                    {
+                        // Stream has ended, or failed to parse
+                        await x.DeleteAsync();
+                    }
+                });
+            await Task.WhenAll(deleteTasks);
         }
 
         public async Task<string> GetTwitchIDAsync(string username)
