@@ -104,7 +104,8 @@ namespace MomentumDiscordBot.Services
                     },
                     ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
                     Description = stream.ViewerCount + " viewers",
-                    Url = $"https://twitch.tv/{stream.UserName}"
+                    Url = $"https://twitch.tv/{stream.UserName}",
+                    Timestamp = DateTimeOffset.Now
                 }.Build();
 
                 // New streams are not in the cache
