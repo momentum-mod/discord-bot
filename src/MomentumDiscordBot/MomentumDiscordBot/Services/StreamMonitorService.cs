@@ -78,8 +78,17 @@ namespace MomentumDiscordBot.Services
                 _cachedStreamsIds.Remove(endedStreamId);
             }
 
+            // Check for soft-banned stream, when a mod deletes the message
+            var existingSelfMessages = (await _textChannel.GetMessagesAsync(limit: 200).FlattenAsync()).FromSelf(_discordClient);
+            var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
+            _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
+            _previousStreams = streams;
+
             // Filter out soft banned streams
             var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
+
+            // Reload embeds
+            await TryParseExistingEmbedsAsync();
 
             foreach (var stream in filteredStreams)
             {
@@ -95,7 +104,8 @@ namespace MomentumDiscordBot.Services
                     },
                     ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
                     Description = stream.ViewerCount + " viewers",
-                    Url = $"https://twitch.tv/{stream.UserName}"
+                    Url = $"https://twitch.tv/{stream.UserName}",
+                    Timestamp = DateTimeOffset.Now
                 }.Build();
 
                 // New streams are not in the cache
@@ -121,12 +131,6 @@ namespace MomentumDiscordBot.Services
                     }
                 }
             }
-
-            // Check for soft-banned stream, when a mod deletes the message
-            var existingSelfMessages = (await _textChannel.GetMessagesAsync(limit: 200).FlattenAsync()).FromSelf(_discordClient);
-            var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
-            _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
-            _previousStreams = streams;
         }
 
         private async Task TryParseExistingEmbedsAsync()
