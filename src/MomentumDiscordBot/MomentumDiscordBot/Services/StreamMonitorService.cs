@@ -102,7 +102,7 @@ namespace MomentumDiscordBot.Services
                         IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
                         Url = $"https://twitch.tv/{stream.UserName}"
                     },
-                    ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720"),
+                    ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" + Environment.TickCount,
                     Description = stream.ViewerCount + " viewers",
                     Url = $"https://twitch.tv/{stream.UserName}",
                     Timestamp = DateTimeOffset.Now
