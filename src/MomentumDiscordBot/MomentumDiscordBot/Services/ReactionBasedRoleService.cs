@@ -24,8 +24,6 @@ namespace MomentumDiscordBot.Services
 
             _discordClient = discordClient;
             _discordClient.Ready += _discordClient_Ready;
-            _discordClient.ReactionAdded += ReactionAdded;
-            _discordClient.ReactionRemoved += ReactionRemoved;
         }
 
         private async Task _discordClient_Ready()
@@ -35,6 +33,9 @@ namespace MomentumDiscordBot.Services
             await LoadExistingRoleEmbedsAsync();
             await SendRoleEmbedsAsync();
             await VerifyCurrentUserRolesAsync();
+
+            _discordClient.ReactionAdded += ReactionAdded;
+            _discordClient.ReactionRemoved += ReactionRemoved;
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
