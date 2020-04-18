@@ -20,6 +20,8 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("twitch_user_bans")] private string[] _twitchUserBans;
         [JsonProperty("admin_bot_channel")] private ulong _adminBotChannel;
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
+        [JsonProperty("faq_channel")] private ulong _faqChannelId;
+        [JsonProperty("faq_role")] private ulong _faqRoleId;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -139,6 +141,28 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _streamUpdateInterval = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public ulong FaqChannelId
+        {
+            get => _faqChannelId;
+            set
+            {
+                _faqChannelId = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public ulong FaqRoleId
+        {
+            get => _faqRoleId;
+            set
+            {
+                _faqRoleId = value;
                 SaveToFile();
             }
         }
