@@ -28,6 +28,7 @@ namespace MomentumDiscordBot.Services
                 .AddSingleton(_discordClient)
                 .AddSingleton<ReactionBasedRoleService>()
                 .AddSingleton(streamMonitorService)
+                .AddSingleton<FaqService>()
                 .BuildServiceProvider();
     }
 }
