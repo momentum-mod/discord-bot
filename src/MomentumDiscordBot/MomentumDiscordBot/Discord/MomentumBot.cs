@@ -39,6 +39,8 @@ namespace MomentumDiscordBot.Discord
             _dependencyInjectionService = new DependencyInjectionService(baseCommandService, _discordClient, config);
             _services = _dependencyInjectionService.BuildServiceProvider(_streamMonitorService);
 
+            _ = _services.GetRequiredService<FaqService>();
+
             var logger = _services.GetRequiredService<LogService>();
             _momentumCommandService =
                 new MomentumCommandService(_discordClient, baseCommandService, logger, config, _services);
