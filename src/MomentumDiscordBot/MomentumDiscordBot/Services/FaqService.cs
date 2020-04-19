@@ -16,7 +16,7 @@ namespace MomentumDiscordBot.Services
         private readonly DiscordSocketClient _discordClient;
         private SocketTextChannel _textChannel;
         private IMessage _lastMessage;
-
+        public bool IsEnabled { get; set; } = true;
         public FaqService(DiscordSocketClient discordClient, Config config)
         {
             _config = config;
@@ -60,7 +60,7 @@ namespace MomentumDiscordBot.Services
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+            if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
             // Check that the message reacted to is the last message in the channel
             if (_lastMessage.Id == reaction.MessageId)
