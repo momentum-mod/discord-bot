@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using MomentumDiscordBot.Discord.Commands;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
@@ -40,6 +41,9 @@ namespace MomentumDiscordBot.Discord
             _services = _dependencyInjectionService.BuildServiceProvider(_streamMonitorService);
 
             var logger = _services.GetRequiredService<LogService>();
+
+            _ = _services.GetRequiredService<KeyBeggingService>();
+
             _momentumCommandService =
                 new MomentumCommandService(_discordClient, baseCommandService, logger, config, _services);
         }

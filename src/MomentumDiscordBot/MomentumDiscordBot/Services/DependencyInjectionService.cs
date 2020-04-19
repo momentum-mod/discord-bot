@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using MomentumDiscordBot.Discord.Commands;
 using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Services
@@ -28,6 +29,7 @@ namespace MomentumDiscordBot.Services
                 .AddSingleton(_discordClient)
                 .AddSingleton<ReactionBasedRoleService>()
                 .AddSingleton(streamMonitorService)
+                .AddSingleton<KeyBeggingService>()
                 .BuildServiceProvider();
     }
 }
