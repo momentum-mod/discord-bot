@@ -20,6 +20,8 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("twitch_user_bans")] private string[] _twitchUserBans;
         [JsonProperty("admin_bot_channel")] private ulong _adminBotChannel;
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
+        [JsonProperty("key_emoji")] private string _keyEmojiString;
+        [JsonProperty("key_begging_response")] private string _keyBeggingResponse;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -139,6 +141,28 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _streamUpdateInterval = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public string KeyEmojiString
+        {
+            get => _keyEmojiString;
+            set
+            {
+                _keyEmojiString = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public string KeyBeggingResponse
+        {
+            get => _keyBeggingResponse;
+            set
+            {
+                _keyBeggingResponse = value;
                 SaveToFile();
             }
         }
