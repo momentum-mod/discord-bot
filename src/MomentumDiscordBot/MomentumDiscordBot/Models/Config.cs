@@ -20,6 +20,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("twitch_user_bans")] private string[] _twitchUserBans;
         [JsonProperty("admin_bot_channel")] private ulong _adminBotChannel;
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
+        [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -143,6 +144,16 @@ namespace MomentumDiscordBot.Models
             }
         }
 
+        [JsonIgnore]
+        public ulong JoinLogChannel
+        {
+            get => _joinLogChannel;
+            set
+            {
+                _joinLogChannel = value;
+                SaveToFile();
+            }
+        }
         public static Config LoadFromFile()
         {
             if (File.Exists(PathConstants.ConfigFilePath))
