@@ -24,6 +24,9 @@ namespace MomentumDiscordBot.Services
         {
             _discordClient.UserJoined += UserJoined;
 
+            // Only subscribe once
+            _discordClient.Ready -= _discordClient_Ready;
+
             return Task.CompletedTask;
         }
 
