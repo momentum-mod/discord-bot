@@ -72,6 +72,9 @@ namespace MomentumDiscordBot.Services
         private async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context,
             IResult result)
         {
+            // Don't respond to unknown commands
+            if (result?.Error != null && result.Error == CommandError.UnknownCommand) return;
+
             // Since commands are run in an async context, errors have to be manually handled
             if (!string.IsNullOrEmpty(result?.ErrorReason))
             {
