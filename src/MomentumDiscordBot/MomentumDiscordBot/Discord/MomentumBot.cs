@@ -40,6 +40,7 @@ namespace MomentumDiscordBot.Discord
             _services = _dependencyInjectionService.BuildServiceProvider(_streamMonitorService);
 
             _ = _services.GetRequiredService<DiscordEventService>();
+            _ = _services.GetRequiredService<MessageHistoryService>();
 
             var logger = _services.GetRequiredService<LogService>();
             _momentumCommandService =
