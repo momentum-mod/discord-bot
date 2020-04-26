@@ -21,6 +21,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("admin_bot_channel")] private ulong _adminBotChannel;
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
         [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
+        [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -151,6 +152,17 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _joinLogChannel = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public ulong MessageHistoryChannel
+        {
+            get => _messageHistoryChannel;
+            set
+            {
+                _messageHistoryChannel = value;
                 SaveToFile();
             }
         }
