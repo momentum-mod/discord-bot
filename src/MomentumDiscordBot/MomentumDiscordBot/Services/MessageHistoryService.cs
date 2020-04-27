@@ -37,7 +37,7 @@ namespace MomentumDiscordBot.Services
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
-            if (_textChannel == null || !(channel is IGuildChannel) || newMessage.Author.IsBot) return;
+            if (_textChannel == null || !(channel is IGuildChannel) || newMessage.Author.IsBot || !newMessage.EditedTimestamp.HasValue) return;
             if (cachedMessage.HasValue)
             {
                 var oldMessage = cachedMessage.Value;
