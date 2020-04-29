@@ -37,7 +37,7 @@ namespace MomentumDiscordBot.Services
                 if (_discordClient.GetChannel(_config.JoinLogChannel) is SocketTextChannel channel)
                 {
                     await channel.SendMessageAsync(
-                        $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {(DateTimeOffset.UtcNow - user.CreatedAt).ToPrettyFormat()}ago");
+                        $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {(DateTimeOffset.UtcNow - user.CreatedAt).ToPrettyFormat()} ago");
                 }
             }
         }
