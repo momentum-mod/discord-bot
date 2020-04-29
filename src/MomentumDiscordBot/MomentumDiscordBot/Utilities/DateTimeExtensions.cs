@@ -23,7 +23,7 @@ namespace MomentumDiscordBot.Utilities
         }
         public static string ToPrettyFormat(this TimeSpan span)
         {
-            if (span.TotalMilliseconds < 1) return "instantaneously ";
+            if (span.TotalMilliseconds < 1) return "instantaneously";
 
             var sb = new StringBuilder();
             if (span.Days / 365 > 0)
@@ -56,7 +56,7 @@ namespace MomentumDiscordBot.Utilities
                 thirdSpace = output.Length;
             }
 
-            return output.Substring(0, thirdSpace);
+            return output.Substring(0, thirdSpace).Trim();
         }
     }
 }
