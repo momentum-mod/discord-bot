@@ -28,6 +28,18 @@ namespace MomentumDiscordBot.Services
                 throw new Exception(
                     $"No Twitch API token file exists, expected it at: '{PathConstants.TwitchAPIClientIdFilePath}'");
             }
+
+            if (File.Exists(PathConstants.TwitchAPIClientSecretFilePath))
+            {
+                // File exists, get the text
+                var accessToken = File.ReadAllText(PathConstants.TwitchAPIClientSecretFilePath);
+                _apiService.Settings.AccessToken = accessToken;
+            }
+            else
+            {
+                throw new Exception(
+                    $"No Twitch API token file exists, expected it at: '{PathConstants.TwitchAPIClientIdFilePath}'");
+            }
         }
 
         public async Task<string> GetMomentumModIdAsync()
