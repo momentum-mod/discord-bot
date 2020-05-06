@@ -32,8 +32,8 @@ namespace MomentumDiscordBot.Services
             if (File.Exists(PathConstants.TwitchAPIClientSecretFilePath))
             {
                 // File exists, get the text
-                var accessToken = File.ReadAllText(PathConstants.TwitchAPIClientSecretFilePath);
-                _apiService.Settings.AccessToken = accessToken;
+                var secret = File.ReadAllText(PathConstants.TwitchAPIClientSecretFilePath);
+                _apiService.Settings.Secret = secret;
             }
             else
             {
