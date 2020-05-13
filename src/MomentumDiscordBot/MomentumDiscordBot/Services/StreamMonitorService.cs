@@ -93,11 +93,11 @@ namespace MomentumDiscordBot.Services
             foreach (var stream in filteredStreams)
             {
                 var messageText =
-                    $"{stream.UserName} has gone live! {MentionUtils.MentionRole(_config.LivestreamMentionRoleId)}";
+                    $"{stream.UserName.EscapeDiscordChars()} has gone live! {MentionUtils.MentionRole(_config.LivestreamMentionRoleId)}";
 
                 var embed = new EmbedBuilder
                 {
-                    Title = stream.Title,
+                    Title = stream.Title.EscapeDiscordChars(),
                     Color = Color.Purple,
                     Author = new EmbedAuthorBuilder
                     {
