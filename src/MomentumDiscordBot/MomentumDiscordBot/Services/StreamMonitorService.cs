@@ -35,15 +35,16 @@ namespace MomentumDiscordBot.Services
 
             _channelId = _config.MomentumModStreamerChannelId;
             _updateInterval = TimeSpan.FromMinutes(_config.StreamUpdateInterval);
+            _discordClient.Ready += _discordClient_Ready;
         }
 
-        public void Start()
+        private async Task _discordClient_Ready()
         {
             _textChannel = _discordClient.GetChannel(_channelId) as SocketTextChannel;
 
             _cachedStreamsIds = new Dictionary<string, ulong>();
 
-            TryParseExistingEmbedsAsync().GetAwaiter().GetResult();
+            await TryParseExistingEmbedsAsync();
 
             _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
         }

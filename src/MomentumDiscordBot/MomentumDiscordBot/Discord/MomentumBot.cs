@@ -49,10 +49,7 @@ namespace MomentumDiscordBot.Discord
 
         private Task _discordClient_Ready()
         {
-            // Start updating streams
-            _streamMonitorService.Start();
             _reactionBasedRoleService = _services.GetRequiredService<ReactionBasedRoleService>();
-
 
             _discordClient.Ready -= _discordClient_Ready;
             return Task.CompletedTask;
