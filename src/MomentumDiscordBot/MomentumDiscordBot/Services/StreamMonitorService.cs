@@ -92,6 +92,9 @@ namespace MomentumDiscordBot.Services
 
             foreach (var stream in filteredStreams)
             {
+                var messageText =
+                    $"{stream.UserName} has gone live! {MentionUtils.MentionRole(_config.LivestreamMentionRoleId)}";
+
                 var embed = new EmbedBuilder
                 {
                     Title = stream.Title,
@@ -113,8 +116,7 @@ namespace MomentumDiscordBot.Services
                 {
                     // New stream, send a new message
                     var message =
-                        await _textChannel.SendMessageAsync(MentionUtils.MentionRole(_config.LivestreamMentionRoleId),
-                            embed: embed);
+                        await _textChannel.SendMessageAsync(messageText, embed: embed);
 
                     _cachedStreamsIds.Add(stream.Id, message.Id);
                 }
@@ -126,7 +128,11 @@ namespace MomentumDiscordBot.Services
                         var oldMessage = await _textChannel.GetMessageAsync(messageId);
                         if (oldMessage is IUserMessage oldRestMessage)
                         {
-                            await oldRestMessage.ModifyAsync(x => x.Embed = embed);
+                            await oldRestMessage.ModifyAsync(x =>
+                            {
+                                x.Content = messageText;
+                                x.Embed = embed;
+                            });
                         }
                     }
                 }
