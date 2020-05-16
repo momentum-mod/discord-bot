@@ -11,6 +11,9 @@ namespace MomentumDiscordBot.Constants
         internal static readonly string TwitchAPIClientIdFilePath =
             Path.Combine(ConfigFolderPath, "twitchApiClientId.txt");
 
+        internal static readonly string TwitchAPIClientSecretFilePath =
+            Path.Combine(ConfigFolderPath, "twitchApiToken.txt");
+
         internal static readonly string ConfigFilePath = Path.Combine(ConfigFolderPath, "config.json");
     }
 }

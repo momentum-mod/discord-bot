@@ -1,11 +1,11 @@
-echo '-= Stopping momentum-discord Production Container =-'
+echo -e '-= Stopping momentum-discord Production Container =-\n'
 docker container stop momentum-discord-production
 
-echo '-= Removing Old momentum-discord Production Container =-'
+echo -e '-= Removing Old momentum-discord Production Container =-\n'
 docker container rm momentum-discord-production
 
-echo '-= Building Docker Image from Dockerfile =-\n'
+echo -e '-= Building Docker Image from Dockerfile =-\n'
 docker build -t momentum-discord -f ./src/MomentumDiscordBot/MomentumDiscordBot/Dockerfile .
 
-echo '-= Runnning the Image =-\n'
+echo -e '-= Runnning the Image =-\n'
 docker run -v $PWD/config:/app/config --network host --restart on-failure:5 --name "momentum-discord-production" -d momentum-discord

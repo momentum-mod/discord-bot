@@ -26,16 +26,22 @@ namespace MomentumDiscordBot.Services
             _discordClient.Ready += _discordClient_Ready;
         }
 
-        private async Task _discordClient_Ready()
+        private Task _discordClient_Ready()
         {
-            _textChannel = _discordClient.GetChannel(_config.RolesChannelId) as SocketTextChannel;
+            _ = Task.Run(async () =>
+            {
+                _textChannel = _discordClient.GetChannel(_config.RolesChannelId) as SocketTextChannel;
 
-            await LoadExistingRoleEmbedsAsync();
-            await SendRoleEmbedsAsync();
-            await VerifyCurrentUserRolesAsync();
+                await LoadExistingRoleEmbedsAsync();
+                await SendRoleEmbedsAsync();
 
-            _discordClient.ReactionAdded += ReactionAdded;
-            _discordClient.ReactionRemoved += ReactionRemoved;
+                _discordClient.ReactionAdded += ReactionAdded;
+                _discordClient.ReactionRemoved += ReactionRemoved;
+
+                await VerifyCurrentUserRolesAsync();
+            });
+
+            return Task.CompletedTask;
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
@@ -136,7 +142,7 @@ namespace MomentumDiscordBot.Services
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
             // Check that the message reacted to is a role embed
             if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
@@ -156,7 +162,7 @@ namespace MomentumDiscordBot.Services
         private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
             // Check that the message reacted to is a role embed
             if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))

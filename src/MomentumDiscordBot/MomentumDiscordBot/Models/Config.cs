@@ -22,6 +22,8 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
         [JsonProperty("faq_channel")] private ulong _faqChannelId;
         [JsonProperty("faq_role")] private ulong _faqRoleId;
+        [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
+        [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -135,12 +137,34 @@ namespace MomentumDiscordBot.Models
         }
 
         [JsonIgnore]
+        public ulong JoinLogChannel
+        {
+            get => _joinLogChannel;
+            set
+            {
+                _joinLogChannel = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
         public int StreamUpdateInterval
         {
             get => _streamUpdateInterval;
             set
             {
                 _streamUpdateInterval = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public ulong FaqRoleId
+        {
+            get => _faqRoleId;
+            set
+            {
+                _faqRoleId = value;
                 SaveToFile();
             }
         }
@@ -157,16 +181,15 @@ namespace MomentumDiscordBot.Models
         }
 
         [JsonIgnore]
-        public ulong FaqRoleId
+        public ulong MessageHistoryChannel
         {
-            get => _faqRoleId;
+            get => _messageHistoryChannel;
             set
             {
-                _faqRoleId = value;
+                _messageHistoryChannel = value;
                 SaveToFile();
             }
         }
-
         public static Config LoadFromFile()
         {
             if (File.Exists(PathConstants.ConfigFilePath))

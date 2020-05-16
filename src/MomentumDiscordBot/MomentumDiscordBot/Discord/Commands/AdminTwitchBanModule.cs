@@ -13,7 +13,6 @@ namespace MomentumDiscordBot.Discord.Commands
     public class AdminTwitchBanModule : AdminModule
     {
         public Config Config { get; set; }
-        public StreamMonitorService StreamMonitorService { get; set; }
 
         [Command("add")]
         [Alias("create")]
@@ -22,7 +21,14 @@ namespace MomentumDiscordBot.Discord.Commands
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
 
-            var userToBanId = await StreamMonitorService.GetTwitchIDAsync(username);
+            var userToBanId = await StreamMonitorService.GetOrDownloadTwitchIDAsync(username);
+
+            if (userToBanId == null)
+            {
+                await ReplyNewEmbedAsync("Error getting the user's ID from the Twitch API, please try again.",
+                    Color.Orange);
+                return;
+            }
 
             bans.Add(userToBanId);
             Config.TwitchUserBans = bans.ToArray();
@@ -40,7 +46,14 @@ namespace MomentumDiscordBot.Discord.Commands
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
 
-            var userToUnbanId = await StreamMonitorService.GetTwitchIDAsync(username);
+            var userToUnbanId = await StreamMonitorService.GetOrDownloadTwitchIDAsync(username);
+
+            if (userToUnbanId == null)
+            {
+                await ReplyNewEmbedAsync("Error getting the user's ID from the Twitch API, please try again.",
+                    Color.Orange);
+                return;
+            }
 
             bans.Remove(userToUnbanId);
             Config.TwitchUserBans = bans.ToArray();

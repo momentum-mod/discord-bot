@@ -41,7 +41,14 @@ namespace MomentumDiscordBot.Services
                     };
 
                     Console.WriteLine(
-                        $"{logMessage.Severity.ToString().PadRight(BotConstants.LogPaddingLength)}    {logMessage.Source.PadRight(BotConstants.LogPaddingLength)}    {logMessage.Message.PadRight(BotConstants.LogPaddingLength)}    {logMessage.Exception}");
+                        $"[{DateTime.Now.ToShortTimeString()}] {logMessage.Severity}: <{logMessage.Source}> {logMessage.Message}");
+
+                    if (logMessage.Exception != null)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine(logMessage.Exception);
+                        Console.WriteLine();
+                    }
 
                     // Set default font color back to info
                     Console.ForegroundColor = ColorConstants.InfoLogColor;
