@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Services;
 
@@ -12,6 +13,7 @@ namespace MomentumDiscordBot.Discord.Commands
     public class AdminModule : MomentumModuleBase
     {
         public StreamMonitorService StreamMonitorService { get; set; }
+        public DiscordSocketClient DiscordSocketClient { get; set; }       
 
         [Command("updatestreams")]
         [Summary("Force an update of Twitch livestreams")]
@@ -37,6 +39,14 @@ namespace MomentumDiscordBot.Discord.Commands
             {
                 await ReplyNewEmbedAsync("That role does not exist in this server", Color.Orange);
             }
+        }
+        [Command("forcereconnect")]
+        [Summary("Simulates the Discord API requesting a reconnect")]
+        public async Task ForceReconnectAsync(int seconds)
+        {
+            await DiscordSocketClient.StopAsync();
+            await Task.Delay(seconds * 1000);
+            await DiscordSocketClient.StartAsync();
         }
     }
 }
