@@ -13,7 +13,6 @@ namespace MomentumDiscordBot.Discord.Commands
     public class AdminTwitchBanModule : AdminModule
     {
         public Config Config { get; set; }
-        public StreamMonitorService StreamMonitorService { get; set; }
 
         [Command("add")]
         [Alias("create")]
