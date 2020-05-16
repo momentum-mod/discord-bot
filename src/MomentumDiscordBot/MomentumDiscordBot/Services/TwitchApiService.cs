@@ -13,9 +13,11 @@ namespace MomentumDiscordBot.Services
     {
         private readonly TwitchAPI _apiService;
         private string _momentumModGameId = null;
-
-        public TwitchApiService()
+        private LogService _logger;
+        public TwitchApiService(LogService logger)
         {
+            _logger = logger;
+
             if (File.Exists(PathConstants.TwitchAPIClientIdFilePath))
             {
                 // File exists, get the text
@@ -38,7 +40,7 @@ namespace MomentumDiscordBot.Services
             else
             {
                 throw new Exception(
-                    $"No Twitch API token file exists, expected it at: '{PathConstants.TwitchAPIClientIdFilePath}'");
+                    $"No Twitch API secret file exists, expected it at: '{PathConstants.TwitchAPIClientSecretFilePath}'");
             }
         }
 
@@ -50,19 +52,36 @@ namespace MomentumDiscordBot.Services
 
         public async Task<List<Stream>> GetLiveMomentumModStreamersAsync()
         {
-            // Get the game ID once, then reuse it
-            var streams = await _apiService.Helix.Streams.GetStreamsAsync(gameIds: new List<string>
-                {_momentumModGameId ?? await GetMomentumModIdAsync()});
-            return streams.Streams.ToList();
+            try
+            {            
+                // Get the game ID once, then reuse it
+                var streams = await _apiService.Helix.Streams.GetStreamsAsync(gameIds: new List<string>
+                    {_momentumModGameId ?? await GetMomentumModIdAsync()});
+                return streams.Streams.ToList();
+            }
+            catch (Exception e)
+            {
+                _ = _logger.LogError("TwitchApiService", e.ToString());
+                return null;
+            }
         }
 
         public async Task<string> GetStreamerIconUrlAsync(string id)
         {
-            var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> {id});
+            try
+            {
+                var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> { id });
 
-            // Selected through ID, should only return one
-            var user = users.Users.First();
-            return user.ProfileImageUrl;
+                // Selected through ID, should only return one
+                var user = users.Users.First();
+                return user.ProfileImageUrl;
+            }
+            catch (Exception e)
+            {
+                _ = _logger.LogError("TwitchApiService", e.ToString());
+                return string.Empty;
+            }
+
         }
 
         public async Task<string> GetStreamerIDAsync(string name)
