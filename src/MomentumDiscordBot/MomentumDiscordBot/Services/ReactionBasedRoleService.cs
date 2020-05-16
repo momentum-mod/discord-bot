@@ -142,7 +142,7 @@ namespace MomentumDiscordBot.Services
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (/*reaction == null || _textChannel == null ||*/ reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
             // Check that the message reacted to is a role embed
             if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
@@ -162,7 +162,7 @@ namespace MomentumDiscordBot.Services
         private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
 
             // Check that the message reacted to is a role embed
             if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
