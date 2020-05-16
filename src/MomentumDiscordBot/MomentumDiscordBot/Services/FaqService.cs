@@ -20,6 +20,7 @@ namespace MomentumDiscordBot.Services
 
             _discordClient = discordClient;
             _discordClient.Ready += _discordClient_Ready;
+            _discordClient.ReactionAdded += ReactionAdded;
         }
 
         public async Task HookToLastMessageAsync()
@@ -47,12 +48,15 @@ namespace MomentumDiscordBot.Services
             }
         }
 
-        private async Task _discordClient_Ready()
+        private Task _discordClient_Ready()
         {
-            await HookToLastMessageAsync();
-            await VerifyCurrentUserRolesAsync();
+            _ = Task.Run(async () =>
+            {
+                await HookToLastMessageAsync();
+                await VerifyCurrentUserRolesAsync();
+            });
 
-            _discordClient.ReactionAdded += ReactionAdded;
+            return Task.CompletedTask;
         }
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
