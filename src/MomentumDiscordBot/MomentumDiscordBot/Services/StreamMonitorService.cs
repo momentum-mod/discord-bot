@@ -246,7 +246,7 @@ namespace MomentumDiscordBot.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("StreamMonitorService", e.ToString());
+                    _ = _logger.LogError("StreamMonitorService", e.ToString());
                     return null;
                 }
                 
