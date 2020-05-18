@@ -22,6 +22,8 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
         [JsonProperty("key_emoji")] private string _keyEmojiString;
         [JsonProperty("key_begging_response")] private string _keyBeggingResponse;
+        [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
+        [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -157,6 +159,17 @@ namespace MomentumDiscordBot.Models
         }
 
         [JsonIgnore]
+        public ulong JoinLogChannel
+        {
+            get => _joinLogChannel;
+            set
+            {
+                _joinLogChannel = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
         public string KeyBeggingResponse
         {
             get => _keyBeggingResponse;
@@ -167,6 +180,16 @@ namespace MomentumDiscordBot.Models
             }
         }
 
+        [JsonIgnore]
+        public ulong MessageHistoryChannel
+        {
+            get => _messageHistoryChannel;
+            set
+            {
+                _messageHistoryChannel = value;
+                SaveToFile();
+            }
+        }
         public static Config LoadFromFile()
         {
             if (File.Exists(PathConstants.ConfigFilePath))

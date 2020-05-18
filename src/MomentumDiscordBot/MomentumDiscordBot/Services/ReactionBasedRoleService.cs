@@ -24,17 +24,24 @@ namespace MomentumDiscordBot.Services
 
             _discordClient = discordClient;
             _discordClient.Ready += _discordClient_Ready;
-            _discordClient.ReactionAdded += ReactionAdded;
-            _discordClient.ReactionRemoved += ReactionRemoved;
         }
 
-        private async Task _discordClient_Ready()
+        private Task _discordClient_Ready()
         {
-            _textChannel = _discordClient.GetChannel(_config.RolesChannelId) as SocketTextChannel;
+            _ = Task.Run(async () =>
+            {
+                _textChannel = _discordClient.GetChannel(_config.RolesChannelId) as SocketTextChannel;
 
-            await LoadExistingRoleEmbedsAsync();
-            await SendRoleEmbedsAsync();
-            await VerifyCurrentUserRolesAsync();
+                await LoadExistingRoleEmbedsAsync();
+                await SendRoleEmbedsAsync();
+
+                _discordClient.ReactionAdded += ReactionAdded;
+                _discordClient.ReactionRemoved += ReactionRemoved;
+
+                await VerifyCurrentUserRolesAsync();
+            });
+
+            return Task.CompletedTask;
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
@@ -132,44 +139,53 @@ namespace MomentumDiscordBot.Services
             return false;
         }
 
-        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
+        private Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
-
-            // Check that the message reacted to is a role embed
-            if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return Task.CompletedTask;
+            
+            _ = Task.Run(async () => 
             {
-                // Get the user as a SocketGuildContext
-                var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
-                    .Users.First(x => x.Id == reaction.UserId);
+                // Check that the message reacted to is a role embed
+                if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
+                {
+                    // Get the user as a SocketGuildContext
+                    var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
+                        .Users.First(x => x.Id == reaction.UserId);
 
-                // Ignore actions from the bot
-                if (user.IsSelf(_discordClient)) return;
+                    // Ignore actions from the bot
+                    if (user.IsSelf(_discordClient)) return;
 
-                var message = await messageBefore.GetOrDownloadAsync();
-                if (TryParseRoleFromEmbed(message, out var role)) await user.AddRoleAsync(role);
-            }
+                    var message = await messageBefore.GetOrDownloadAsync();
+                    if (TryParseRoleFromEmbed(message, out var role)) await user.AddRoleAsync(role);
+                }
+            });
+            
+            return Task.CompletedTask;
         }
 
-        private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore,
+        private Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
-
-            // Check that the message reacted to is a role embed
-            if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return Task.CompletedTask;
+            _ = Task.Run(async () => 
             {
-                // Get the user as a SocketGuildContext
-                var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
-                    .Users.First(x => x.Id == reaction.UserId);
+                // Check that the message reacted to is a role embed
+                if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
+                {
+                    // Get the user as a SocketGuildContext
+                    var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
+                        .Users.First(x => x.Id == reaction.UserId);
 
-                // Ignore actions from the bot
-                if (user.IsSelf(_discordClient)) return;
+                    // Ignore actions from the bot
+                    if (user.IsSelf(_discordClient)) return;
 
-                var message = await messageBefore.GetOrDownloadAsync();
-                if (TryParseRoleFromEmbed(message, out var role)) await user.RemoveRoleAsync(role);
-            }
+                    var message = await messageBefore.GetOrDownloadAsync();
+                    if (TryParseRoleFromEmbed(message, out var role)) await user.RemoveRoleAsync(role);
+                }
+            });
+            
+            return Task.CompletedTask;
         }
 
         public async Task SendRoleEmbed(IRole role)
