@@ -22,6 +22,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
         [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
         [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
+        [JsonProperty("mention_role_emoji")] private string _newUserEmoteString;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -163,6 +164,17 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _messageHistoryChannel = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public string NewUserEmoteString
+        {
+            get => _newUserEmoteString;
+            set
+            {
+                _newUserEmoteString = value;
                 SaveToFile();
             }
         }
