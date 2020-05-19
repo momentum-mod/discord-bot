@@ -21,18 +21,30 @@ namespace MomentumDiscordBot.Services
             _discordClient.UserJoined += UserJoined;
         }
 
-        private async Task UserJoined(SocketGuildUser user)
+        private Task UserJoined(SocketGuildUser user)
         {
-            if (_config.JoinLogChannel != default)
+            _ = Task.Run(async () =>
             {
-                _joinLogChannel ??= _discordClient.GetChannel(_config.JoinLogChannel);
-
-                if (_joinLogChannel != null && _joinLogChannel is SocketTextChannel channel)
+                if (_config.JoinLogChannel != default)
                 {
-                    await channel.SendMessageAsync(
-                        $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {(DateTimeOffset.UtcNow - user.CreatedAt).ToPrettyFormat()} ago");
+                    _joinLogChannel ??= _discordClient.GetChannel(_config.JoinLogChannel);
+
+                    if (_joinLogChannel != null && _joinLogChannel is SocketTextChannel channel)
+                    {
+                        var accountAge = DateTimeOffset.UtcNow - user.CreatedAt;
+
+                        var userJoinedMessage = await channel.SendMessageAsync(
+                            $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {accountAge.ToPrettyFormat()} ago");
+
+                        if (accountAge.TotalHours <= 24)
+                        {
+                            await userJoinedMessage.AddReactionAsync(Emote.Parse(_config.NewUserEmoteString));
+                        }
+                    }
                 }
-            }
+            });
+
+            return Task.CompletedTask;
         }
     }
 }
