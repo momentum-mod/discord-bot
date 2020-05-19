@@ -41,7 +41,7 @@ namespace MomentumDiscordBot.Services
                     };
 
                     Console.WriteLine(
-                        $"[{DateTime.Now.ToShortTimeString()}] {logMessage.Severity}: <{logMessage.Source}> {logMessage.Message}");
+                        $"[{DateTime.Now:dd/MM HH:mm}] {logMessage.Severity}: <{logMessage.Source}> {logMessage.Message}");
 
                     if (logMessage.Exception != null)
                     {
