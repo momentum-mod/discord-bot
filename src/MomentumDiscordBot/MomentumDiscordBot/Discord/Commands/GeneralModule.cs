@@ -31,5 +31,12 @@ namespace MomentumDiscordBot.Discord.Commands
             }
             await message.DeleteAsync();
         }
+
+        [Command("key")]
+        [Summary("Give information on obtaining a game key")]
+        public async Task KeyBeggingResponseAsync()
+        {
+            await ReplyNewEmbedAsync(Config.KeyBeggingResponse, Color.Blue);
+        }
     }
 }
