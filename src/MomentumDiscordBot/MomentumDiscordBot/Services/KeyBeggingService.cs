@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -21,8 +22,8 @@ namespace MomentumDiscordBot.Services
         private async Task MessageReceived(SocketMessage message)
         {
             if (!(message is IUserMessage userMessage)) return;
-
-            if (userMessage.Content.Contains("get a key", StringComparison.InvariantCultureIgnoreCase))
+            
+            if (Regex.IsMatch(userMessage.Content, _config.KeyRegexString))
             {
                 await userMessage.AddReactionAsync(new Emoji(_config.KeyEmojiString));
                 var embed = new EmbedBuilder
