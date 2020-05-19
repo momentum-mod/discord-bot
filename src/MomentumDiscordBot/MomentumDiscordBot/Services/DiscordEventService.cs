@@ -29,8 +29,15 @@ namespace MomentumDiscordBot.Services
 
                 if (_joinLogChannel != null && _joinLogChannel is SocketTextChannel channel)
                 {
-                    await channel.SendMessageAsync(
-                        $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {(DateTimeOffset.UtcNow - user.CreatedAt).ToPrettyFormat()} ago");
+                    var accountAge = DateTimeOffset.UtcNow - user.CreatedAt;
+
+                    var userJoinedMessage = await channel.SendMessageAsync(
+                        $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {accountAge.ToPrettyFormat()} ago");
+
+                    if (accountAge.TotalHours <= 24)
+                    {
+                        await userJoinedMessage.AddReactionAsync(Emote.Parse(_config.NewUserEmoteString));
+                    }
                 }
             }
         }
