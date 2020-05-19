@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Discord;
@@ -208,10 +209,20 @@ namespace MomentumDiscordBot.Models
             {
                 // File exists, get the text
                 var configString = File.ReadAllText(PathConstants.ConfigFilePath, Encoding.UTF8);
-                return JsonConvert.DeserializeObject<Config>(configString);
+                return JsonConvert.DeserializeObject<Config>(configString, new JsonSerializerSettings
+                {
+                    MissingMemberHandling = MissingMemberHandling.Error,
+                    Error = LoadConfigErrorHandler
+                });
             }
 
             throw new FileNotFoundException($"No config file exists, expected it at: '{PathConstants.ConfigFilePath}'");
+        }
+
+        private static void LoadConfigErrorHandler(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            Console.WriteLine(e.ErrorContext.Error.Message);
+            e.ErrorContext.Handled = true;
         }
 
         private void SaveToFile()
