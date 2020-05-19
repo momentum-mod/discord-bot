@@ -27,6 +27,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
         [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
         [JsonProperty("new_account_emote")] private string _newUserEmoteString;
+        [JsonProperty("whitelist_key_begging_roles")] private ulong[] _whitelistKeyBeggingRoles;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -68,6 +69,17 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _mentionRoles = value.Distinct().ToArray();
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public ulong[] WhitelistKeyBeggingRoles
+        {
+            get => _whitelistKeyBeggingRoles;
+            set
+            {
+                _whitelistKeyBeggingRoles = value.Distinct().ToArray();
                 SaveToFile();
             }
         }
