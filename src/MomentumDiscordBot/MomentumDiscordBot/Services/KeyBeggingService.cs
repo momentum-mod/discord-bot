@@ -24,7 +24,10 @@ namespace MomentumDiscordBot.Services
 
         private async Task MessageReceived(SocketMessage message)
         {
-            if (!(message is IUserMessage userMessage)) return;
+            // Early return when relevant config isn't set
+            if (string.IsNullOrWhiteSpace(_config.KeyBeggingResponse) || 
+                string.IsNullOrWhiteSpace(_config.KeyRegexString) ||
+                !(message is IUserMessage userMessage)) return;
 
             try
             {
