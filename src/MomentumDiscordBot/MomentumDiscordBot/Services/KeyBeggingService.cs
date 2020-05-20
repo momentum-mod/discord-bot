@@ -31,8 +31,8 @@ namespace MomentumDiscordBot.Services
                 // First check for whitelisted roles
                 if (_config.WhitelistKeyBeggingRoles != null 
                     && _config.WhitelistKeyBeggingRoles.Length > 0 
-                    && message.Author is SocketGuildUser guildAuther
-                    && guildAuther.Roles.Select(x => x.Id).Any(x => _config.WhitelistKeyBeggingRoles.Contains(x)))
+                    && message.Author is SocketGuildUser guildAuthor
+                    && guildAuthor.Roles.Select(x => x.Id).Any(x => _config.WhitelistKeyBeggingRoles.Contains(x)))
                 {
                     return;
                 }
