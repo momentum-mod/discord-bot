@@ -28,6 +28,7 @@ namespace MomentumDiscordBot.Services
         private List<string> _streamSoftBanList = new List<string>();
         private List<Stream> _previousStreams;
         private LogService _logger;
+        private SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
 
         public StreamMonitorService(DiscordSocketClient discordClient, Config config, LogService logger)
         {
@@ -58,6 +59,9 @@ namespace MomentumDiscordBot.Services
 
         public async void UpdateCurrentStreamersAsync(object state)
         {
+            // Wait for the semaphore to unlock, then lock it
+            await semaphoreSlimLock.WaitAsync();
+
             var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
 
             if (streams == null || streams.Count == 0) return;
@@ -178,6 +182,8 @@ namespace MomentumDiscordBot.Services
             {
                 _ = _logger.LogError("StreamMonitorService", e.ToString());
             }
+
+            semaphoreSlimLock.Release();
         }
 
         private async Task TryParseExistingEmbedsAsync()
