@@ -59,6 +59,7 @@ namespace MomentumDiscordBot.Discord.Commands
                     var convertedValue = TypeDescriptor.GetConverter(configParameterType).ConvertFromString(value);
 
                     setter.Invoke(Config, new[] { convertedValue });
+                    Config.SaveToFile();
                 }
 
 
