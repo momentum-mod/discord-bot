@@ -114,8 +114,9 @@ namespace MomentumDiscordBot.Services
 
             _previousStreams = streams;
 
-            // Filter out soft banned streams
-            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
+            // Filter out soft/hard banned streams
+            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && 
+                                                     !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
 
             // Reload embeds
             try
