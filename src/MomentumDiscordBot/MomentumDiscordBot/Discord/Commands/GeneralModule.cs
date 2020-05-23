@@ -19,6 +19,7 @@ namespace MomentumDiscordBot.Discord.Commands
         [Summary("The command you are running")]
         public async Task HelpAsync()
         {
+            await ReplyAsync("Only the messages you have permission to use in this channel are included.");
             var message = await ReplyNewEmbedAsync("Building the help command... This message will be deleted when all help messages are sent", Color.Blue);
             foreach (var module in CommandService.Modules.Where(x => !x.Name.Contains("ModuleBase")))
             {
