@@ -147,6 +147,9 @@ namespace MomentumDiscordBot.Services
                     // New streams are not in the cache
                     if (!_cachedStreamsIds.ContainsKey(stream.Id))
                     {
+                        // If the stream is not above the minimum viewers then ignore it, but we want to update a stream if it dips below
+                        if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce) continue;
+
                         // New stream, send a new message
                         var message =
                             await _textChannel.SendMessageAsync(messageText, embed: embed);
