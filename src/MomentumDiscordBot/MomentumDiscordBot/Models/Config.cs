@@ -28,6 +28,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
         [JsonProperty("new_account_emote")] private string _newUserEmoteString;
         [JsonProperty("whitelist_key_begging_roles")] private ulong[] _whitelistKeyBeggingRoles;
+        [JsonProperty("minimum_stream_viewers_announce")] private int _minimumStreamViewersAnnounce;
 
         [JsonIgnore]
         public ulong MomentumModStreamerChannelId
@@ -224,6 +225,17 @@ namespace MomentumDiscordBot.Models
             set
             {
                 _newUserEmoteString = value;
+                SaveToFile();
+            }
+        }
+
+        [JsonIgnore]
+        public int MinimumStreamViewersAnnounce
+        {
+            get => _minimumStreamViewersAnnounce;
+            set
+            {
+                _minimumStreamViewersAnnounce = value;
                 SaveToFile();
             }
         }
