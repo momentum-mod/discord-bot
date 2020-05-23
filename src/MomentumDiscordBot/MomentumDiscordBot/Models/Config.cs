@@ -261,7 +261,7 @@ namespace MomentumDiscordBot.Models
             e.ErrorContext.Handled = true;
         }
 
-        private void SaveToFile()
+        public void SaveToFile()
         {
             var configString = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(PathConstants.ConfigFilePath, configString, Encoding.UTF8);
