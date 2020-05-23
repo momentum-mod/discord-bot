@@ -28,6 +28,7 @@ namespace MomentumDiscordBot.Services
         private List<string> _streamSoftBanList = new List<string>();
         private List<Stream> _previousStreams;
         private LogService _logger;
+        private SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
 
         public StreamMonitorService(DiscordSocketClient discordClient, Config config, LogService logger)
         {
@@ -58,6 +59,9 @@ namespace MomentumDiscordBot.Services
 
         public async void UpdateCurrentStreamersAsync(object state)
         {
+            // Wait for the semaphore to unlock, then lock it
+            await semaphoreSlimLock.WaitAsync();
+
             var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
 
             if (streams == null || streams.Count == 0) return;
@@ -114,8 +118,9 @@ namespace MomentumDiscordBot.Services
 
             _previousStreams = streams;
 
-            // Filter out soft banned streams
-            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
+            // Filter out soft/hard banned streams
+            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && 
+                                                     !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
 
             // Reload embeds
             try
@@ -146,6 +151,9 @@ namespace MomentumDiscordBot.Services
                     // New streams are not in the cache
                     if (!_cachedStreamsIds.ContainsKey(stream.Id))
                     {
+                        // If the stream is not above the minimum viewers then ignore it, but we want to update a stream if it dips below
+                        if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce) continue;
+
                         // New stream, send a new message
                         var message =
                             await _textChannel.SendMessageAsync(messageText, embed: embed);
@@ -174,6 +182,8 @@ namespace MomentumDiscordBot.Services
             {
                 _ = _logger.LogError("StreamMonitorService", e.ToString());
             }
+
+            semaphoreSlimLock.Release();
         }
 
         private async Task TryParseExistingEmbedsAsync()
