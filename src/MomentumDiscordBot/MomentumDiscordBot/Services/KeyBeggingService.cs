@@ -48,7 +48,7 @@ namespace MomentumDiscordBot.Services
                         Description = _config.KeyBeggingResponse,
                         Color = Color.Blue
                     }.Build();
-                    await message.Channel.SendMessageAsync(embed: embed);
+                    await message.Channel.SendMessageAsync(MentionUtils.MentionUser(message.Author.Id), embed: embed);
                 }
             }
             catch (Exception e)
