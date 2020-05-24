@@ -56,5 +56,24 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
                 await ReplyAsync(embed: embed.Build());
             }
         }
+
+        [Command("info")]
+        [Summary("Provides information about a channel")]
+        public async Task GetChannelInfoAsync([Remainder] IChannel channel)
+        {
+            var embed = new EmbedBuilder
+            {
+                Title = channel switch
+                {
+                    ICategoryChannel categoryChannel => $"Category: {categoryChannel.Name}",
+                    ITextChannel textChannel => $"# {textChannel.Name}",
+                    IVoiceChannel voiceChannel => $"🔊 {voiceChannel.Name}",
+                    _ => channel.Name
+                },
+                Footer = new EmbedFooterBuilder().WithText(channel.Id.ToString())
+            };
+
+            await ReplyAsync(embed: embed.Build());
+        }
     }
 }
