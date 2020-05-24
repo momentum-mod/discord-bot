@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Discord.Commands;
 using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Utilities
@@ -37,7 +36,7 @@ namespace MomentumDiscordBot.Utilities
             return embedBuilder.AddField($"**{commandString}** " + GetParametersString(command), GetCommandSummary(command));
         }
         private static IEnumerable<CommandInfo> GetValidCommands(ModuleInfo module, ICommandContext context, IServiceProvider services) 
-            => module.Commands.Where(x => x.CheckPreconditionsAsync(context, services).GetAwaiter().GetResult().IsSuccess);
+            => module.Commands.Where(x => x.Attributes.All(y => y.GetType() != typeof(HiddenAttribute)) && x.CheckPreconditionsAsync(context, services).GetAwaiter().GetResult().IsSuccess);
 
         private static EmbedBuilder BuildTitle(this EmbedBuilder embedBuilder, ModuleInfo module)
         {

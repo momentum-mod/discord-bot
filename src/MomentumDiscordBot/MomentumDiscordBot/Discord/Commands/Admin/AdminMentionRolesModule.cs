@@ -6,7 +6,7 @@ using Discord.Commands;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
-namespace MomentumDiscordBot.Discord.Commands
+namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [Group("mentionRoles")]
     public class AdminMentionRolesModule : AdminModule
