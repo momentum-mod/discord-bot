@@ -75,5 +75,19 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
 
             await ReplyAsync(embed: embed.Build());
         }
+
+        [Command("info")]
+        [Summary("Provides information about a role")]
+        public async Task GetRoleInfoAsync([Remainder] IRole role)
+        {
+            var embed = new EmbedBuilder
+            {
+                Description = role.Mention,
+                Footer = new EmbedFooterBuilder().WithText(role.Id.ToString())
+            };
+
+            await ReplyAsync(embed: embed.Build());
+        }
+
     }
 }
