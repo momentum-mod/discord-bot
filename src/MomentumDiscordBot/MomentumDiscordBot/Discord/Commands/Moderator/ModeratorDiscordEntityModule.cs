@@ -89,5 +89,25 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
             await ReplyAsync(embed: embed.Build());
         }
 
+        [Command("info")]
+        [Summary("Provides information about a message")]
+        [Priority(5000)]
+        public async Task GetMessageInfoAsync([Remainder] IMessage message)
+        {
+            var embed = new EmbedBuilder
+            {
+                Author = new EmbedAuthorBuilder
+                {
+                    Name = message.Author.Username,
+                    IconUrl = message.Author.GetAvatarUrl() ?? message.Author.GetDefaultAvatarUrl()
+                },
+                Description = "Message: " + string.Join("", message.Content.Take(1024)),
+                Footer = new EmbedFooterBuilder().WithText(message.Id.ToString())
+            };
+
+            embed.AddField("Jump", message.GetJumpUrl());
+
+            await ReplyAsync(embed: embed.Build());
+        }
     }
 }
