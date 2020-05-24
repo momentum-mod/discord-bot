@@ -13,6 +13,14 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
     public class ModeratorDiscordEntityModule : ModeratorModule
     {
         [Command("info")]
+        [Hidden]
+        [Priority(-1000)]
+        public async Task EntityNotFoundOverwriteAsync([Remainder] string param)
+        {
+            await ReplyNewEmbedAsync($"No discord entity found for {param}", Color.Orange);
+        }
+
+        [Command("info")]
         [Summary("Provides information about a user")]
         public async Task GetUserInfoAsync([Remainder] IUser user)
         {
