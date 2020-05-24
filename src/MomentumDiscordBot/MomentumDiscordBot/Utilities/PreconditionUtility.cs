@@ -16,7 +16,7 @@ namespace MomentumDiscordBot.Utilities
 
             return Task.FromResult(guildUser.Roles.Any(x => x.Id == roleId)
                 ? PreconditionResult.FromSuccess()
-                : PreconditionResult.FromError("You must be an Admin to use that command"));
+                : PreconditionResult.FromError($"You must have the {guildUser.Guild.Roles.FirstOrDefault(x => x.Id == roleId)?.Name ?? "Unknown" } role to use that command"));
         }
     }
 }
