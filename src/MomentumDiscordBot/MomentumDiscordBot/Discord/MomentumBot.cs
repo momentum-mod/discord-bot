@@ -4,7 +4,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using MomentumDiscordBot.Discord.Commands;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 

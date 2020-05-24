@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 using TwitchLib.Api.Helix.Models.Streams;
