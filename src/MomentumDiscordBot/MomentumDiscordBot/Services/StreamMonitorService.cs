@@ -63,7 +63,11 @@ namespace MomentumDiscordBot.Services
 
             var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
 
-            if (streams == null || streams.Count == 0) return;
+            if (streams == null || streams.Count == 0)
+            {
+                semaphoreSlimLock.Release();
+                return;
+            }
 
             var streamIds = streams.Select(x => x.Id);
 
