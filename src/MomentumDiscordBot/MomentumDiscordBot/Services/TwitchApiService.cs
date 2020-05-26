@@ -14,6 +14,8 @@ namespace MomentumDiscordBot.Services
         private readonly TwitchAPI _apiService;
         private string _momentumModGameId = null;
         private LogService _logger;
+        public List<Stream> PreviousLivestreams { get; set; }
+
         public TwitchApiService(LogService logger)
         {
             _logger = logger;
@@ -65,7 +67,6 @@ namespace MomentumDiscordBot.Services
                 return null;
             }
         }
-
         public async Task<string> GetStreamerIconUrlAsync(string id)
         {
             try
@@ -83,7 +84,6 @@ namespace MomentumDiscordBot.Services
             }
 
         }
-
         public async Task<string> GetStreamerIDAsync(string name)
         {
             var response = await _apiService.Helix.Users.GetUsersAsync(logins: new List<string> {name});
@@ -101,7 +101,6 @@ namespace MomentumDiscordBot.Services
 
             return users.First().Id;
         }
-
         public async Task<string> GetStreamerNameAsync(string id)
         {
             var response = await _apiService.Helix.Users.GetUsersAsync(ids: new List<string> { id });
@@ -118,6 +117,38 @@ namespace MomentumDiscordBot.Services
             }
 
             return users.First().DisplayName;
+        }
+        public async Task<string> GetOrDownloadTwitchIDAsync(string username)
+        {
+            if (ulong.TryParse(username, out _))
+            {
+                // Input is a explicit Twitch ID
+                return username;
+            }
+            else
+            {
+                // Input is the Twitch username
+                var cachedUser = PreviousLivestreams.FirstOrDefault(x =>
+                    string.Equals(username, x.UserName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (cachedUser != null)
+                {
+                    // User is in the cache
+                    return cachedUser.UserId;
+                }
+
+                try
+                {
+                    // Search the API, throws exception if not found
+                    return await GetStreamerIDAsync(username);
+                }
+                catch (Exception e)
+                {
+                    _ = _logger.LogError("StreamMonitorService", e.ToString());
+                    return null;
+                }
+
+            }
         }
     }
 }

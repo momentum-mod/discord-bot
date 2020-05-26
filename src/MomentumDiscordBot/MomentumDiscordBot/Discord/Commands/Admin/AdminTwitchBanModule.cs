@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Services;
 using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
@@ -20,7 +21,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
 
-            var userToBanId = await StreamMonitorService.GetOrDownloadTwitchIDAsync(username);
+            var userToBanId = await StreamMonitorService.TwitchApiService.GetOrDownloadTwitchIDAsync(username);
 
             if (userToBanId == null)
             {
@@ -45,7 +46,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
 
-            var userToUnbanId = await StreamMonitorService.GetOrDownloadTwitchIDAsync(username);
+            var userToUnbanId = await StreamMonitorService.TwitchApiService.GetOrDownloadTwitchIDAsync(username);
 
             if (userToUnbanId == null)
             {

@@ -16,18 +16,20 @@ namespace MomentumDiscordBot.Services
     /// </summary>
     public class StreamMonitorService
     {
-        private ulong _channelId;
-        private TimeSpan _updateInterval;
+        private readonly ulong _channelId;
+
+        private readonly TimeSpan _updateInterval;
+
+        // <StreamID, MessageID>
         private Dictionary<string, ulong> _cachedStreamsIds;
         private readonly Config _config;
         private readonly DiscordSocketClient _discordClient;
         private SocketTextChannel _textChannel;
         public readonly TwitchApiService TwitchApiService;
         private Timer _intervalFunctionTimer;
-        private List<string> _streamSoftBanList = new List<string>();
-        private List<Stream> _previousStreams;
-        private LogService _logger;
-        private SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
+        private readonly List<string> _streamSoftBanList = new List<string>();
+        private readonly LogService _logger;
+        private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
 
         public StreamMonitorService(DiscordSocketClient discordClient, Config config, LogService logger)
         {
@@ -44,7 +46,7 @@ namespace MomentumDiscordBot.Services
 
         private Task _discordClient_Ready()
         {
-            _ = Task.Run(async () => 
+            _ = Task.Run(async () =>
             {
                 _textChannel = _discordClient.GetChannel(_channelId) as SocketTextChannel;
 
@@ -63,123 +65,34 @@ namespace MomentumDiscordBot.Services
 
             var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
 
-            if (streams == null || streams.Count == 0)
+            // On error no need to continue
+            if (streams == null)
             {
                 semaphoreSlimLock.Release();
                 return;
             }
 
-            var streamIds = streams.Select(x => x.Id);
+            await DeleteBannedStreamsAsync(streams);
+            await UnSoftbanEndedStreamsAsync(streams);
+            await RegisterSoftBansAsync();
 
-            // Get streams from banned users
-            if (_config.TwitchUserBans != null && _config.TwitchUserBans.Length > 0)
-            {
-                var bannedStreams = streams.Where(x => _config.TwitchUserBans.Contains(x.UserId));
-                foreach (var bannedStream in bannedStreams)
-                {
-                    if (_cachedStreamsIds.TryGetValue(bannedStream.Id, out var messageId))
-                    {
-                        await _textChannel.DeleteMessageAsync(messageId);
-                    }
-                }
-            }
-
-            // If the cached stream id's isn't in the fetched stream id, it is an ended stream
-            var endedStreams = _cachedStreamsIds.Where(x => !streamIds.Contains(x.Key));
-            
-            foreach (var (endedStreamId, messageId) in endedStreams)
-            {
-                // If the stream was soft banned, remove it
-                if (_streamSoftBanList.Contains(endedStreamId))
-                {
-                    _streamSoftBanList.Remove(endedStreamId);
-                }
-
-                try
-                {
-                    await _textChannel.DeleteMessageAsync(messageId);
-                }
-                catch
-                {
-                    _ = _logger.LogWarning("StreamMonitorService", "Tried to delete message " + messageId + " but it does not exist.");
-                }
-                
-                _cachedStreamsIds.Remove(endedStreamId);
-            }
-
-            // Check for soft-banned stream, when a mod deletes the message
-            try
-            {
-                var existingSelfMessages = (await _textChannel.GetMessagesAsync(limit: 200).FlattenAsync()).FromSelf(_discordClient);
-                var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
-                _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
-            }
-            catch (Exception e)
-            {
-                _ = _logger.LogWarning("StreamMonitorService", e.Message);
-            }
-
-            _previousStreams = streams;
+            TwitchApiService.PreviousLivestreams = streams;
 
             // Filter out soft/hard banned streams
-            var filteredStreams = streams.Where(x => !_streamSoftBanList.Contains(x.Id) && 
-                                                     !(_config.TwitchUserBans ?? new string[0]).Contains(x.UserId));
+            var filteredStreams = streams.Where(x => !IsSoftBanned(x) && !IsHardBanned(x)).ToList();
 
             // Reload embeds
             try
             {
-                await TryParseExistingEmbedsAsync();
-
-                foreach (var stream in filteredStreams)
+                // If there is an exception when parsing the existing embeds, no need to continue
+                // Return early when there are no streams as well, as no need to send/update
+                if (!await TryParseExistingEmbedsAsync() || filteredStreams.Count == 0)
                 {
-                    var messageText =
-                        $"{stream.UserName.EscapeDiscordChars()} has gone live! {MentionUtils.MentionRole(_config.LivestreamMentionRoleId)}";
-
-                    var embed = new EmbedBuilder
-                    {
-                        Title = stream.Title.EscapeDiscordChars(),
-                        Color = Color.Purple,
-                        Author = new EmbedAuthorBuilder
-                        {
-                            Name = stream.UserName,
-                            IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
-                            Url = $"https://twitch.tv/{stream.UserName}"
-                        },
-                        ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" + Environment.TickCount,
-                        Description = stream.ViewerCount + " viewers",
-                        Url = $"https://twitch.tv/{stream.UserName}",
-                        Timestamp = DateTimeOffset.Now
-                    }.Build();
-
-                    // New streams are not in the cache
-                    if (!_cachedStreamsIds.ContainsKey(stream.Id))
-                    {
-                        // If the stream is not above the minimum viewers then ignore it, but we want to update a stream if it dips below
-                        if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce) continue;
-
-                        // New stream, send a new message
-                        var message =
-                            await _textChannel.SendMessageAsync(messageText, embed: embed);
-
-                        _cachedStreamsIds.Add(stream.Id, message.Id);
-                    }
-                    else
-                    {
-                        // Existing stream, update message with new information
-                        if (_cachedStreamsIds.TryGetValue(stream.Id, out var messageId))
-                        {
-                            var oldMessage = await _textChannel.GetMessageAsync(messageId);
-                            if (oldMessage is IUserMessage oldRestMessage)
-                            {
-                                await oldRestMessage.ModifyAsync(x =>
-                                {
-                                    x.Content = messageText;
-                                    x.Embed = embed;
-                                });
-                            }
-                        }
-                    }
+                    semaphoreSlimLock.Release();
+                    return;
                 }
+
+                await SendOrUpdateStreamEmbedsAsync(filteredStreams);
             }
             catch (Exception e)
             {
@@ -189,7 +102,136 @@ namespace MomentumDiscordBot.Services
             semaphoreSlimLock.Release();
         }
 
-        private async Task TryParseExistingEmbedsAsync()
+        private async Task SendOrUpdateStreamEmbedsAsync(List<Stream> filteredStreams)
+        {
+            foreach (var stream in filteredStreams)
+            {
+                var (embed, messageText) = await GetStreamEmbed(stream);
+
+                // New streams are not in the cache
+                if (!IsStreamInCache(stream))
+                {
+                    // If the stream is not above the minimum viewers then ignore it, but we want to update a stream if it dips below
+                    if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce) continue;
+
+                    // New stream, send a new message
+                    var message =
+                        await _textChannel.SendMessageAsync(messageText, embed: embed);
+
+                    _cachedStreamsIds.Add(stream.Id, message.Id);
+                }
+                else
+                {
+                    // Get the message id from the stream
+                    if (!_cachedStreamsIds.TryGetValue(stream.Id, out var messageId))
+                    {
+                        _ = _logger.LogWarning("StreamMonitorService", "Could not message from cached stream ID");
+                        continue;
+                    }
+
+                    // Existing stream, update message with new information
+                    var oldMessage = await _textChannel.GetMessageAsync(messageId);
+                    if (oldMessage is IUserMessage oldRestMessage)
+                        await oldRestMessage.ModifyAsync(x =>
+                        {
+                            x.Content = messageText;
+                            x.Embed = embed;
+                        });
+                }
+            }
+        }
+
+        private bool IsStreamInCache(Stream stream) => _cachedStreamsIds.ContainsKey(stream.Id);
+
+        private async Task<KeyValuePair<Embed, string>> GetStreamEmbed(Stream stream)
+        {
+            var messageText =
+                $"{stream.UserName.EscapeDiscordChars()} has gone live! {MentionUtils.MentionRole(_config.LivestreamMentionRoleId)}";
+
+            var embed = new EmbedBuilder
+            {
+                Title = stream.Title.EscapeDiscordChars(),
+                Color = Color.Purple,
+                Author = new EmbedAuthorBuilder
+                {
+                    Name = stream.UserName,
+                    IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
+                    Url = $"https://twitch.tv/{stream.UserName}"
+                },
+                ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" +
+                           Environment.TickCount,
+                Description = stream.ViewerCount + " viewers",
+                Url = $"https://twitch.tv/{stream.UserName}",
+                Timestamp = DateTimeOffset.Now
+            }.Build();
+
+            return new KeyValuePair<Embed, string>(embed, messageText);
+        }
+
+        private bool IsHardBanned(Stream stream) => (_config.TwitchUserBans ?? new string[0]).Contains(stream.UserId);
+
+        private bool IsSoftBanned(Stream stream) => _streamSoftBanList.Contains(stream.Id);
+
+        private async Task RegisterSoftBansAsync()
+        {
+            // Check for soft-banned stream, when a mod deletes the message
+            try
+            {
+                var existingSelfMessages =
+                    (await _textChannel.GetMessagesAsync(200).FlattenAsync()).FromSelf(_discordClient);
+                var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
+                _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
+            }
+            catch (Exception e)
+            {
+                _ = _logger.LogWarning("StreamMonitorService", e.Message);
+            }
+        }
+
+        private async Task UnSoftbanEndedStreamsAsync(IEnumerable<Stream> streams)
+        {
+            // If the cached stream id's isn't in the fetched stream id, it is an ended stream
+            var streamIds = streams.Select(x => x.Id);
+            var endedStreams = _cachedStreamsIds.Where(x => !streamIds.Contains(x.Key));
+
+            foreach (var (endedStreamId, messageId) in endedStreams)
+            {
+                // If the stream was soft banned, remove it
+                if (_streamSoftBanList.Contains(endedStreamId)) _streamSoftBanList.Remove(endedStreamId);
+
+                try
+                {
+                    await _textChannel.DeleteMessageAsync(messageId);
+                }
+                catch
+                {
+                    _ = _logger.LogWarning("StreamMonitorService",
+                        "Tried to delete message " + messageId + " but it does not exist.");
+                }
+
+                _cachedStreamsIds.Remove(endedStreamId);
+            }
+        }
+
+        private async Task DeleteBannedStreamsAsync(IEnumerable<Stream> streams)
+        {
+            // Get streams from banned users
+            if (_config.TwitchUserBans != null && _config.TwitchUserBans.Length > 0)
+            {
+                var bannedStreams = streams.Where(x => _config.TwitchUserBans.Contains(x.UserId));
+
+                foreach (var bannedStream in bannedStreams) 
+                {
+                    if (_cachedStreamsIds.TryGetValue(bannedStream.Id, out var messageId))
+                    {
+                        await _textChannel.DeleteMessageAsync(messageId);
+                    }
+                }
+                    
+            }
+        }
+
+        private async Task<bool> TryParseExistingEmbedsAsync()
         {
             // Reset cache
             _cachedStreamsIds = new Dictionary<string, ulong>();
@@ -197,10 +239,12 @@ namespace MomentumDiscordBot.Services
             // Get all messages
             var messages = (await _textChannel.GetMessagesAsync().FlattenAsync()).FromSelf(_discordClient).ToList();
 
-            if (!messages.Any()) return;
+            if (!messages.Any()) return true;
 
-            // Get current streams, instead of returning early on error just delete all cache
-            var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync() ?? new List<Stream>();
+            var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
+
+            // Error getting streams, don't continue
+            if (streams == null) return false;
 
             // Delete existing bot messages simultaneously
             var deleteTasks = messages
@@ -219,7 +263,8 @@ namespace MomentumDiscordBot.Services
                             // Found the matching stream
                             if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
                             {
-                                await _logger.LogWarning("StreamMonitorService", "Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
+                                await _logger.LogWarning("StreamMonitorService",
+                                    "Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
                                 await x.DeleteAsync();
                             }
                         }
@@ -231,39 +276,7 @@ namespace MomentumDiscordBot.Services
                     }
                 });
             await Task.WhenAll(deleteTasks);
-        }
-
-        public async Task<string> GetOrDownloadTwitchIDAsync(string username)
-        { 
-            if (ulong.TryParse(username, out _))
-            {
-                // Input is a explicit Twitch ID
-                return username;
-            }
-            else
-            {
-                // Input is the Twitch username
-                var cachedUser = _previousStreams.FirstOrDefault(x =>
-                    string.Equals(username, x.UserName, StringComparison.InvariantCultureIgnoreCase));
-
-                if (cachedUser != null)
-                {
-                    // User is in the cache
-                    return cachedUser.UserId;
-                }
-
-                try
-                { 
-                    // Search the API, throws exception if not found
-                    return await TwitchApiService.GetStreamerIDAsync(username);
-                }
-                catch (Exception e)
-                {
-                    _ = _logger.LogError("StreamMonitorService", e.ToString());
-                    return null;
-                }
-                
-            }
+            return true;
         }
     }
 }
