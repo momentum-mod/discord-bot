@@ -32,6 +32,16 @@ namespace MomentumDiscordBot.Services
         private readonly ILogger _logger;
         private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
 
+        private SocketTextChannel GetTextChannel()
+        {
+            if (_textChannel != null)
+            {
+                return _textChannel;
+            }
+
+            _textChannel = _discordClient.GetChannel(_config.MomentumModStreamerChannelId) as SocketTextChannel;
+            return _textChannel;
+        }
         public StreamMonitorService(DiscordSocketClient discordClient, Config config, ILogger logger)
         {
             _config = config;
@@ -49,7 +59,7 @@ namespace MomentumDiscordBot.Services
         {
             _ = Task.Run(async () =>
             {
-                _textChannel = _discordClient.GetChannel(_channelId) as SocketTextChannel;
+                GetTextChannel();
 
                 await TryParseExistingEmbedsAsync();
 
@@ -117,7 +127,7 @@ namespace MomentumDiscordBot.Services
 
                     // New stream, send a new message
                     var message =
-                        await _textChannel.SendMessageAsync(messageText, embed: embed);
+                        await GetTextChannel().SendMessageAsync(messageText, embed: embed);
 
                     _cachedStreamsIds.Add(stream.Id, message.Id);
                 }
@@ -131,7 +141,7 @@ namespace MomentumDiscordBot.Services
                     }
 
                     // Existing stream, update message with new information
-                    var oldMessage = await _textChannel.GetMessageAsync(messageId);
+                    var oldMessage = await GetTextChannel().GetMessageAsync(messageId);
                     if (oldMessage is IUserMessage oldRestMessage)
                         await oldRestMessage.ModifyAsync(x =>
                         {
@@ -179,7 +189,7 @@ namespace MomentumDiscordBot.Services
             try
             {
                 var existingSelfMessages =
-                    (await _textChannel.GetMessagesAsync(200).FlattenAsync()).FromSelf(_discordClient);
+                    (await GetTextChannel().GetMessagesAsync(200).FlattenAsync()).FromSelf(_discordClient);
                 var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
                 _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
             }
@@ -202,7 +212,7 @@ namespace MomentumDiscordBot.Services
 
                 try
                 {
-                    await _textChannel.DeleteMessageAsync(messageId);
+                    await GetTextChannel().DeleteMessageAsync(messageId);
                 }
                 catch
                 {
@@ -224,7 +234,7 @@ namespace MomentumDiscordBot.Services
                 {
                     if (_cachedStreamsIds.TryGetValue(bannedStream.Id, out var messageId))
                     {
-                        await _textChannel.DeleteMessageAsync(messageId);
+                        await GetTextChannel().DeleteMessageAsync(messageId);
                     }
                 }
                     
@@ -237,7 +247,7 @@ namespace MomentumDiscordBot.Services
             _cachedStreamsIds = new Dictionary<string, ulong>();
 
             // Get all messages
-            var messages = (await _textChannel.GetMessagesAsync().FlattenAsync()).FromSelf(_discordClient).ToList();
+            var messages = (await GetTextChannel().GetMessagesAsync().FlattenAsync()).FromSelf(_discordClient).ToList();
 
             if (!messages.Any()) return true;
 
