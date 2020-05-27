@@ -6,6 +6,8 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
+using Serilog;
+using Serilog.Events;
 
 namespace MomentumDiscordBot.Discord
 {
@@ -16,12 +18,13 @@ namespace MomentumDiscordBot.Discord
         private readonly string _discordToken;
         private readonly MomentumCommandService _momentumCommandService;
         private readonly StreamMonitorService _streamMonitorService;
-        private readonly LogService _logger;
+        private readonly ILogger _logger;
 
-        public MomentumBot(string discordToken, Config config)
+        public MomentumBot(string discordToken, Config config, ILogger logger)
         {
             _discordToken = discordToken;
             _config = config;
+            _logger = logger;
 
             var discordClientConfig = new DiscordSocketConfig
             {
@@ -32,7 +35,6 @@ namespace MomentumDiscordBot.Discord
             _discordClient = new DiscordSocketClient(discordClientConfig);
 
             var baseCommandService = MomentumCommandService.BuildBaseCommandService();
-            _logger = new LogService(_discordClient);
 
             _streamMonitorService = new StreamMonitorService(_discordClient, _config, _logger);
             var services = BuildServiceProvider(baseCommandService);

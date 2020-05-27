@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
+using Serilog;
 
 namespace MomentumDiscordBot.Services
 {
@@ -12,8 +13,8 @@ namespace MomentumDiscordBot.Services
     {
         private DiscordSocketClient _discordClient;
         private Config _config;
-        private LogService _logger;
-        public KeyBeggingService(DiscordSocketClient discordClient, LogService logger, Config config)
+        private ILogger _logger;
+        public KeyBeggingService(DiscordSocketClient discordClient, ILogger logger, Config config)
         {
             _discordClient = discordClient;
             _logger = logger;
@@ -54,7 +55,7 @@ namespace MomentumDiscordBot.Services
             catch (Exception e)
             {
                 // If it fails, oh well
-                _ = _logger.LogError("KeyBeggingService", e.ToString());
+                _logger.Error(e, "KeyBeggingService");
             }
             
         }

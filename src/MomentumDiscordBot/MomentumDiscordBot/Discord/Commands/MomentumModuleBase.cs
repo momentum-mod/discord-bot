@@ -2,12 +2,13 @@
 using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Services;
+using Serilog;
 
 namespace MomentumDiscordBot.Discord.Commands
 {
     public class MomentumModuleBase : ModuleBase<SocketCommandContext>
     {
-        public LogService LogService { get; set; }
+        public ILogger Logger { get; set; }
 
         protected async Task<IUserMessage> ReplyNewEmbedAsync(string text, Color color)
         {

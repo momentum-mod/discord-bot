@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MomentumDiscordBot.Constants;
+using Serilog;
 using TwitchLib.Api;
 using Stream = TwitchLib.Api.Helix.Models.Streams.Stream;
 
@@ -13,10 +14,10 @@ namespace MomentumDiscordBot.Services
     {
         private readonly TwitchAPI _apiService;
         private string _momentumModGameId = null;
-        private LogService _logger;
+        private ILogger _logger;
         public List<Stream> PreviousLivestreams { get; set; }
 
-        public TwitchApiService(LogService logger)
+        public TwitchApiService(ILogger logger)
         {
             _logger = logger;
 
@@ -63,7 +64,7 @@ namespace MomentumDiscordBot.Services
             }
             catch (Exception e)
             {
-                _ = _logger.LogError("TwitchApiService", e.ToString());
+                _logger.Error(e, "TwitchApiService");
                 return null;
             }
         }
@@ -79,7 +80,7 @@ namespace MomentumDiscordBot.Services
             }
             catch (Exception e)
             {
-                _ = _logger.LogError("TwitchApiService", e.ToString());
+                _logger.Error(e, "TwitchApiService");
                 return string.Empty;
             }
 
@@ -144,7 +145,7 @@ namespace MomentumDiscordBot.Services
                 }
                 catch (Exception e)
                 {
-                    _ = _logger.LogError("StreamMonitorService", e.ToString());
+                    _logger.Error(e, "TwitchApiService");
                     return null;
                 }
 

@@ -7,6 +7,7 @@ using Discord;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
+using Serilog;
 using TwitchLib.Api.Helix.Models.Streams;
 
 namespace MomentumDiscordBot.Services
@@ -28,10 +29,10 @@ namespace MomentumDiscordBot.Services
         public readonly TwitchApiService TwitchApiService;
         private Timer _intervalFunctionTimer;
         private readonly List<string> _streamSoftBanList = new List<string>();
-        private readonly LogService _logger;
+        private readonly ILogger _logger;
         private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
 
-        public StreamMonitorService(DiscordSocketClient discordClient, Config config, LogService logger)
+        public StreamMonitorService(DiscordSocketClient discordClient, Config config, ILogger logger)
         {
             _config = config;
             _discordClient = discordClient;
@@ -96,7 +97,7 @@ namespace MomentumDiscordBot.Services
             }
             catch (Exception e)
             {
-                _ = _logger.LogError("StreamMonitorService", e.ToString());
+                _logger.Error(e, "StreamMonitorService");
             }
 
             semaphoreSlimLock.Release();
@@ -125,7 +126,7 @@ namespace MomentumDiscordBot.Services
                     // Get the message id from the stream
                     if (!_cachedStreamsIds.TryGetValue(stream.Id, out var messageId))
                     {
-                        _ = _logger.LogWarning("StreamMonitorService", "Could not message from cached stream ID");
+                        _logger.Warning("StreamMonitorService: Could not message from cached stream ID");
                         continue;
                     }
 
@@ -184,7 +185,7 @@ namespace MomentumDiscordBot.Services
             }
             catch (Exception e)
             {
-                _ = _logger.LogWarning("StreamMonitorService", e.Message);
+                _logger.Warning(e, "StreamMonitorService");
             }
         }
 
@@ -205,8 +206,7 @@ namespace MomentumDiscordBot.Services
                 }
                 catch
                 {
-                    _ = _logger.LogWarning("StreamMonitorService",
-                        "Tried to delete message " + messageId + " but it does not exist.");
+                    _logger.Warning("StreamMonitorService: Tried to delete message " + messageId + " but it does not exist.");
                 }
 
                 _cachedStreamsIds.Remove(endedStreamId);
@@ -263,8 +263,7 @@ namespace MomentumDiscordBot.Services
                             // Found the matching stream
                             if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
                             {
-                                await _logger.LogWarning("StreamMonitorService",
-                                    "Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
+                                _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
                                 await x.DeleteAsync();
                             }
                         }
