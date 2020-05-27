@@ -3,6 +3,9 @@ using System.IO;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord;
 using MomentumDiscordBot.Models;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace MomentumDiscordBot
 {
@@ -18,7 +21,12 @@ namespace MomentumDiscordBot
             Console.WriteLine("Loading config file...");
             var config = Config.LoadFromFile();
 
-            var bot = new MomentumBot(discordToken, config);
+            using var logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.Seq(config.SeqAddress, LogEventLevel.Warning, apiKey: config.SeqToken)
+                .CreateLogger();
+
+            var bot = new MomentumBot(discordToken, config, logger);
 
             var closingException = bot.RunAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -29,8 +37,7 @@ namespace MomentumDiscordBot
             }
             else
             {
-                Console.WriteLine("Application quitting unsafely, exception information:");
-                Console.WriteLine(closingException.ToString());
+                logger.Error(closingException, "Application quitting unsafely");
             }
         }
 

@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
+using Serilog;
 
 namespace MomentumDiscordBot.Services
 {
@@ -14,17 +15,17 @@ namespace MomentumDiscordBot.Services
         private readonly CommandService _baseCommandService;
         private readonly Config _config;
         private readonly DiscordSocketClient _discordClient;
-        private readonly LogService _logService;
+        private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
 
         public MomentumCommandService(DiscordSocketClient discordClient, CommandService baseCommandService,
-            LogService logService, Config config, IServiceProvider serviceProvider)
+            ILogger logger, Config config, IServiceProvider serviceProvider)
         {
             // Parameters are injected
             _discordClient = discordClient;
             _baseCommandService = baseCommandService;
             _serviceProvider = serviceProvider;
-            _logService = logService;
+            _logger = logger;
             _config = config;
         }
 
@@ -32,16 +33,15 @@ namespace MomentumDiscordBot.Services
         {
             // Main handler for command input
             _discordClient.MessageReceived += HandleCommandAsync;
-            await _logService.LogInfoAsync("CommandService", "Registered MessageReceived event");
+            _logger.Information("CommandService: Registered MessageReceived event");
 
             // Post execution handler
             _baseCommandService.CommandExecuted += OnCommandExecutedAsync;
-            await _logService.LogInfoAsync("CommandService", "Registered CommandExecuted event");
+            _logger.Information("CommandService: Registered CommandExecuted event");
 
             // Install discord commands
             await _baseCommandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
-            await _logService.LogInfoAsync("CommandService",
-                $"Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
+            _logger.Information($"CommandService: Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
         }
 
         private async Task HandleCommandAsync(SocketMessage inputMessage)
@@ -86,8 +86,7 @@ namespace MomentumDiscordBot.Services
                 await context.Channel.SendMessageAsync(embed: embedBuilder.WithDescription(result.ErrorReason).Build());
                 var commandName = command.IsSpecified ? command.Value.Name : "An unknown command";
 
-                await _logService.LogError("MomentumCommandService",
-                    $"{commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}");
+                _logger.Error($"MomentumCommandService {commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}");
             }
         }
 

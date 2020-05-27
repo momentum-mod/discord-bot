@@ -28,6 +28,8 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("new_account_emote")] public string NewUserEmoteString { get; set; }
         [JsonProperty("whitelist_key_begging_roles")] public ulong[] WhitelistKeyBeggingRoles { get; set; }
         [JsonProperty("minimum_stream_viewers_announce")] public int MinimumStreamViewersAnnounce { get; set; }
+        [JsonProperty("seq_address")] public string SeqAddress { get; set; }
+        [JsonProperty("seq_token")] public string SeqToken { get; set; }
 
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         public static Config LoadFromFile()
