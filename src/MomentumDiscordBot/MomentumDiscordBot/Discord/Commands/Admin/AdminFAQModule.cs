@@ -3,7 +3,7 @@ using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Services;
 
-namespace MomentumDiscordBot.Discord.Commands
+namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [Group("faq")]
     public class AdminFAQModule : AdminModule
