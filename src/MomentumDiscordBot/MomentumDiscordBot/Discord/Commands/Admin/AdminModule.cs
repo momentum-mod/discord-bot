@@ -6,7 +6,7 @@ using Discord.WebSocket;
 using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Services;
 
-namespace MomentumDiscordBot.Discord.Commands
+namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [AdminPrecondition]
     [RequireAdminBotChannelPrecondition]

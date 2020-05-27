@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System;
+using System.IO;
 using System.Text;
 using Discord;
 using MomentumDiscordBot.Constants;
@@ -9,200 +9,55 @@ namespace MomentumDiscordBot.Models
 {
     public class Config
     {
-        [JsonProperty("admin_id")] private ulong _adminRoleID;
-        [JsonProperty("command_prefix")] private string _commandPrefix;
-        [JsonProperty("livestream_mention_role_id")] private ulong _livestreamMentionRoleId;
-        [JsonProperty("mention_role_emoji")] private string _mentionRoleEmojiString;
-        [JsonProperty("mention_roles")] private ulong[] _mentionRoles;
-        [JsonProperty("moderator_id")] private ulong _moderatorRoleID;
-        [JsonProperty("streamer_channel")] private ulong _momentumModStreamerChannelId;
-        [JsonProperty("roles_channel")] private ulong _rolesChannelId;
-        [JsonProperty("twitch_user_bans")] private string[] _twitchUserBans;
-        [JsonProperty("admin_bot_channel")] private ulong _adminBotChannel;
-        [JsonProperty("stream_update_interval")] private int _streamUpdateInterval;
-        [JsonProperty("faq_channel")] private ulong _faqChannelId;
-        [JsonProperty("faq_role")] private ulong _faqRoleId;
-        [JsonProperty("join_log_channel")] private ulong _joinLogChannel;
-        [JsonProperty("message_history_channel")] private ulong _messageHistoryChannel;
 
-        [JsonIgnore]
-        public ulong MomentumModStreamerChannelId
-        {
-            get => _momentumModStreamerChannelId;
-            set
-            {
-                _momentumModStreamerChannelId = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong RolesChannelId
-        {
-            get => _rolesChannelId;
-            set
-            {
-                _rolesChannelId = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public string CommandPrefix
-        {
-            get => _commandPrefix;
-            set
-            {
-                _commandPrefix = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong[] MentionRoles
-        {
-            get => _mentionRoles;
-            set
-            {
-                _mentionRoles = value.Distinct().ToArray();
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong ModeratorRoleID
-        {
-            get => _moderatorRoleID;
-            set
-            {
-                _moderatorRoleID = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong AdminRoleID
-        {
-            get => _adminRoleID;
-            set
-            {
-                _adminRoleID = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public string MentionRoleEmojiString
-        {
-            get => _mentionRoleEmojiString;
-            set
-            {
-                _mentionRoleEmojiString = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong LivestreamMentionRoleId
-        {
-            get => _livestreamMentionRoleId;
-            set
-            {
-                _livestreamMentionRoleId = value;
-                SaveToFile();
-            }
-        }
+        [JsonProperty("admin_id")] public ulong AdminRoleID { get; set; }
+        [JsonProperty("command_prefix")] public string CommandPrefix { get; set; }
+        [JsonProperty("livestream_mention_role_id")] public ulong LivestreamMentionRoleId { get; set; }
+        [JsonProperty("mention_role_emoji")] public string MentionRoleEmojiString { get; set; }
+        [JsonProperty("mention_roles")] public ulong[] MentionRoles { get; set; }
+        [JsonProperty("moderator_id")] public ulong ModeratorRoleID { get; set; }
+        [JsonProperty("streamer_channel")] public ulong MomentumModStreamerChannelId { get; set; }
+        [JsonProperty("roles_channel")] public ulong RolesChannelId { get; set; }
+        [JsonProperty("twitch_user_bans")] public string[] TwitchUserBans { get; set; }
+        [JsonProperty("admin_bot_channel")] public ulong AdminBotChannel { get; set; }
+        [JsonProperty("stream_update_interval")] public int StreamUpdateInterval { get; set; }
+        [JsonProperty("key_emoji")] public string KeyEmojiString { get; set; }
+        [JsonProperty("key_begging_response")] public string KeyBeggingResponse { get; set; }
+        [JsonProperty("key_regex")] public string KeyRegexString { get; set; }
+        [JsonProperty("join_log_channel")] public ulong JoinLogChannel { get; set; }
+        [JsonProperty("message_history_channel")] public ulong MessageHistoryChannel { get; set; }
+        [JsonProperty("new_account_emote")] public string NewUserEmoteString { get; set; }
+        [JsonProperty("whitelist_key_begging_roles")] public ulong[] WhitelistKeyBeggingRoles { get; set; }
+        [JsonProperty("minimum_stream_viewers_announce")] public int MinimumStreamViewersAnnounce { get; set; }
+        [JsonProperty("seq_address")] public string SeqAddress { get; set; }
+        [JsonProperty("seq_token")] public string SeqToken { get; set; }
+        [JsonProperty("faq_channel")] public ulong FaqChannelId { get; set; }
+        [JsonProperty("faq_role")] public ulong FaqRoleId { get; set; }
 
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
-
-        [JsonIgnore]
-        public string[] TwitchUserBans
-        {
-            get => _twitchUserBans;
-            set
-            {
-                _twitchUserBans = value.Distinct().ToArray();
-                SaveToFile();
-            }
-        }
-        [JsonIgnore] 
-        public ulong AdminBotChannel
-        {
-            get => _adminBotChannel;
-            set
-            {
-                _adminBotChannel = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong JoinLogChannel
-        {
-            get => _joinLogChannel;
-            set
-            {
-                _joinLogChannel = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public int StreamUpdateInterval
-        {
-            get => _streamUpdateInterval;
-            set
-            {
-                _streamUpdateInterval = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong FaqRoleId
-        {
-            get => _faqRoleId;
-            set
-            {
-                _faqRoleId = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong FaqChannelId
-        {
-            get => _faqChannelId;
-            set
-            {
-                _faqChannelId = value;
-                SaveToFile();
-            }
-        }
-
-        [JsonIgnore]
-        public ulong MessageHistoryChannel
-        {
-            get => _messageHistoryChannel;
-            set
-            {
-                _messageHistoryChannel = value;
-                SaveToFile();
-            }
-        }
         public static Config LoadFromFile()
         {
             if (File.Exists(PathConstants.ConfigFilePath))
             {
                 // File exists, get the text
                 var configString = File.ReadAllText(PathConstants.ConfigFilePath, Encoding.UTF8);
-                return JsonConvert.DeserializeObject<Config>(configString);
+                return JsonConvert.DeserializeObject<Config>(configString, new JsonSerializerSettings
+                {
+                    MissingMemberHandling = MissingMemberHandling.Error,
+                    Error = LoadConfigErrorHandler
+                });
             }
 
             throw new FileNotFoundException($"No config file exists, expected it at: '{PathConstants.ConfigFilePath}'");
         }
 
-        private void SaveToFile()
+        private static void LoadConfigErrorHandler(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            Console.WriteLine(e.ErrorContext.Error.Message);
+            e.ErrorContext.Handled = true;
+        }
+
+        public void SaveToFile()
         {
             var configString = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(PathConstants.ConfigFilePath, configString, Encoding.UTF8);

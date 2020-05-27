@@ -11,8 +11,8 @@
 The bot is used to manage and accompany the Discord server:
 
  * Monitor Twitch livestreams playing Momentum Mod
- * [Planned] Get custom notification roles
- * [Planned] Force users to read the FAQ
+ * Get custom notification roles
+ * Force users to read the FAQ
  * [Planned] Integrate with the website's API, providing relative discord commands.
 
 ## Installing the Bot
@@ -37,6 +37,6 @@ A shell script is made to automate the process of building and running the Docke
 
 ## Contributing
 
-Pull Requests are highly appreciated! Just branch off of master, make your edits, and open a Pull Request into master describing what you changed. Pages could be edited directly through GitHub, or you can download your fork and edit through a program like [Visual Studio Code](https://code.visualstudio.com/).
+Pull Requests are highly appreciated! Just branch off of net-core, make your edits, and open a Pull Request into net-core describing what you changed. Pages could be edited directly through GitHub, or you can download your fork and edit through a program like [Visual Studio Code](https://code.visualstudio.com/).
 
 If you need a guide for how to contribute, try looking at past pull-requests, or asking around in the [Momentum Mod Discord server](https://discord.gg/V4gS7Qg).
