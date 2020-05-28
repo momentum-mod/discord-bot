@@ -73,7 +73,9 @@ namespace MomentumDiscordBot.Services
             IResult result)
         {
             // Don't respond to unknown commands
-            if (result?.Error != null && result.Error == CommandError.UnknownCommand) return;
+            if (result?.Error != null && (result.Error == CommandError.UnknownCommand ||
+                result.Error == CommandError.BadArgCount ||
+                result.Error == CommandError.UnmetPrecondition)) return;
 
             // Since commands are run in an async context, errors have to be manually handled
             if (!string.IsNullOrEmpty(result?.ErrorReason))
