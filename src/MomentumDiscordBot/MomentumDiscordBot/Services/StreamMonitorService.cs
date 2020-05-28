@@ -260,28 +260,35 @@ namespace MomentumDiscordBot.Services
             var deleteTasks = messages
                 .Select(async x =>
                 {
-                    if (x.Embeds.Count == 1)
+                    try
                     {
-                        var matchingStream = streams.FirstOrDefault(y => y.UserName == x.Embeds.First().Author?.Name);
-                        if (matchingStream == null)
+                        if (x.Embeds.Count == 1)
                         {
-                            // No matching stream
-                            await x.DeleteAsync();
+                            var matchingStream = streams.FirstOrDefault(y => y.UserName == x.Embeds.First().Author?.Name);
+                            if (matchingStream == null)
+                            {
+                                // No matching stream
+                                await x.DeleteAsync();
+                            }
+                            else
+                            {
+                                // Found the matching stream
+                                if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
+                                {
+                                    _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
+                                    await x.DeleteAsync();
+                                }
+                            }
                         }
                         else
                         {
-                            // Found the matching stream
-                            if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
-                            {
-                                _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
-                                await x.DeleteAsync();
-                            }
+                            // Stream has ended, or failed to parse
+                            await x.DeleteAsync();
                         }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        // Stream has ended, or failed to parse
-                        await x.DeleteAsync();
+                        _logger.Warning(e, "Could not delete message {message}", x);
                     }
                 });
             await Task.WhenAll(deleteTasks);
