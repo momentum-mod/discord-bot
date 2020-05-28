@@ -74,6 +74,11 @@ namespace MomentumDiscordBot.Services
             // Wait for the semaphore to unlock, then lock it
             await semaphoreSlimLock.WaitAsync();
 
+            if (_discordClient.ConnectionState != ConnectionState.Connected)
+            {
+                return;
+            }
+
             var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
 
             // On error no need to continue
