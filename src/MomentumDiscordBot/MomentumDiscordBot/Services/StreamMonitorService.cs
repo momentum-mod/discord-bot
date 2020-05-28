@@ -76,6 +76,7 @@ namespace MomentumDiscordBot.Services
 
             if (_discordClient.ConnectionState != ConnectionState.Connected)
             {
+                semaphoreSlimLock.Release();
                 return;
             }
 
