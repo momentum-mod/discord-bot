@@ -7,5 +7,5 @@ docker container rm momentum-discord-production
 echo -e '-= Building Docker Image from Dockerfile =-\n'
 docker build -t momentum-discord -f ./src/MomentumDiscordBot/MomentumDiscordBot/Dockerfile .
 
-echo -e '-= Runnning the Image =-\n'
+echo -e '-= Running the Image =-\n'
 docker run -v $PWD/config:/app/config --network host --restart on-failure:5 --name "momentum-discord-production" -d momentum-discord
