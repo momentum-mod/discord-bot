@@ -9,7 +9,7 @@ namespace MomentumDiscordBot.Models
 {
     public class Config
     {
-
+        [JsonProperty("environment")] public string Environment { get; set; }
         [JsonProperty("admin_id")] public ulong AdminRoleID { get; set; }
         [JsonProperty("command_prefix")] public string CommandPrefix { get; set; }
         [JsonProperty("livestream_mention_role_id")] public ulong LivestreamMentionRoleId { get; set; }
