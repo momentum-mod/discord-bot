@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
@@ -85,7 +86,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             }
             else
             {
-                await ReplyNewEmbedAsync(configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString(), Color.Blue);
+                await ReplyNewEmbedAsync(configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString().EscapeDiscordChars(), Color.Blue);
             }
         }
     }
