@@ -31,6 +31,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("minimum_stream_viewers_announce")] public int MinimumStreamViewersAnnounce { get; set; }
         [JsonProperty("seq_address")] public string SeqAddress { get; set; }
         [JsonProperty("seq_token")] public string SeqToken { get; set; }
+        [JsonProperty("developer_id")] public ulong DeveloperID { get; set; }
 
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         public static Config LoadFromFile()
