@@ -66,6 +66,10 @@ namespace MomentumDiscordBot.Services
                 await TryParseExistingEmbedsAsync();
                 semaphoreSlimLock.Release();
 
+                // When reconnects occur, this will stack update events
+                // Therefore, dispose every time
+                _intervalFunctionTimer?.Dispose();
+
                 _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
             });
 
