@@ -78,8 +78,10 @@ namespace MomentumDiscordBot.Services
 
         public async void UpdateCurrentStreamersAsync(object state)
         {
+            _logger.Verbose("Waiting to enter UpdateCurrentStreamersAsync...");
             // Wait for the semaphore to unlock, then lock it
             await semaphoreSlimLock.WaitAsync();
+            _logger.Verbose("Entered UpdateCurrentStreamersAsync");
 
             if (_discordClient.ConnectionState != ConnectionState.Connected)
             {
