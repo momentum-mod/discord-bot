@@ -285,14 +285,11 @@ namespace MomentumDiscordBot.Services
                                 // No matching stream
                                 await x.DeleteAsync();
                             }
-                            else
+                            else if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
                             {
                                 // Found the matching stream
-                                if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
-                                {
-                                    _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
+                                _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
                                     await x.DeleteAsync();
-                                }
                             }
                         }
                         else
