@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
+    [DeveloperPrecondition(Group = "Admin")]
     [Group("config")]
     public class AdminConfigModule : AdminModule
     {

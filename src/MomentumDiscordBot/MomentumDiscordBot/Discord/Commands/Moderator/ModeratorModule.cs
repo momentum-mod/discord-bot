@@ -6,7 +6,7 @@ using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Discord.Commands.Moderator
 {
-    [ModeratorPrecondition]
+    [ModeratorPrecondition(Group = "Moderator")]
     public class ModeratorModule : MomentumModuleBase
     {
         public Config Config { get; set; }

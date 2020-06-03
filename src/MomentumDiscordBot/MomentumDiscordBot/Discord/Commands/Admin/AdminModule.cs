@@ -8,13 +8,14 @@ using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
-    [AdminPrecondition]
+    [AdminPrecondition(Group = "Admin")]
     [RequireAdminBotChannelPrecondition]
     public class AdminModule : MomentumModuleBase
     {
         public StreamMonitorService StreamMonitorService { get; set; }
         public DiscordSocketClient DiscordSocketClient { get; set; }       
 
+        [DeveloperPrecondition(Group = "Admin")]
         [Command("updatestreams")]
         [Summary("Force an update of Twitch livestreams")]
         public async Task ForceUpdateStreamsAsync()
