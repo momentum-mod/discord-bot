@@ -61,7 +61,10 @@ namespace MomentumDiscordBot.Services
             {
                 GetTextChannel();
 
+                // Enter and lock the semaphore, incase this occurs simultaneously with updating streams
+                await semaphoreSlimLock.WaitAsync();
                 await TryParseExistingEmbedsAsync();
+                semaphoreSlimLock.Release();
 
                 _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
             });
