@@ -61,7 +61,14 @@ namespace MomentumDiscordBot.Services
             {
                 GetTextChannel();
 
+                // Enter and lock the semaphore, incase this occurs simultaneously with updating streams
+                await semaphoreSlimLock.WaitAsync();
                 await TryParseExistingEmbedsAsync();
+                semaphoreSlimLock.Release();
+
+                // When reconnects occur, this will stack update events
+                // Therefore, dispose every time
+                _intervalFunctionTimer?.Dispose();
 
                 _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
             });
@@ -71,8 +78,10 @@ namespace MomentumDiscordBot.Services
 
         public async void UpdateCurrentStreamersAsync(object state)
         {
+            _logger.Verbose("Waiting to enter UpdateCurrentStreamersAsync...");
             // Wait for the semaphore to unlock, then lock it
             await semaphoreSlimLock.WaitAsync();
+            _logger.Verbose("Entered UpdateCurrentStreamersAsync");
 
             if (_discordClient.ConnectionState != ConnectionState.Connected)
             {
@@ -276,14 +285,11 @@ namespace MomentumDiscordBot.Services
                                 // No matching stream
                                 await x.DeleteAsync();
                             }
-                            else
+                            else if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
                             {
                                 // Found the matching stream
-                                if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
-                                {
-                                    _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
+                                _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
                                     await x.DeleteAsync();
-                                }
                             }
                         }
                         else

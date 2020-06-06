@@ -33,6 +33,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("seq_token")] public string SeqToken { get; set; }
         [JsonProperty("faq_channel")] public ulong FaqChannelId { get; set; }
         [JsonProperty("faq_role")] public ulong FaqRoleId { get; set; }
+        [JsonProperty("developer_id")] public ulong DeveloperID { get; set; }
 
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         public static Config LoadFromFile()

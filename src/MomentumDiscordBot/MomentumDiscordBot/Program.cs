@@ -22,6 +22,7 @@ namespace MomentumDiscordBot
             var config = Config.LoadFromFile();
 
             using var logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
                 .WriteTo.Console()
                 .WriteTo.Seq(config.SeqAddress, LogEventLevel.Warning, apiKey: config.SeqToken)
                 .Enrich.WithProperty("Environment", config.Environment)
