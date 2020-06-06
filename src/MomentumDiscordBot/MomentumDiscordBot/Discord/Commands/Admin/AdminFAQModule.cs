@@ -14,6 +14,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         [Summary("Reloads the FAQ service, use when the messages change")]
         public async Task ReloadFaqAsync()
         {
+            await ReplyNewEmbedAsync("Reloading FAQ service...", Color.Blue);
             await FaqService.HookToLastMessageAsync();
 
             await ReplyNewEmbedAsync("Reloaded FAQ service", Color.Blue);
