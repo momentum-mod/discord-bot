@@ -24,7 +24,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.ReactionAdded += ReactionAdded;
         }
 
-        private async Task<List<IMessage>> RemoveAllReactions(SocketTextChannel textChannel)
+        private async Task<List<IMessage>> RemoveAllReactionsAsync(SocketTextChannel textChannel)
         {
             if (textChannel != null)
             {
@@ -47,13 +47,13 @@ namespace MomentumDiscordBot.Services
         public async Task HookToLastMessageAsync()
         {
             // If there is a message hooked before, make sure to remove the reaction
-            await RemoveAllReactions(_textChannel);
+            await RemoveAllReactionsAsync(_textChannel);
 
             _textChannel = _discordClient.GetChannel(_config.FaqChannelId) as SocketTextChannel;
 
             if (_textChannel != null)
             {
-                var messages = await RemoveAllReactions(_textChannel);
+                var messages = await RemoveAllReactionsAsync(_textChannel);
 
                 _lastMessage = messages.OrderByDescending(x => x.Timestamp.Ticks).FirstOrDefault();
 
