@@ -46,7 +46,10 @@ namespace MomentumDiscordBot.Services
                 {
                     if (!(message is IUserMessage userMessage)) continue;
 
-                    await userMessage.RemoveAllReactionsAsync();
+                    if (userMessage.Reactions.Count > 0)
+                    {
+                        await userMessage.RemoveAllReactionsAsync();
+                    }
                 }
 
                 return messages;
