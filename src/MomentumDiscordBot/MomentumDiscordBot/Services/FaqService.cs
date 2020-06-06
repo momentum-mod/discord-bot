@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -23,23 +24,38 @@ namespace MomentumDiscordBot.Services
             _discordClient.ReactionAdded += ReactionAdded;
         }
 
-        public async Task HookToLastMessageAsync()
+        private async Task<List<IMessage>> RemoveAllReactions(SocketTextChannel textChannel)
         {
-            _textChannel = _discordClient.GetChannel(_config.FaqChannelId) as SocketTextChannel;
-
-            if (_textChannel != null)
+            if (textChannel != null)
             {
-                var messages = (await _textChannel.GetMessagesAsync().FlattenAsync()).ToList();
-
-                _lastMessage = messages.OrderByDescending(x => x.Timestamp.Ticks).FirstOrDefault();
+                var messages = (await textChannel.GetMessagesAsync().FlattenAsync()).ToList();
 
                 // Remove all existing reactions
                 foreach (var message in messages)
                 {
-                    if (!(message is IUserMessage userMessage)) return;
+                    if (!(message is IUserMessage userMessage)) continue;
 
                     await userMessage.RemoveAllReactionsAsync();
                 }
+
+                return messages;
+            }
+
+            return null;
+        }
+
+        public async Task HookToLastMessageAsync()
+        {
+            // If there is a message hooked before, make sure to remove the reaction
+            await RemoveAllReactions(_textChannel);
+
+            _textChannel = _discordClient.GetChannel(_config.FaqChannelId) as SocketTextChannel;
+
+            if (_textChannel != null)
+            {
+                var messages = await RemoveAllReactions(_textChannel);
+
+                _lastMessage = messages.OrderByDescending(x => x.Timestamp.Ticks).FirstOrDefault();
 
                 if (_lastMessage is IUserMessage lastUserMessage)
                 {
