@@ -35,7 +35,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             await FaqService.UnlockAsync();
 
-            await ReplyNewEmbedAsync("Allows users to be verified in the FAQ channel", Color.Blue);
+            await ReplyNewEmbedAsync("Allowed users to be verified in the FAQ channel", Color.Blue);
         }
     }
 }
