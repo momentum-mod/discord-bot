@@ -37,13 +37,15 @@ namespace MomentumDiscordBot.Discord
             var baseCommandService = MomentumCommandService.BuildBaseCommandService();
 
             _streamMonitorService = new StreamMonitorService(_discordClient, _config, _logger);
+
             var services = BuildServiceProvider(baseCommandService);
 
+            _ = services.GetRequiredService<FaqService>();
             _ = services.GetRequiredService<DiscordEventService>();
             _ = services.GetRequiredService<MessageHistoryService>();
             _ = services.GetRequiredService<ReactionBasedRoleService>();
             _ = services.GetRequiredService<KeyBeggingService>();
-
+          
             _momentumCommandService =
                 new MomentumCommandService(_discordClient, baseCommandService, _logger, config, services);
         }
@@ -58,6 +60,7 @@ namespace MomentumDiscordBot.Discord
                 .AddSingleton(_streamMonitorService)
                 .AddSingleton<DiscordEventService>()
                 .AddSingleton<MessageHistoryService>()
+                .AddSingleton<FaqService>()
                 .AddSingleton<KeyBeggingService>()
                 .BuildServiceProvider();
 
