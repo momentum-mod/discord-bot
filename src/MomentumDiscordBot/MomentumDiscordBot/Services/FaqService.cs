@@ -14,7 +14,7 @@ namespace MomentumDiscordBot.Services
         private readonly DiscordSocketClient _discordClient;
         private SocketTextChannel _textChannel;
         private IMessage _lastMessage;
-        public bool IsEnabled { get; set; } = true;
+        public bool IsEnabled { get; private set; } = true;
         public FaqService(DiscordSocketClient discordClient, Config config)
         {
             _config = config;
@@ -22,6 +22,16 @@ namespace MomentumDiscordBot.Services
             _discordClient = discordClient;
             _discordClient.Ready += _discordClient_Ready;
             _discordClient.ReactionAdded += ReactionAdded;
+        }
+
+        public void Lock()
+        {
+            IsEnabled = false;
+        }
+
+        public async Task UnlockAsync()
+        {
+            IsEnabled = true;
         }
 
         private async Task<List<IMessage>> RemoveAllReactionsAsync(SocketTextChannel textChannel)

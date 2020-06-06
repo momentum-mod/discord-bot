@@ -24,7 +24,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         [Summary("Locks users from being verified from the FAQ channel, use when getting spammed by user bots")]
         public async Task LockFaqAsync()
         {
-            FaqService.IsEnabled = false;
+            FaqService.Lock();
 
             await ReplyNewEmbedAsync("Locked users from being verified in the FAQ channel", Color.Blue);
         }
@@ -33,7 +33,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         [Summary("Allows users to be verified from the FAQ channel")]
         public async Task UnlockFaqAsync()
         {
-            FaqService.IsEnabled = true;
+            await FaqService.UnlockAsync();
 
             await ReplyNewEmbedAsync("Allows users to be verified in the FAQ channel", Color.Blue);
         }
