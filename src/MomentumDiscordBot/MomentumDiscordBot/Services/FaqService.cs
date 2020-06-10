@@ -108,8 +108,8 @@ namespace MomentumDiscordBot.Services
                 var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
                     .Users.First(x => x.Id == reaction.UserId);
 
-                // Ignore actions from the bot
-                if (user.IsSelf(_discordClient)) return;
+                // Ignore actions from the bot, or if the user already has the role
+                if (user.IsSelf(_discordClient) || user.Roles.Any(x => x.Id == _config.FaqRoleId)) return;
 
                 var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
                 await user.AddRoleAsync(role);
