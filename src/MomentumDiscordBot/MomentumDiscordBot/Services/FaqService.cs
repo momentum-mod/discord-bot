@@ -43,10 +43,12 @@ namespace MomentumDiscordBot.Services
             {
                 var messages = (await textChannel.GetMessagesAsync().FlattenAsync()).ToList();
 
+                _lastMessage = messages.OrderByDescending(x => x.Timestamp.Ticks).FirstOrDefault();
+
                 // Remove all existing reactions
                 foreach (var message in messages)
                 {
-                    if (!(message is IUserMessage userMessage)) continue;
+                    if (!(message is IUserMessage userMessage) || _lastMessage != null && message.Id == _lastMessage.Id) continue;
 
                     if (userMessage.Reactions.Count > 0)
                     {
@@ -64,16 +66,17 @@ namespace MomentumDiscordBot.Services
         {
             await _semaphoreLock.WaitAsync();
 
-            // If there is a message hooked before, make sure to remove the reaction
-            await RemoveAllReactionsAsync(_textChannel);
-
-            _textChannel = _discordClient.GetChannel(_config.FaqChannelId) as SocketTextChannel;
-
-            if (_textChannel != null)
+            if (_discordClient.GetChannel(_config.FaqChannelId) is SocketTextChannel textChannel)
             {
-                var messages = await RemoveAllReactionsAsync(_textChannel);
+                if (_textChannel != null && textChannel.Id != _textChannel.Id)
+                {
+                    // If there is a message hooked before, make sure to remove the reaction
+                    await RemoveAllReactionsAsync(_textChannel);
+                }
 
-                _lastMessage = messages.OrderByDescending(x => x.Timestamp.Ticks).FirstOrDefault();
+                _textChannel = textChannel;
+
+                var messages = await RemoveAllReactionsAsync(_textChannel);
 
                 if (_lastMessage is IUserMessage lastUserMessage)
                 {
@@ -89,6 +92,7 @@ namespace MomentumDiscordBot.Services
             _ = Task.Run(async () =>
             {
                 await HookToLastMessageAsync();
+                await AddUnhandedReactionRolesAsync();
             });
 
             return Task.CompletedTask;
@@ -119,6 +123,28 @@ namespace MomentumDiscordBot.Services
                     await userMessage.RemoveReactionAsync(_config.MentionRoleEmoji, user);
                 }
             }
+        }
+
+        public async Task AddUnhandedReactionRolesAsync()
+        {
+            await _semaphoreLock.WaitAsync();
+
+            var userReactions = (await _lastMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount).FlattenAsync()).
+                Where(x => !x.IsSelf(_discordClient));
+
+            var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
+            foreach (var unhandledUserReaction in userReactions)
+            {
+                var guildUser = _textChannel.Guild.GetUser(unhandledUserReaction.Id);
+                if (guildUser != null && guildUser.Roles.All(x => x.Id != _config.FaqRoleId))
+                {
+                    await guildUser.AddRoleAsync(role);
+                }
+
+                await _lastMessage.RemoveReactionAsync(_config.MentionRoleEmoji, unhandledUserReaction);
+            }
+
+            _semaphoreLock.Release();
         }
     }
 }
