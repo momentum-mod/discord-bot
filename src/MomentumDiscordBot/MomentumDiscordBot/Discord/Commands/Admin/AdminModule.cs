@@ -9,13 +9,13 @@ using MomentumDiscordBot.Services;
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [AdminPrecondition(Group = "Admin")]
+    [DeveloperPrecondition(Group = "Admin")]
     [RequireAdminBotChannelPrecondition]
     public class AdminModule : MomentumModuleBase
     {
         public StreamMonitorService StreamMonitorService { get; set; }
         public DiscordSocketClient DiscordSocketClient { get; set; }       
 
-        [DeveloperPrecondition(Group = "Admin")]
         [Command("updatestreams")]
         [Summary("Force an update of Twitch livestreams")]
         public async Task ForceUpdateStreamsAsync()
@@ -25,7 +25,6 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             await ReplyNewEmbedAsync("Updating Livestreams", Color.Blue);
         }
 
-        [DeveloperPrecondition(Group = "Admin")]
         [Command("membercount")]
         [Summary("Get the number of members with a role")]
         public async Task GetMembersWithRoleAsync(IRole role)
