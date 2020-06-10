@@ -25,6 +25,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             await ReplyNewEmbedAsync("Updating Livestreams", Color.Blue);
         }
 
+        [DeveloperPrecondition(Group = "Admin")]
         [Command("membercount")]
         [Summary("Get the number of members with a role")]
         public async Task GetMembersWithRoleAsync(IRole role)
