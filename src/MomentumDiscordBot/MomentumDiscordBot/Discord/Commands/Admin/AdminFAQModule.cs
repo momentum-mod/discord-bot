@@ -37,5 +37,13 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
 
             await ReplyNewEmbedAsync("Allowed users to be verified in the FAQ channel", Color.Blue);
         }
+        [Command("verify")]
+        [Summary("Checks if there are any unhandled reactions")]
+        public async Task VerifyFaqAsync()
+        {
+            await FaqService.AddUnhandedReactionRolesAsync();
+
+            await ReplyNewEmbedAsync("Done", Color.Blue);
+        }
     }
 }
