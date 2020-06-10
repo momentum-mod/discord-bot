@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -14,6 +15,7 @@ namespace MomentumDiscordBot.Services
         private readonly DiscordSocketClient _discordClient;
         private SocketTextChannel _textChannel;
         private IMessage _lastMessage;
+        private SemaphoreSlim _semaphoreLock = new SemaphoreSlim(1, 1);
         public bool IsEnabled { get; private set; } = true;
         public FaqService(DiscordSocketClient discordClient, Config config)
         {
@@ -60,6 +62,8 @@ namespace MomentumDiscordBot.Services
 
         public async Task HookToLastMessageAsync()
         {
+            await _semaphoreLock.WaitAsync();
+
             // If there is a message hooked before, make sure to remove the reaction
             await RemoveAllReactionsAsync(_textChannel);
 
@@ -76,6 +80,8 @@ namespace MomentumDiscordBot.Services
                     await lastUserMessage.AddReactionAsync(_config.MentionRoleEmoji);
                 }
             }
+
+            _semaphoreLock.Release();
         }
 
         private Task _discordClient_Ready()
@@ -91,6 +97,9 @@ namespace MomentumDiscordBot.Services
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
             if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+
+            await _semaphoreLock.WaitAsync();
+            _semaphoreLock.Release();
 
             // Check that the message reacted to is the last message in the channel
             if (_lastMessage.Id == reaction.MessageId)
