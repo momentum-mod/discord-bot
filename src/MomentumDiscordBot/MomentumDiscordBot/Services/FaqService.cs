@@ -113,7 +113,7 @@ namespace MomentumDiscordBot.Services
                     .Users.First(x => x.Id == reaction.UserId);
 
                 // Ignore actions from the bot, or if the user already has the role
-                if (user.IsSelf(_discordClient) && user.Roles.All(x => x.Id != _config.FaqRoleId))
+                if (!user.IsSelf(_discordClient) && user.Roles.All(x => x.Id != _config.FaqRoleId))
                 {
                     var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
                     await user.AddRoleAsync(role);
