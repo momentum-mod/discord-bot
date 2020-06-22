@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,7 +81,15 @@ namespace MomentumDiscordBot.Services
 
                 if (_lastMessage is IUserMessage lastUserMessage)
                 {
-                    await lastUserMessage.AddReactionAsync(_config.MentionRoleEmoji);
+                    try
+                    {
+                        await lastUserMessage.AddReactionAsync(_config.FaqRoleEmoji);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
                 }
             }
 
@@ -100,7 +109,7 @@ namespace MomentumDiscordBot.Services
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return;
+            if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return;
 
             await _semaphoreLock.WaitAsync();
             _semaphoreLock.Release();
@@ -123,7 +132,7 @@ namespace MomentumDiscordBot.Services
 
                     if (_lastMessage is IUserMessage userMessage)
                     {
-                        await userMessage.RemoveReactionAsync(_config.MentionRoleEmoji, user);
+                        await userMessage.RemoveReactionAsync(_config.FaqRoleEmoji, user);
                     }
                 }
             }
@@ -133,7 +142,7 @@ namespace MomentumDiscordBot.Services
         {
             await _semaphoreLock.WaitAsync();
 
-            var userReactions = (await _lastMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount).FlattenAsync()).
+            var userReactions = (await _lastMessage.GetReactionUsersAsync(_config.FaqRoleEmoji, _textChannel.Guild.MemberCount).FlattenAsync()).
                 Where(x => !x.IsSelf(_discordClient));
 
             var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
@@ -145,7 +154,7 @@ namespace MomentumDiscordBot.Services
                     await guildUser.AddRoleAsync(role);
                 }
 
-                await _lastMessage.RemoveReactionAsync(_config.MentionRoleEmoji, unhandledUserReaction);
+                await _lastMessage.RemoveReactionAsync(_config.FaqRoleEmoji, unhandledUserReaction);
             }
 
             _semaphoreLock.Release();

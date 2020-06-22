@@ -14,6 +14,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("command_prefix")] public string CommandPrefix { get; set; }
         [JsonProperty("livestream_mention_role_id")] public ulong LivestreamMentionRoleId { get; set; }
         [JsonProperty("mention_role_emoji")] public string MentionRoleEmojiString { get; set; }
+        [JsonProperty("faq_role_emoji")] public string FaqRoleEmojiString { get; set; }
         [JsonProperty("mention_roles")] public ulong[] MentionRoles { get; set; }
         [JsonProperty("moderator_id")] public ulong ModeratorRoleID { get; set; }
         [JsonProperty("streamer_channel")] public ulong MomentumModStreamerChannelId { get; set; }
@@ -36,6 +37,7 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("developer_id")] public ulong DeveloperID { get; set; }
 
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
+        [JsonIgnore] public Emoji FaqRoleEmoji => new Emoji(FaqRoleEmojiString);
         public static Config LoadFromFile()
         {
             if (File.Exists(PathConstants.ConfigFilePath))
