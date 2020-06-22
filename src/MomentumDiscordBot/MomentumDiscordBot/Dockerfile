@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /app
 
 COPY /src/MomentumDiscordBot/MomentumDiscordBot/MomentumDiscordBot.csproj .
+COPY /src/MomentumDiscordBot/MomentumDiscordBot/nuget.config .
 RUN dotnet restore MomentumDiscordBot.csproj
 
 COPY . .
