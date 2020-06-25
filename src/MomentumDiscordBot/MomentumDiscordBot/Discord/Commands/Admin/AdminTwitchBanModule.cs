@@ -33,6 +33,8 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             bans.Add(userToBanId);
             Config.TwitchUserBans = bans.ToArray();
 
+            Config.SaveToFile();
+
             // Force update
             StreamMonitorService.UpdateCurrentStreamersAsync(null);
 
@@ -57,6 +59,8 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
 
             bans.Remove(userToUnbanId);
             Config.TwitchUserBans = bans.ToArray();
+
+            Config.SaveToFile();
 
             StreamMonitorService.UpdateCurrentStreamersAsync(null);
 
