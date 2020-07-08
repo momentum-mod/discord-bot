@@ -12,7 +12,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [DeveloperPrecondition(Group = "Admin")]
     [Group("config")]
-    public class AdminConfigModule : AdminModule
+    public class AdminConfigModule : AdminModuleBase
     {
         public Config Config { get; set; }
 

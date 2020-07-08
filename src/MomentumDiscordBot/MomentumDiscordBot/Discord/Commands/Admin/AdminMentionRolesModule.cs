@@ -9,7 +9,7 @@ using MomentumDiscordBot.Services;
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [Group("mentionRoles")]
-    public class AdminMentionRolesModule : AdminModule
+    public class AdminMentionRolesModule : AdminModuleBase
     {
         public Config Config { get; set; }
         public ReactionBasedRoleService ReactionBasedRoleService { get; set; }

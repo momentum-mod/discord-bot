@@ -12,7 +12,7 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
 {
     [DeveloperPrecondition(Group = "Moderator")]
     [Group("discord")]
-    public class ModeratorDiscordEntityModule : ModeratorModule
+    public class ModeratorDiscordEntityModule : ModeratorModuleBase
     {
         [Command("info")]
         [Hidden]

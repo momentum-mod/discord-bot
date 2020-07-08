@@ -8,10 +8,7 @@ using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
-    [AdminPrecondition(Group = "Admin")]
-    [DeveloperPrecondition(Group = "Admin")]
-    [RequireAdminBotChannelPrecondition]
-    public class AdminModule : MomentumModuleBase
+    public class AdminModule : AdminModuleBase
     {
         public StreamMonitorService StreamMonitorService { get; set; }
         public DiscordSocketClient DiscordSocketClient { get; set; }       

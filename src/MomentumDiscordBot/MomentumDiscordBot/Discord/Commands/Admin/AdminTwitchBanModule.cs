@@ -10,9 +10,11 @@ using MomentumDiscordBot.Utilities;
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [Group("twitchBan")]
-    public class AdminTwitchBanModule : AdminModule
+    public class AdminTwitchBanModule : AdminModuleBase
     {
         public Config Config { get; set; }
+        public StreamMonitorService StreamMonitorService { get; set; }
+
 
         [Command("add")]
         [Alias("create")]

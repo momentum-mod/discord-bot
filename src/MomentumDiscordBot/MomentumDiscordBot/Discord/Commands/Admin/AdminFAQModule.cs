@@ -6,7 +6,7 @@ using MomentumDiscordBot.Services;
 namespace MomentumDiscordBot.Discord.Commands.Admin
 {
     [Group("faq")]
-    public class AdminFAQModule : AdminModule
+    public class AdminFAQModule : AdminModuleBase
     {
         public FaqService FaqService { get; set; }
 
