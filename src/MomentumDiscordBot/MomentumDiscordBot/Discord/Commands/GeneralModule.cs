@@ -25,7 +25,6 @@ namespace MomentumDiscordBot.Discord.Commands
                 if (moduleHelpEmbed.Fields.Length > 0)
                 {
                     await ReplyAsync(embed: moduleHelpEmbed);
-
                 }
             }
             await message.DeleteAsync();
