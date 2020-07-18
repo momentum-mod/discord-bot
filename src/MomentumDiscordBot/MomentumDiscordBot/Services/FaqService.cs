@@ -49,6 +49,8 @@ namespace MomentumDiscordBot.Services
                 // Remove all existing reactions
                 foreach (var message in messages)
                 {
+                    // If the previous message hooked to, is the same as what is the new last message, don't remove all reactions
+                    // This is to prevent unhandled reactions being wiped
                     if (!(message is IUserMessage userMessage) || _lastMessage != null && message.Id == _lastMessage.Id) continue;
 
                     if (userMessage.Reactions.Count > 0)
