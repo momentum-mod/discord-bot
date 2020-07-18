@@ -58,8 +58,6 @@ namespace MomentumDiscordBot.Services
                         await userMessage.RemoveAllReactionsAsync();
                     }
                 }
-
-                return messages;
             }
 
             return null;
@@ -79,7 +77,7 @@ namespace MomentumDiscordBot.Services
 
                 _textChannel = textChannel;
 
-                var messages = await RemoveAllReactionsAsync(_textChannel);
+                await RemoveAllReactionsAsync(_textChannel);
 
                 if (_lastMessage is IUserMessage lastUserMessage)
                 {
