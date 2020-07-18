@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Utilities;
 
@@ -37,7 +38,7 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
 
                 // If the user doesn't have a role then default to blue
                 var highestRole = socketGuildUser.Roles.OrderByDescending(x => x.Position).FirstOrDefault();
-                embed.Color = highestRole?.Color ?? Color.Blue;
+                embed.Color = highestRole?.Color ?? MomentumColor.Blue;
 
                 embed.AddField("Mention", socketGuildUser.Mention);
 

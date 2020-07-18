@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 using MomentumDiscordBot.Utilities;
@@ -83,7 +84,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             {
                 Title = "Twitch Banned IDs",
                 Description = string.Join(Environment.NewLine, usernames).EscapeDiscordChars(),
-                Color = Color.Blue
+                Color = MomentumColor.Blue
             }.Build();
 
             await ReplyAsync(embed: embed);
