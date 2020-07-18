@@ -35,9 +35,11 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("faq_channel")] public ulong FaqChannelId { get; set; }
         [JsonProperty("faq_role")] public ulong FaqRoleId { get; set; }
         [JsonProperty("developer_id")] public ulong DeveloperID { get; set; }
-
+        [JsonProperty("alt_account_emoji")] public string AltAccountEmojiString { get; set; }
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         [JsonIgnore] public Emoji FaqRoleEmoji => new Emoji(FaqRoleEmojiString);
+        [JsonIgnore] public Emoji AltAccountEmoji => new Emoji(AltAccountEmojiString);
+
         public static Config LoadFromFile()
         {
             if (File.Exists(PathConstants.ConfigFilePath))
