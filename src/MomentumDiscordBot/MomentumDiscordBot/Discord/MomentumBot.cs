@@ -19,7 +19,7 @@ namespace MomentumDiscordBot.Discord
         private readonly MomentumCommandService _momentumCommandService;
         private readonly StreamMonitorService _streamMonitorService;
         private readonly ILogger _logger;
-
+        private readonly DeadlockWorkaroundService _deadlockWorkaroundService;
         public MomentumBot(string discordToken, Config config, ILogger logger)
         {
             _discordToken = discordToken;
@@ -41,13 +41,15 @@ namespace MomentumDiscordBot.Discord
             var services = BuildServiceProvider(baseCommandService);
 
             _ = services.GetRequiredService<FaqService>();
-            _ = services.GetRequiredService<DiscordEventService>();
+            var discordEventService = services.GetRequiredService<DiscordEventService>();
             _ = services.GetRequiredService<MessageHistoryService>();
             _ = services.GetRequiredService<ReactionBasedRoleService>();
             _ = services.GetRequiredService<KeyBeggingService>();
           
             _momentumCommandService =
                 new MomentumCommandService(_discordClient, baseCommandService, _logger, config, services);
+
+            _deadlockWorkaroundService = new DeadlockWorkaroundService(_discordClient, discordEventService.Log);
         }
 
         public IServiceProvider BuildServiceProvider(CommandService baseCommandService) =>
