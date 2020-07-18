@@ -106,36 +106,41 @@ namespace MomentumDiscordBot.Services
 
             return Task.CompletedTask;
         }
-        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
+        private Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return;
+            if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return Task.CompletedTask;
 
-            await _semaphoreLock.WaitAsync();
-            _semaphoreLock.Release();
-
-            // Check that the message reacted to is the last message in the channel
-            if (_lastMessage.Id == reaction.MessageId)
+            _ = Task.Run(async () =>
             {
-                // Get the user as a SocketGuildContext
-                var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
-                    .Users.First(x => x.Id == reaction.UserId);
+                await _semaphoreLock.WaitAsync();
+                _semaphoreLock.Release();
 
-                // Ignore actions from the bot, or if the user already has the role
-                if (!user.IsSelf(_discordClient))
+                // Check that the message reacted to is the last message in the channel
+                if (_lastMessage.Id == reaction.MessageId)
                 {
-                    if (user.Roles.All(x => x.Id != _config.FaqRoleId))
-                    {
-                        var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
-                        await user.AddRoleAsync(role);
-                    }
+                    // Get the user as a SocketGuildContext
+                    var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
+                        .Users.FirstOrDefault(x => x.Id == reaction.UserId);
 
-                    if (_lastMessage is IUserMessage userMessage)
+                    // Ignore actions from the bot, or if the user already has the role
+                    if (!user.IsSelf(_discordClient))
                     {
-                        await userMessage.RemoveReactionAsync(_config.FaqRoleEmoji, user);
+                        if (user != null && user.Roles.All(x => x.Id != _config.FaqRoleId))
+                        {
+                            var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
+                            await user.AddRoleAsync(role);
+                        }
+
+                        if (_lastMessage is IUserMessage userMessage)
+                        {
+                            await userMessage.RemoveReactionAsync(_config.FaqRoleEmoji, user);
+                        }
                     }
                 }
-            }
+            });
+
+            return Task.CompletedTask;
         }
 
         public async Task AddUnhandedReactionRolesAsync()
