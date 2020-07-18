@@ -19,7 +19,7 @@ namespace MomentumDiscordBot.Constants
 
         public static Color Red => new Color(255, 106, 106);
         public static Color Green => new Color(153, 255, 153);
-        public static Color Blue => new Color(130, 130, 130);
+        public static Color Blue => new Color(24, 150, 211);
         public static Color GrayBlue => new Color(76, 139, 180);
     }
 }
