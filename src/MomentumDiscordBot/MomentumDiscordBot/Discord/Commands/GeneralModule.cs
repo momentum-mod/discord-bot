@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
@@ -18,7 +19,7 @@ namespace MomentumDiscordBot.Discord.Commands
         public async Task HelpAsync()
         {
             await ReplyAsync("Only the messages you have permission to use in this channel are included.");
-            var message = await ReplyNewEmbedAsync("Building the help command... This message will be deleted when all help messages are sent", Color.Blue);
+            var message = await ReplyNewEmbedAsync("Building the help command... This message will be deleted when all help messages are sent", MomentumColor.Blue);
             foreach (var module in CommandService.Modules.Where(x => !x.Name.Contains("ModuleBase")))
             {
                 var moduleHelpEmbed = HelpCommandUtilities.GetModuleHelpEmbed(module, Context, Services, Config);
@@ -34,7 +35,7 @@ namespace MomentumDiscordBot.Discord.Commands
         [Summary("Give information on obtaining a game key")]
         public async Task KeyBeggingResponseAsync()
         {
-            await ReplyNewEmbedAsync(Config.KeyBeggingResponse, Color.Blue);
+            await ReplyNewEmbedAsync(Config.KeyBeggingResponse, MomentumColor.Blue);
         }
     }
 }

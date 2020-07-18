@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
 using Discord;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Services
@@ -41,7 +42,7 @@ namespace MomentumDiscordBot.Services
                 var embedBuilder = new EmbedBuilder
                     {
                         Title = "Message Edited - Old Message Content",
-                        Color = Color.Blue
+                        Color = MomentumColor.Blue
                     }
                     .WithDescription(Format.Url("Jump to Message", oldMessage.GetJumpUrl()))
                     .AddMessageContent(oldMessage);
@@ -68,7 +69,7 @@ namespace MomentumDiscordBot.Services
                 var embedBuilder = new EmbedBuilder
                 {
                     Title = "Message Deleted",
-                    Color = Color.Blue
+                    Color = MomentumColor.Blue
                 }.AddMessageContent(cachedMessage.Value);
 
                 await _textChannel.SendMessageAsync(embed: embedBuilder.Build());

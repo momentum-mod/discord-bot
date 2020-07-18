@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
@@ -14,10 +15,10 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         [Summary("Reloads the FAQ service, use when the messages change")]
         public async Task ReloadFaqAsync()
         {
-            await ReplyNewEmbedAsync("Reloading FAQ service...", Color.Blue);
+            await ReplyNewEmbedAsync("Reloading FAQ service...", MomentumColor.Blue);
             await FaqService.HookToLastMessageAsync();
 
-            await ReplyNewEmbedAsync("Reloaded FAQ service", Color.Blue);
+            await ReplyNewEmbedAsync("Reloaded FAQ service", MomentumColor.Blue);
         }
 
         [Command("lock")]
@@ -26,7 +27,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             FaqService.Lock();
 
-            await ReplyNewEmbedAsync("Locked users from being verified in the FAQ channel", Color.Blue);
+            await ReplyNewEmbedAsync("Locked users from being verified in the FAQ channel", MomentumColor.Blue);
         }
 
         [Command("unlock")]
@@ -35,7 +36,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             await FaqService.UnlockAsync();
 
-            await ReplyNewEmbedAsync("Allowed users to be verified in the FAQ channel", Color.Blue);
+            await ReplyNewEmbedAsync("Allowed users to be verified in the FAQ channel", MomentumColor.Blue);
         }
         [Command("verify")]
         [Summary("Checks if there are any unhandled reactions")]
@@ -43,7 +44,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             await FaqService.AddUnhandedReactionRolesAsync();
 
-            await ReplyNewEmbedAsync("Done", Color.Blue);
+            await ReplyNewEmbedAsync("Done", MomentumColor.Blue);
         }
     }
 }

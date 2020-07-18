@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Services;
 
@@ -40,7 +41,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
                 Config.MentionRoles = new[] {role.Id};
             }
 
-            await ReplyNewEmbedAsync("Done", Color.Blue);
+            await ReplyNewEmbedAsync("Done", MomentumColor.Blue);
 
             await ReactionBasedRoleService.SendRoleEmbed(role);
         }
@@ -57,7 +58,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
 
             await ReactionBasedRoleService.RemoveRoleEmbed(role);
 
-            await ReplyNewEmbedAsync("Done", Color.Blue);
+            await ReplyNewEmbedAsync("Done", MomentumColor.Blue);
         }
 
         [Command("list")]
@@ -70,7 +71,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             {
                 Title = "**Notification Roles**",
                 Description = string.Join(Environment.NewLine, mentionRoles),
-                Color = Color.Blue
+                Color = MomentumColor.Blue
             }.Build();
 
             await ReplyAsync(embed: embed);

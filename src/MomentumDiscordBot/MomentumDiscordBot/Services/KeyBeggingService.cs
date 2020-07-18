@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using Serilog;
 
@@ -47,7 +48,7 @@ namespace MomentumDiscordBot.Services
                     var embed = new EmbedBuilder
                     {
                         Description = _config.KeyBeggingResponse,
-                        Color = Color.Blue
+                        Color = MomentumColor.Blue
                     }.Build();
                     await message.Channel.SendMessageAsync(MentionUtils.MentionUser(message.Author.Id), embed: embed);
                 }

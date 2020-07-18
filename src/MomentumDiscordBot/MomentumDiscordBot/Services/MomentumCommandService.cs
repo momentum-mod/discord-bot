@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using Serilog;
 
@@ -81,7 +82,7 @@ namespace MomentumDiscordBot.Services
                 var embedBuilder = new EmbedBuilder
                 {
                     Timestamp = DateTime.Now,
-                    Color = Color.Red
+                    Color = MomentumColor.Red
                 };
                 await context.Channel.SendMessageAsync(embed: embedBuilder.WithDescription(result.ErrorReason).Build());
                 var commandName = command.IsSpecified ? command.Value.Name : "An unknown command";

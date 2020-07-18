@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
@@ -28,7 +29,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
                     .Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToArray();
             }
 
-            await ReplyNewEmbedAsync(string.Join(Environment.NewLine, configProperties.Select(x => x.Name)), Color.Blue);
+            await ReplyNewEmbedAsync(string.Join(Environment.NewLine, configProperties.Select(x => x.Name)), MomentumColor.Blue);
         }
 
         [Command("set")]
@@ -64,7 +65,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
                 }
 
 
-                await ReplyNewEmbedAsync($"Set '{selectedProperty.Name}' to '{value}'", Color.Blue);
+                await ReplyNewEmbedAsync($"Set '{selectedProperty.Name}' to '{value}'", MomentumColor.Blue);
             }
             else
             {
@@ -88,7 +89,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             }
             else
             {
-                await ReplyNewEmbedAsync(configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString().EscapeDiscordChars(), Color.Blue);
+                await ReplyNewEmbedAsync(configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString().EscapeDiscordChars(), MomentumColor.Blue);
             }
         }
     }

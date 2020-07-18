@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Services;
 
@@ -19,7 +20,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             StreamMonitorService.UpdateCurrentStreamersAsync(null);
 
-            await ReplyNewEmbedAsync("Updating Livestreams", Color.Blue);
+            await ReplyNewEmbedAsync("Updating Livestreams", MomentumColor.Blue);
         }
 
         [Command("membercount")]
@@ -31,7 +32,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             if (guildRole != null)
             {
                 var membersWithRole = Context.Guild.Users.Count(x => x.Roles.Contains(guildRole));
-                await ReplyNewEmbedAsync($"{membersWithRole} users have {MentionUtils.MentionRole(guildRole.Id)}", Color.Blue);
+                await ReplyNewEmbedAsync($"{membersWithRole} users have {MentionUtils.MentionRole(guildRole.Id)}", MomentumColor.Blue);
             }
             else
             {

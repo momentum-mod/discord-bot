@@ -177,7 +177,7 @@ namespace MomentumDiscordBot.Services
             var embed = new EmbedBuilder
             {
                 Title = stream.Title.EscapeDiscordChars(),
-                Color = Color.Purple,
+                Color = new Color(145, 70, 255),
                 Author = new EmbedAuthorBuilder
                 {
                     Name = stream.UserName,

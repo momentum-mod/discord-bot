@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord.Commands;
 using MomentumDiscordBot.Models;
 
@@ -14,7 +15,7 @@ namespace MomentumDiscordBot.Utilities
             new EmbedBuilder()
                 .BuildTitle(module)
                 .AddValidCommandFields(module, context, services, config)
-                .WithColor(Color.Blue)
+                .WithColor(MomentumColor.Blue)
                 .Build();
 
         private static EmbedBuilder AddValidCommandFields(this EmbedBuilder embedBuilder, ModuleInfo module, ICommandContext context, IServiceProvider services, Config config) 
