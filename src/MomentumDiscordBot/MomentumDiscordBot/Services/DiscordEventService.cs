@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -69,6 +70,26 @@ namespace MomentumDiscordBot.Services
                         if (accountAge.TotalHours <= 24)
                         {
                             await userJoinedMessage.AddReactionAsync(Emote.Parse(_config.NewUserEmoteString));
+                        }
+                        else
+                        {
+                            var messages = await channel.GetMessagesAsync(200).FlattenAsync();
+
+                            // Find a matching user in the recent history
+                            var altAccount = messages
+                                .FromSelf(_discordClient)
+                                .OrderByDescending(x => x.Timestamp)
+                                // Parse the username from the bot's message, and make sure it has the new user emote
+                                .FirstOrDefault(x => x.Reactions.ContainsKey(Emote.Parse(_config.NewUserEmoteString)) &&
+                                                     x.Content.Split(' ', 3)[1].Split('#')[0] == user.Username);
+
+                            // Is there a matching account
+                            if (altAccount != null)
+                            {
+                                await altAccount.RemoveAllReactionsForEmoteAsync(
+                                    Emote.Parse(_config.NewUserEmoteString));
+                                await altAccount.AddReactionAsync(_config.AltAccountEmoji);
+                            }
                         }
                     }
                 }
