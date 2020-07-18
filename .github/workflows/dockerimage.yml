@@ -11,7 +11,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@2.14
       with:
-        name: momentum-mod/website/mmod-discord-bot
+        name: momentum-mod/discord-bot/mmod-discord-bot
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
