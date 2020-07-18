@@ -23,7 +23,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.UserJoined += UserJoined;
             _discordClient.Log += Log;
         }
-        private Task Log(LogMessage logMessage)
+        public Task Log(LogMessage logMessage)
         {
             switch (logMessage.Severity)
             {

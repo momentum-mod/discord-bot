@@ -11,7 +11,7 @@ namespace MomentumDiscordBot.Services
     //
     // If you do not have your bot setup to run in a daemon, this service will just
     // terminate the process and the bot will not restart.
-    public class ConnectionWorkaroundService
+    public class DeadlockWorkaroundService
     {
         // --- Begin Configuration Section ---
         // How long should we wait on the client to reconnect before resetting?
@@ -28,7 +28,7 @@ namespace MomentumDiscordBot.Services
         private readonly Func<LogMessage, Task> _logger;
         private CancellationTokenSource _cts;
 
-        public ConnectionWorkaroundService(DiscordSocketClient discord, Func<LogMessage, Task> logger = null)
+        public DeadlockWorkaroundService(DiscordSocketClient discord, Func<LogMessage, Task> logger = null)
         {
             _cts = new CancellationTokenSource();
             _discord = discord;
@@ -97,7 +97,7 @@ namespace MomentumDiscordBot.Services
             => Environment.Exit(1);
 
         // Logging Helpers
-        private const string LogSource = "ConnectionWorkaroundService";
+        private const string LogSource = "DeadlockWorkaroundService";
 
         private Task DebugAsync(string message)
             => _logger.Invoke(new LogMessage(Debug, LogSource, message));
