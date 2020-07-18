@@ -109,12 +109,12 @@ namespace MomentumDiscordBot.Services
         private Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return Task.CompletedTask;
-
             _ = Task.Run(async () =>
             {
                 await _semaphoreLock.WaitAsync();
                 _semaphoreLock.Release();
+
+                if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return;
 
                 // Check that the message reacted to is the last message in the channel
                 if (_lastMessage.Id == reaction.MessageId)
