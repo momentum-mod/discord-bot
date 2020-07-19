@@ -38,7 +38,7 @@ namespace MomentumDiscordBot.Services
             IsEnabled = true;
         }
 
-        private async Task<List<IMessage>> RemoveAllReactionsAsync(SocketTextChannel textChannel)
+        private async Task RemoveAllReactionsAsync(SocketTextChannel textChannel)
         {
             if (textChannel != null)
             {
@@ -59,8 +59,6 @@ namespace MomentumDiscordBot.Services
                     }
                 }
             }
-
-            return null;
         }
 
         public async Task HookToLastMessageAsync()
