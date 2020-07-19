@@ -32,54 +32,62 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private async Task MessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
+        private Task MessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
-            if (_textChannel == null || !(channel is IGuildChannel) || newMessage.Author.IsBot || !newMessage.EditedTimestamp.HasValue) return;
-            if (cachedMessage.HasValue)
+            if (_textChannel == null || !(channel is IGuildChannel) || newMessage.Author.IsBot || !newMessage.EditedTimestamp.HasValue) return Task.CompletedTask;
+
+            _ = Task.Run(async () => 
             {
-                var oldMessage = cachedMessage.Value;
-
-                var embedBuilder = new EmbedBuilder
-                    {
-                        Title = "Message Edited - Old Message Content",
-                        Color = MomentumColor.Blue
-                    }
-                    .WithDescription(Format.Url("Jump to Message", oldMessage.GetJumpUrl()))
-                    .AddMessageContent(oldMessage);
-
-                await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
-            }
-            else
-            {
-                var message = await cachedMessage.GetOrDownloadAsync();
-                if (message.Author.IsBot) return;
-                await _textChannel.SendMessageAsync("A message was updated, but it was not in cache. " + newMessage.GetJumpUrl());
-            }
-            
-        }
-
-        private async Task MessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
-        {
-            if (_textChannel == null || !(channel is IGuildChannel)) return;
-
-            if (cachedMessage.HasValue)
-            {
-                if (cachedMessage.Value.Author.IsBot) return;
-
-                var embedBuilder = new EmbedBuilder
+                if (cachedMessage.HasValue)
                 {
-                    Title = "Message Deleted",
-                    Color = MomentumColor.Blue
-                }.AddMessageContent(cachedMessage.Value);
+                    var oldMessage = cachedMessage.Value;
 
-                await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
-            }
-            else
-            {
-                await _textChannel.SendMessageAsync("A message was deleted, but it was not in cache.");
-            }
+                    var embedBuilder = new EmbedBuilder
+                        {
+                            Title = "Message Edited - Old Message Content",
+                            Color = MomentumColor.Blue
+                        }
+                        .WithDescription(Format.Url("Jump to Message", oldMessage.GetJumpUrl()))
+                        .AddMessageContent(oldMessage);
+
+                    await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
+                }
+                else
+                {
+                    var message = await cachedMessage.GetOrDownloadAsync();
+                    if (message.Author.IsBot) return;
+                    await _textChannel.SendMessageAsync("A message was updated, but it was not in cache. " + newMessage.GetJumpUrl());
+                }
+            });
+
+            return Task.CompletedTask;
         }
 
-        
+        private Task MessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
+        {
+            if (_textChannel == null || !(channel is IGuildChannel)) return Task.CompletedTask;
+
+            _ = Task.Run(async () =>
+            {
+                if (cachedMessage.HasValue)
+                {
+                    if (cachedMessage.Value.Author.IsBot) return;
+
+                    var embedBuilder = new EmbedBuilder
+                    {
+                        Title = "Message Deleted",
+                        Color = MomentumColor.Blue
+                    }.AddMessageContent(cachedMessage.Value);
+
+                    await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
+                }
+                else
+                {
+                    await _textChannel.SendMessageAsync("A message was deleted, but it was not in cache.");
+                }
+            });
+
+            return Task.CompletedTask;
+        }
     }
 }
