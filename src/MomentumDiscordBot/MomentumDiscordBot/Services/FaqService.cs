@@ -34,8 +34,9 @@ namespace MomentumDiscordBot.Services
 
         public async Task UnlockAsync()
         {
-            await HookToLastMessageAsync();
             IsEnabled = true;
+            await HookToLastMessageAsync();
+            await AddUnhandedReactionRolesAsync();
         }
 
         private async Task RemoveAllReactionsAsync(SocketTextChannel textChannel)
