@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
@@ -18,6 +19,7 @@ namespace MomentumDiscordBot.Services
         private IMessage _lastMessage;
         private SemaphoreSlim _semaphoreLock = new SemaphoreSlim(1, 1);
         public bool IsEnabled { get; private set; } = true;
+        private List<ulong> _faqLockInformed = new List<ulong>();
         public FaqService(DiscordSocketClient discordClient, Config config)
         {
             _config = config;
@@ -37,6 +39,7 @@ namespace MomentumDiscordBot.Services
             IsEnabled = true;
             await HookToLastMessageAsync();
             await AddUnhandedReactionRolesAsync();
+            _faqLockInformed = new List<ulong>();
         }
 
         private async Task RemoveAllReactionsAsync(SocketTextChannel textChannel)
@@ -113,15 +116,34 @@ namespace MomentumDiscordBot.Services
                 await _semaphoreLock.WaitAsync();
                 _semaphoreLock.Release();
 
-                if (!IsEnabled || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return;
+                if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return;
+
+                // Get the user as a SocketGuildContext
+
+                var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
+                    .Users.FirstOrDefault(x => x.Id == reaction.UserId);
+
+                if (!IsEnabled)
+                {
+                    if (user == null || _faqLockInformed.Contains(user.Id) || user.Roles.Any(x => x.Id == _config.FaqRoleId))
+                    {
+                        return;
+                    }
+
+                    // Only send the DM once.
+                    _faqLockInformed.Add(user.Id);
+
+                    await user.SendMessageAsync(embed: new EmbedBuilder
+                    {
+                        Description = "The FAQ verification process is temporarily locked, this is most likely due to spam bots joining. Please try again later.",
+                        Color = Color.Orange
+                    }.Build());
+                    return;
+                }
 
                 // Check that the message reacted to is the last message in the channel
                 if (_lastMessage.Id == reaction.MessageId)
                 {
-                    // Get the user as a SocketGuildContext
-                    var user = _discordClient.Guilds.First(x => x.Channels.Select(x => x.Id).Contains(messageAfter.Id))
-                        .Users.FirstOrDefault(x => x.Id == reaction.UserId);
-
                     // Ignore actions from the bot, or if the user already has the role
                     if (!user.IsSelf(_discordClient))
                     {
