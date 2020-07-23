@@ -49,7 +49,7 @@ namespace MomentumDiscordBot.Services
             var user = dbContext.DailyMessageCount
                 .SingleOrDefault(x => x.UserId == message.Author.Id &&
                                       x.ChannelId == message.Channel.Id &&
-                                      x.Date == DateTime.UtcNow.Date);
+                                      x.Date == message.CreatedAt.UtcDateTime.Date);
 
             if (user != null)
             {
@@ -62,7 +62,7 @@ namespace MomentumDiscordBot.Services
                 var newUser = new DailyMessageCount
                 {
                     ChannelId = message.Channel.Id,
-                    Date = DateTime.UtcNow.Date,
+                    Date = message.CreatedAt.UtcDateTime.Date,
                     UserId = message.Author.Id,
                     MessageCount = 1
                 };
