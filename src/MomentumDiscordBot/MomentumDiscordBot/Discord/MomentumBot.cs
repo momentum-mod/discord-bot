@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Models.Data;
 using MomentumDiscordBot.Services;
 using Serilog;
 using Serilog.Events;
@@ -45,7 +47,8 @@ namespace MomentumDiscordBot.Discord
             _ = services.GetRequiredService<MessageHistoryService>();
             _ = services.GetRequiredService<ReactionBasedRoleService>();
             _ = services.GetRequiredService<KeyBeggingService>();
-          
+            _ = services.GetRequiredService<UserTrustService>();
+
             _momentumCommandService =
                 new MomentumCommandService(_discordClient, baseCommandService, _logger, config, services);
 
@@ -64,6 +67,7 @@ namespace MomentumDiscordBot.Discord
                 .AddSingleton<MessageHistoryService>()
                 .AddSingleton<FaqService>()
                 .AddSingleton<KeyBeggingService>()
+                .AddSingleton<UserTrustService>()
                 .BuildServiceProvider();
 
         internal async Task<Exception> RunAsync()
