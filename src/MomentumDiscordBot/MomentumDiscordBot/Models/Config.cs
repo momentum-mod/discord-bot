@@ -42,6 +42,8 @@ namespace MomentumDiscordBot.Models
 
         [JsonProperty("media_verified_role")] public ulong MediaVerifiedRoleId { get; set; }
         [JsonProperty("media_blacklisted_role")] public ulong MediaBlacklistedRoleId { get; set; }
+        [JsonProperty("media_minimum_days")] public int MediaMinimumDays { get; set; }
+        [JsonProperty("media_minimum_messages")] public int MediaMinimumMessages { get; set; }
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         [JsonIgnore] public Emoji FaqRoleEmoji => new Emoji(FaqRoleEmojiString);
         [JsonIgnore] public Emoji AltAccountEmoji => new Emoji(AltAccountEmojiString);
