@@ -40,6 +40,7 @@ namespace MomentumDiscordBot.Models
         [Hidden]
         [JsonProperty("mysql_connection_string")] public string MySqlConnectionString { get; set; }
 
+        [JsonProperty("media_verified_role")] public ulong MediaVerifiedRoleId { get; set; }
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         [JsonIgnore] public Emoji FaqRoleEmoji => new Emoji(FaqRoleEmojiString);
         [JsonIgnore] public Emoji AltAccountEmoji => new Emoji(AltAccountEmojiString);
