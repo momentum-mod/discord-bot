@@ -22,7 +22,8 @@ namespace MomentumDiscordBot.Discord.Commands
 
             var topUsers = dbContext.DailyMessageCount.ToList().GroupBy(x => x.UserId)
                 .Select(x => new KeyValuePair<ulong, long>(x.Key, x.ToList().Sum(x => x.MessageCount)))
-                .OrderByDescending(x => x.Value);
+                .OrderByDescending(x => x.Value)
+                .Take(10);
 
             var embedBuilder = new EmbedBuilder
             {
