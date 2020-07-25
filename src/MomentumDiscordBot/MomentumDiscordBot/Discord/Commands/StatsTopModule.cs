@@ -35,7 +35,7 @@ namespace MomentumDiscordBot.Discord.Commands
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
-        [Command("users")]
+        [Command("channels")]
         public async Task TopChannelsAsync()
         {
             await using var dbContext = DbContextHelper.GetNewDbContext(Config);
