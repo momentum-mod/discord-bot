@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MomentumDiscordBot.Models;
@@ -34,10 +35,11 @@ namespace MomentumDiscordBot.Services
                 return Task.CompletedTask;
             }
 
-            _ = Task.Run(() =>
+            _ = Task.Run(async () =>
             {
-                using var dbContext = new MomentumDiscordDbContext(new DbContextOptionsBuilder<MomentumDiscordDbContext>().UseMySql(_config.MySqlConnectionString).Options);
+                await using var dbContext = new MomentumDiscordDbContext(new DbContextOptionsBuilder<MomentumDiscordDbContext>().UseMySql(_config.MySqlConnectionString).Options);
                 LogMessageCount(dbContext, message);
+                await CheckVerifiedRoleAsync(dbContext, message);
             });
 
             return Task.CompletedTask;
@@ -71,6 +73,41 @@ namespace MomentumDiscordBot.Services
             }
 
             dbContext.SaveChanges();
+        }
+
+        private async Task CheckVerifiedRoleAsync(MomentumDiscordDbContext dbContext, SocketMessage message)
+        {
+            // If they already have the verified role, or they have the blacklist role, no need to check
+            if (message.Author is IGuildUser guildUser && !guildUser.RoleIds.Any(x => x == _config.MediaVerifiedRoleId || x == _config.MediaBlacklistedRoleId))
+            {
+                // Have they been here for the minimum days
+                var messagesFromUser = dbContext.DailyMessageCount.ToList()
+                    .Where(x => x.UserId == guildUser.Id)
+                    .OrderBy(x => x.Date)
+                    .ToList();
+
+                if (!messagesFromUser.Any())
+                {
+                    // Haven't sent a message
+                    return;
+                }
+
+                var earliestMessage = messagesFromUser.FirstOrDefault();
+
+                if ((DateTime.UtcNow - earliestMessage.Date).TotalDays > _config.MediaMinimumDays)
+                {
+                    // They have been here minimum days, sum messages
+                    var messageCount = messagesFromUser.Sum(x => x.MessageCount);
+
+                    if (messageCount > _config.MediaMinimumMessages)
+                    {
+                        // User meets all the requirements
+                        var verifiedRole = guildUser.Guild.GetRole(_config.MediaVerifiedRoleId);
+
+                        await guildUser.AddRoleAsync(verifiedRole);
+                    }
+                }
+            }
         }
     }
 }
