@@ -35,5 +35,25 @@ namespace MomentumDiscordBot.Discord.Commands
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
+        [Command("users")]
+        public async Task TopChannelsAsync()
+        {
+            await using var dbContext = DbContextHelper.GetNewDbContext(Config);
+
+            var topUsers = dbContext.DailyMessageCount.ToList().GroupBy(x => x.ChannelId)
+                .Select(x => new KeyValuePair<ulong, long>(x.Key, x.ToList().Sum(x => x.MessageCount)))
+                .OrderByDescending(x => x.Value)
+                .Take(10);
+
+            var embedBuilder = new EmbedBuilder
+            {
+                Title = "Most Active Channels",
+                Description = string.Join(Environment.NewLine,
+                    topUsers.Select(x => MentionUtils.MentionChannel(x.Key) + " - " + x.Value + " messages")),
+                Color = MomentumColor.Blue
+            };
+
+            await ReplyAsync(embed: embedBuilder.Build());
+        }
     }
 }
