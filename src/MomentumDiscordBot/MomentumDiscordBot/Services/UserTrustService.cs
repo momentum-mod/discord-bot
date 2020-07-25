@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Models.Data;
+using MomentumDiscordBot.Utilities;
 using Serilog;
 
 namespace MomentumDiscordBot.Services
@@ -37,9 +38,7 @@ namespace MomentumDiscordBot.Services
 
             _ = Task.Run(async () =>
             {
-                await using var dbContext = new MomentumDiscordDbContext(new DbContextOptionsBuilder<MomentumDiscordDbContext>().UseMySql(_config.MySqlConnectionString).Options);
-                LogMessageCount(dbContext, message);
-                await CheckVerifiedRoleAsync(dbContext, message);
+                await using var dbContext = DbContextHelper.GetNewDbContext(_config);
             });
 
             return Task.CompletedTask;
