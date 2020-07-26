@@ -39,6 +39,8 @@ namespace MomentumDiscordBot.Services
             _ = Task.Run(async () =>
             {
                 await using var dbContext = DbContextHelper.GetNewDbContext(_config);
+                LogMessageCount(dbContext, message);
+                await CheckVerifiedRoleAsync(dbContext, message);
             });
 
             return Task.CompletedTask;
