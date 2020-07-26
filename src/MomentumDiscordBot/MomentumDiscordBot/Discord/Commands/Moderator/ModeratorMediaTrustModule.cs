@@ -15,6 +15,7 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
         public Config Config { get; set; }
 
         [Command("status")]
+        [Summary("Checks to see a user's media trust status")]
         public async Task MediaStatusAsync(IGuildUser user)
         {
             var embedBuilder = new EmbedBuilder
@@ -71,6 +72,7 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
         }
 
         [Command]
+        [Summary("Manually trusts a user, if applicable, removing the blacklist")]
         public async Task TrustUserAsync(IGuildUser user)
         {
             var trustedRole = Context.Guild.GetRole(Config.MediaVerifiedRoleId);
@@ -83,6 +85,8 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
         }
 
         [Command("blacklist")]
+        [Summary("Manually blacklist a user, if applicable, removing the trust")]
+
         public async Task BlacklistUserAsync(IGuildUser user)
         {
             var trustedRole = Context.Guild.GetRole(Config.MediaVerifiedRoleId);
