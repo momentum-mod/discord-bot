@@ -18,38 +18,30 @@ namespace MomentumDiscordBot.Discord.Commands
         [Command("users")]
         public async Task TopUsersAsync()
         {
-            await using var dbContext = DbContextHelper.GetNewDbContext(Config);
-
-            var topUsers = dbContext.DailyMessageCount.ToList().GroupBy(x => x.UserId)
-                .Select(x => new KeyValuePair<ulong, long>(x.Key, x.ToList().Sum(x => x.MessageCount)))
-                .OrderByDescending(x => x.Value)
-                .Take(10);
+            var topUsers = await StatsUtility.GetTopMessages(Config, x => x.UserId);
 
             var embedBuilder = new EmbedBuilder
             {
                 Title = "Most Active Users",
                 Description = string.Join(Environment.NewLine,
-                    topUsers.Select(x => MentionUtils.MentionUser(x.Key) + " - " + x.Value + " messages")),
+                    topUsers.Select(x => MentionUtils.MentionUser(x.Grouping) + " - " + x.MessageCount + " messages")),
                 Color = MomentumColor.Blue
             };
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
+
         [Command("channels")]
         public async Task TopChannelsAsync()
         {
-            await using var dbContext = DbContextHelper.GetNewDbContext(Config);
+            var topUsers = await StatsUtility.GetTopMessages(Config, x => x.ChannelId);
 
-            var topUsers = dbContext.DailyMessageCount.ToList().GroupBy(x => x.ChannelId)
-                .Select(x => new KeyValuePair<ulong, long>(x.Key, x.ToList().Sum(x => x.MessageCount)))
-                .OrderByDescending(x => x.Value)
-                .Take(10);
 
             var embedBuilder = new EmbedBuilder
             {
                 Title = "Most Active Channels",
                 Description = string.Join(Environment.NewLine,
-                    topUsers.Select(x => MentionUtils.MentionChannel(x.Key) + " - " + x.Value + " messages")),
+                    topUsers.Select(x => MentionUtils.MentionChannel(x.Grouping) + " - " + x.MessageCount + " messages")),
                 Color = MomentumColor.Blue
             };
 
