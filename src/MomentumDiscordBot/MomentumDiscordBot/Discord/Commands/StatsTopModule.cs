@@ -20,13 +20,9 @@ namespace MomentumDiscordBot.Discord.Commands
         {
             var topUsers = await StatsUtility.GetTopMessages(Config, x => x.UserId);
 
-            var embedBuilder = new EmbedBuilder
-            {
-                Title = "Most Active Users",
-                Description = string.Join(Environment.NewLine,
-                    topUsers.Select(x => MentionUtils.MentionUser(x.Grouping) + " - " + x.MessageCount + " messages")),
-                Color = MomentumColor.Blue
-            };
+            var embedBuilder = topUsers.GetTopStatsEmbedBuilder("Most Active Users",
+                x => $"{MentionUtils.MentionUser(x.Grouping)} - {x.MessageCount} messages");
+
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
@@ -34,16 +30,10 @@ namespace MomentumDiscordBot.Discord.Commands
         [Command("channels")]
         public async Task TopChannelsAsync()
         {
-            var topUsers = await StatsUtility.GetTopMessages(Config, x => x.ChannelId);
+            var topChannels = await StatsUtility.GetTopMessages(Config, x => x.ChannelId);
 
-
-            var embedBuilder = new EmbedBuilder
-            {
-                Title = "Most Active Channels",
-                Description = string.Join(Environment.NewLine,
-                    topUsers.Select(x => MentionUtils.MentionChannel(x.Grouping) + " - " + x.MessageCount + " messages")),
-                Color = MomentumColor.Blue
-            };
+            var embedBuilder = topChannels.GetTopStatsEmbedBuilder("Most Active Channels", 
+                x => $"{MentionUtils.MentionChannel(x.Grouping)} - {x.MessageCount} messages");
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
