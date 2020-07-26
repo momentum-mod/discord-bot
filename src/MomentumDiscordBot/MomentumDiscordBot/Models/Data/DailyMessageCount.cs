@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.AccessControl;
-using System.Text;
 
 namespace MomentumDiscordBot.Models.Data
 {
@@ -13,14 +10,15 @@ namespace MomentumDiscordBot.Models.Data
         [Required]
         [Column(TypeName = "BIGINT UNSIGNED NOT NULL")]
         public ulong UserId { get; set; }
-        [Required]
 
+        [Required]
         [Column(TypeName = "BIGINT UNSIGNED NOT NULL")]
         public ulong ChannelId { get; set; }
-        [Required]
 
+        [Required]
         [Column(TypeName = "DATE NOT NULL")]
         public DateTime Date { get; set; }
+
         [Column(TypeName = "MEDIUMINT UNSIGNED")]
         public uint MessageCount { get; set; }
     }

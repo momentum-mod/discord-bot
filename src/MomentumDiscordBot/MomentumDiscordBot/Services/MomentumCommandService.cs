@@ -42,7 +42,8 @@ namespace MomentumDiscordBot.Services
 
             // Install discord commands
             await _baseCommandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
-            _logger.Information($"CommandService: Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
+            _logger.Information(
+                $"CommandService: Added {_baseCommandService.Modules.Count()} modules using reflection, with a total of {_baseCommandService.Commands.Count()} commands");
         }
 
         private async Task HandleCommandAsync(SocketMessage inputMessage)
@@ -56,7 +57,10 @@ namespace MomentumDiscordBot.Services
                 // Determine if the message is a command based on the prefix and make sure no bots trigger commands
                 if (!(message.HasStringPrefix(_config.CommandPrefix, ref argPosition) ||
                       message.HasMentionPrefix(_discordClient.CurrentUser, ref argPosition)) ||
-                    message.Author.IsBot) return;
+                    message.Author.IsBot)
+                {
+                    return;
+                }
 
                 // Create a WebSocket-based command context based on the message
                 var context = new SocketCommandContext(_discordClient, message);
@@ -74,7 +78,10 @@ namespace MomentumDiscordBot.Services
             IResult result)
         {
             // Don't respond to unknown commands
-            if (result?.Error != null && result.Error == CommandError.UnknownCommand) return;
+            if (result?.Error != null && result.Error == CommandError.UnknownCommand)
+            {
+                return;
+            }
 
             // Since commands are run in an async context, errors have to be manually handled
             if (!string.IsNullOrEmpty(result?.ErrorReason))
@@ -93,7 +100,9 @@ namespace MomentumDiscordBot.Services
                 {
                     return;
                 }
-                _logger.Error($"MomentumCommandService {commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}");
+
+                _logger.Error(
+                    $"MomentumCommandService {commandName} threw an error at {DateTime.Now}: {Environment.NewLine}{result.ErrorReason}");
             }
         }
 

@@ -24,6 +24,7 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
 
             await ReplyAsync(MentionUtils.MentionUser(user.Id), embed: embed);
         }
+
         [Command("ban")]
         [Summary("Bans a user, purging their messages")]
         public async Task BanAsync(IGuildUser user)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -45,7 +44,8 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
                 if (socketGuildUser.Roles.Any())
                 {
                     embed.AddField("Roles",
-                        string.Join(" ", socketGuildUser.Roles.OrderByDescending(x => x.Position).Select(x => x.Mention)));
+                        string.Join(" ",
+                            socketGuildUser.Roles.OrderByDescending(x => x.Position).Select(x => x.Mention)));
                 }
 
                 var dangerousPermissions = socketGuildUser.GuildPermissions.GetDangerousPermissions().ToList();
@@ -57,10 +57,12 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
 
                 if (socketGuildUser.JoinedAt.HasValue)
                 {
-                    embed.AddField("Joined", $"{(DateTime.UtcNow - socketGuildUser.JoinedAt.Value).ToPrettyFormat()} ago");
+                    embed.AddField("Joined",
+                        $"{(DateTime.UtcNow - socketGuildUser.JoinedAt.Value).ToPrettyFormat()} ago");
                 }
 
-                embed.AddField("Account Created", $"{(DateTime.UtcNow - socketGuildUser.CreatedAt).ToPrettyFormat()} ago");
+                embed.AddField("Account Created",
+                    $"{(DateTime.UtcNow - socketGuildUser.CreatedAt).ToPrettyFormat()} ago");
 
                 embed.WithFooter(socketGuildUser.Id.ToString());
 

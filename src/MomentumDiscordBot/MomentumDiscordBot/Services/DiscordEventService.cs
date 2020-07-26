@@ -11,10 +11,11 @@ namespace MomentumDiscordBot.Services
 {
     public class DiscordEventService
     {
-        private readonly DiscordSocketClient _discordClient;
         private readonly Config _config;
+        private readonly DiscordSocketClient _discordClient;
         private IChannel _joinLogChannel;
-        private ILogger _logger;
+        private readonly ILogger _logger;
+
         public DiscordEventService(DiscordSocketClient discordClient, Config config, ILogger logger)
         {
             _discordClient = discordClient;
@@ -24,6 +25,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.UserJoined += UserJoined;
             _discordClient.Log += Log;
         }
+
         public Task Log(LogMessage logMessage)
         {
             switch (logMessage.Severity)
@@ -38,7 +40,8 @@ namespace MomentumDiscordBot.Services
                     _logger.Warning(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
                     break;
                 case LogSeverity.Info:
-                    _logger.Information(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
+                    _logger.Information(logMessage.Exception, "{Source}: {Message}", logMessage.Source,
+                        logMessage.Message);
                     break;
                 case LogSeverity.Verbose:
                     _logger.Verbose(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
@@ -49,6 +52,7 @@ namespace MomentumDiscordBot.Services
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             return Task.CompletedTask;
         }
 

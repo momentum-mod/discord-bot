@@ -1,17 +1,18 @@
 ﻿using System.Threading.Tasks;
-using Discord.WebSocket;
-using MomentumDiscordBot.Models;
 using Discord;
+using Discord.WebSocket;
 using MomentumDiscordBot.Constants;
+using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Services
 {
     public class MessageHistoryService
     {
-        private readonly DiscordSocketClient _discordClient;
         private readonly Config _config;
+        private readonly DiscordSocketClient _discordClient;
         private ITextChannel _textChannel;
+
         public MessageHistoryService(DiscordSocketClient discordClient, Config config)
         {
             _discordClient = discordClient;
@@ -32,11 +33,16 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task MessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
+        private Task MessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage,
+            ISocketMessageChannel channel)
         {
-            if (_textChannel == null || !(channel is IGuildChannel) || newMessage.Author.IsBot || !newMessage.EditedTimestamp.HasValue) return Task.CompletedTask;
+            if (_textChannel == null || !(channel is IGuildChannel) || newMessage.Author.IsBot ||
+                !newMessage.EditedTimestamp.HasValue)
+            {
+                return Task.CompletedTask;
+            }
 
-            _ = Task.Run(async () => 
+            _ = Task.Run(async () =>
             {
                 if (cachedMessage.HasValue)
                 {
@@ -55,8 +61,13 @@ namespace MomentumDiscordBot.Services
                 else
                 {
                     var message = await cachedMessage.GetOrDownloadAsync();
-                    if (message.Author.IsBot) return;
-                    await _textChannel.SendMessageAsync("A message was updated, but it was not in cache. " + newMessage.GetJumpUrl());
+                    if (message.Author.IsBot)
+                    {
+                        return;
+                    }
+
+                    await _textChannel.SendMessageAsync("A message was updated, but it was not in cache. " +
+                                                        newMessage.GetJumpUrl());
                 }
             });
 
@@ -65,13 +76,19 @@ namespace MomentumDiscordBot.Services
 
         private Task MessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
         {
-            if (_textChannel == null || !(channel is IGuildChannel)) return Task.CompletedTask;
+            if (_textChannel == null || !(channel is IGuildChannel))
+            {
+                return Task.CompletedTask;
+            }
 
             _ = Task.Run(async () =>
             {
                 if (cachedMessage.HasValue)
                 {
-                    if (cachedMessage.Value.Author.IsBot) return;
+                    if (cachedMessage.Value.Author.IsBot)
+                    {
+                        return;
+                    }
 
                     var embedBuilder = new EmbedBuilder
                     {

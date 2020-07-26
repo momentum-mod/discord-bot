@@ -12,9 +12,10 @@ namespace MomentumDiscordBot.Services
 {
     public class KeyBeggingService
     {
-        private DiscordSocketClient _discordClient;
-        private Config _config;
-        private ILogger _logger;
+        private readonly Config _config;
+        private readonly DiscordSocketClient _discordClient;
+        private readonly ILogger _logger;
+
         public KeyBeggingService(DiscordSocketClient discordClient, ILogger logger, Config config)
         {
             _discordClient = discordClient;
@@ -27,15 +28,18 @@ namespace MomentumDiscordBot.Services
         private async Task MessageReceived(SocketMessage message)
         {
             // Early return when relevant config isn't set
-            if (string.IsNullOrWhiteSpace(_config.KeyBeggingResponse) || 
+            if (string.IsNullOrWhiteSpace(_config.KeyBeggingResponse) ||
                 string.IsNullOrWhiteSpace(_config.KeyRegexString) ||
-                !(message is IUserMessage userMessage)) return;
+                !(message is IUserMessage userMessage))
+            {
+                return;
+            }
 
             try
             {
                 // First check for whitelisted roles
-                if (_config.WhitelistKeyBeggingRoles != null 
-                    && _config.WhitelistKeyBeggingRoles.Length > 0 
+                if (_config.WhitelistKeyBeggingRoles != null
+                    && _config.WhitelistKeyBeggingRoles.Length > 0
                     && message.Author is SocketGuildUser guildAuthor
                     && guildAuthor.Roles.Select(x => x.Id).Any(x => _config.WhitelistKeyBeggingRoles.Contains(x)))
                 {
@@ -58,7 +62,6 @@ namespace MomentumDiscordBot.Services
                 // If it fails, oh well
                 _logger.Error(e, "KeyBeggingService");
             }
-            
         }
     }
 }

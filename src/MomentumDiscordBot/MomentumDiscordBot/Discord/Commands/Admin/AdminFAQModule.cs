@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Services;
@@ -38,6 +37,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
 
             await ReplyNewEmbedAsync("Allowed users to be verified in the FAQ channel", MomentumColor.Blue);
         }
+
         [Command("verify")]
         [Summary("Checks if there are any unhandled reactions")]
         public async Task VerifyFaqAsync()

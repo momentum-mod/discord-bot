@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Models.Data;
 using MomentumDiscordBot.Utilities;
@@ -16,9 +12,10 @@ namespace MomentumDiscordBot.Services
 {
     public class UserTrustService
     {
+        private readonly Config _config;
+        private readonly DiscordSocketClient _discordClient;
         private ILogger _logger;
-        private DiscordSocketClient _discordClient;
-        private Config _config;
+
         public UserTrustService(ILogger logger, DiscordSocketClient discordClient, Config config)
         {
             _logger = logger;
@@ -79,7 +76,8 @@ namespace MomentumDiscordBot.Services
         private async Task CheckVerifiedRoleAsync(MomentumDiscordDbContext dbContext, SocketMessage message)
         {
             // If they already have the verified role, or they have the blacklist role, no need to check
-            if (message.Author is IGuildUser guildUser && !guildUser.RoleIds.Any(x => x == _config.MediaVerifiedRoleId || x == _config.MediaBlacklistedRoleId))
+            if (message.Author is IGuildUser guildUser && !guildUser.RoleIds.Any(x =>
+                x == _config.MediaVerifiedRoleId || x == _config.MediaBlacklistedRoleId))
             {
                 // Have they been here for the minimum days
                 var messagesFromUser = dbContext.DailyMessageCount.ToList()

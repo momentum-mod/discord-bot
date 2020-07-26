@@ -5,6 +5,7 @@ using Discord;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord.Commands;
 using Newtonsoft.Json;
+using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 
 namespace MomentumDiscordBot.Models
 {
@@ -13,7 +14,10 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("environment")] public string Environment { get; set; }
         [JsonProperty("admin_id")] public ulong AdminRoleID { get; set; }
         [JsonProperty("command_prefix")] public string CommandPrefix { get; set; }
-        [JsonProperty("livestream_mention_role_id")] public ulong LivestreamMentionRoleId { get; set; }
+
+        [JsonProperty("livestream_mention_role_id")]
+        public ulong LivestreamMentionRoleId { get; set; }
+
         [JsonProperty("mention_role_emoji")] public string MentionRoleEmojiString { get; set; }
         [JsonProperty("faq_role_emoji")] public string FaqRoleEmojiString { get; set; }
         [JsonProperty("mention_roles")] public ulong[] MentionRoles { get; set; }
@@ -22,28 +26,47 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("roles_channel")] public ulong RolesChannelId { get; set; }
         [JsonProperty("twitch_user_bans")] public string[] TwitchUserBans { get; set; }
         [JsonProperty("admin_bot_channel")] public ulong AdminBotChannel { get; set; }
-        [JsonProperty("stream_update_interval")] public int StreamUpdateInterval { get; set; }
+
+        [JsonProperty("stream_update_interval")]
+        public int StreamUpdateInterval { get; set; }
+
         [JsonProperty("key_emoji")] public string KeyEmojiString { get; set; }
         [JsonProperty("key_begging_response")] public string KeyBeggingResponse { get; set; }
         [JsonProperty("key_regex")] public string KeyRegexString { get; set; }
         [JsonProperty("join_log_channel")] public ulong JoinLogChannel { get; set; }
-        [JsonProperty("message_history_channel")] public ulong MessageHistoryChannel { get; set; }
+
+        [JsonProperty("message_history_channel")]
+        public ulong MessageHistoryChannel { get; set; }
+
         [JsonProperty("new_account_emote")] public string NewUserEmoteString { get; set; }
-        [JsonProperty("whitelist_key_begging_roles")] public ulong[] WhitelistKeyBeggingRoles { get; set; }
-        [JsonProperty("minimum_stream_viewers_announce")] public int MinimumStreamViewersAnnounce { get; set; }
+
+        [JsonProperty("whitelist_key_begging_roles")]
+        public ulong[] WhitelistKeyBeggingRoles { get; set; }
+
+        [JsonProperty("minimum_stream_viewers_announce")]
+        public int MinimumStreamViewersAnnounce { get; set; }
+
         [JsonProperty("seq_address")] public string SeqAddress { get; set; }
         [JsonProperty("seq_token")] public string SeqToken { get; set; }
         [JsonProperty("faq_channel")] public ulong FaqChannelId { get; set; }
         [JsonProperty("faq_role")] public ulong FaqRoleId { get; set; }
         [JsonProperty("developer_id")] public ulong DeveloperID { get; set; }
         [JsonProperty("alt_account_emoji")] public string AltAccountEmojiString { get; set; }
+
         [Hidden]
-        [JsonProperty("mysql_connection_string")] public string MySqlConnectionString { get; set; }
+        [JsonProperty("mysql_connection_string")]
+        public string MySqlConnectionString { get; set; }
 
         [JsonProperty("media_verified_role")] public ulong MediaVerifiedRoleId { get; set; }
-        [JsonProperty("media_blacklisted_role")] public ulong MediaBlacklistedRoleId { get; set; }
+
+        [JsonProperty("media_blacklisted_role")]
+        public ulong MediaBlacklistedRoleId { get; set; }
+
         [JsonProperty("media_minimum_days")] public int MediaMinimumDays { get; set; }
-        [JsonProperty("media_minimum_messages")] public int MediaMinimumMessages { get; set; }
+
+        [JsonProperty("media_minimum_messages")]
+        public int MediaMinimumMessages { get; set; }
+
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         [JsonIgnore] public Emoji FaqRoleEmoji => new Emoji(FaqRoleEmojiString);
         [JsonIgnore] public Emoji AltAccountEmoji => new Emoji(AltAccountEmojiString);
@@ -64,7 +87,7 @@ namespace MomentumDiscordBot.Models
             throw new FileNotFoundException($"No config file exists, expected it at: '{PathConstants.ConfigFilePath}'");
         }
 
-        private static void LoadConfigErrorHandler(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        private static void LoadConfigErrorHandler(object sender, ErrorEventArgs e)
         {
             Console.WriteLine(e.ErrorContext.Error.Message);
             e.ErrorContext.Handled = true;

@@ -4,7 +4,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using MomentumDiscordBot.Constants;
-using MomentumDiscordBot.Discord.Precondition;
 using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Discord.Commands.Admin
@@ -12,7 +11,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
     public class AdminModule : AdminModuleBase
     {
         public StreamMonitorService StreamMonitorService { get; set; }
-        public DiscordSocketClient DiscordSocketClient { get; set; }       
+        public DiscordSocketClient DiscordSocketClient { get; set; }
 
         [Command("updatestreams")]
         [Summary("Force an update of Twitch livestreams")]
@@ -32,13 +31,15 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             if (guildRole != null)
             {
                 var membersWithRole = Context.Guild.Users.Count(x => x.Roles.Contains(guildRole));
-                await ReplyNewEmbedAsync($"{membersWithRole} users have {MentionUtils.MentionRole(guildRole.Id)}", MomentumColor.Blue);
+                await ReplyNewEmbedAsync($"{membersWithRole} users have {MentionUtils.MentionRole(guildRole.Id)}",
+                    MomentumColor.Blue);
             }
             else
             {
                 await ReplyNewEmbedAsync("That role does not exist in this server", Color.Orange);
             }
         }
+
         [Command("forcereconnect")]
         [Summary("Simulates the Discord API requesting a reconnect")]
         public async Task ForceReconnectAsync(int seconds)

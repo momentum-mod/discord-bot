@@ -18,30 +18,20 @@ namespace MomentumDiscordBot.Services
     public class StreamMonitorService
     {
         private readonly ulong _channelId;
+        private readonly Config _config;
+        private readonly DiscordSocketClient _discordClient;
+        private readonly ILogger _logger;
+        private readonly List<string> _streamSoftBanList = new List<string>();
 
         private readonly TimeSpan _updateInterval;
+        private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
+        public readonly TwitchApiService TwitchApiService;
 
         // <StreamID, MessageID>
         private Dictionary<string, ulong> _cachedStreamsIds;
-        private readonly Config _config;
-        private readonly DiscordSocketClient _discordClient;
-        private SocketTextChannel _textChannel;
-        public readonly TwitchApiService TwitchApiService;
         private Timer _intervalFunctionTimer;
-        private readonly List<string> _streamSoftBanList = new List<string>();
-        private readonly ILogger _logger;
-        private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
+        private SocketTextChannel _textChannel;
 
-        private SocketTextChannel GetTextChannel()
-        {
-            if (_textChannel != null)
-            {
-                return _textChannel;
-            }
-
-            _textChannel = _discordClient.GetChannel(_config.MomentumModStreamerChannelId) as SocketTextChannel;
-            return _textChannel;
-        }
         public StreamMonitorService(DiscordSocketClient discordClient, Config config, ILogger logger)
         {
             _config = config;
@@ -53,6 +43,17 @@ namespace MomentumDiscordBot.Services
             _channelId = _config.MomentumModStreamerChannelId;
             _updateInterval = TimeSpan.FromMinutes(_config.StreamUpdateInterval);
             _discordClient.Ready += _discordClient_Ready;
+        }
+
+        private SocketTextChannel GetTextChannel()
+        {
+            if (_textChannel != null)
+            {
+                return _textChannel;
+            }
+
+            _textChannel = _discordClient.GetChannel(_config.MomentumModStreamerChannelId) as SocketTextChannel;
+            return _textChannel;
         }
 
         private Task _discordClient_Ready()
@@ -138,7 +139,10 @@ namespace MomentumDiscordBot.Services
                 if (!IsStreamInCache(stream))
                 {
                     // If the stream is not above the minimum viewers then ignore it, but we want to update a stream if it dips below
-                    if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce) continue;
+                    if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce)
+                    {
+                        continue;
+                    }
 
                     // New stream, send a new message
                     var message =
@@ -158,11 +162,13 @@ namespace MomentumDiscordBot.Services
                     // Existing stream, update message with new information
                     var oldMessage = await GetTextChannel().GetMessageAsync(messageId);
                     if (oldMessage is IUserMessage oldRestMessage)
+                    {
                         await oldRestMessage.ModifyAsync(x =>
                         {
                             x.Content = messageText;
                             x.Embed = embed;
                         });
+                    }
                 }
             }
         }
@@ -223,7 +229,10 @@ namespace MomentumDiscordBot.Services
             foreach (var (endedStreamId, messageId) in endedStreams)
             {
                 // If the stream was soft banned, remove it
-                if (_streamSoftBanList.Contains(endedStreamId)) _streamSoftBanList.Remove(endedStreamId);
+                if (_streamSoftBanList.Contains(endedStreamId))
+                {
+                    _streamSoftBanList.Remove(endedStreamId);
+                }
 
                 try
                 {
@@ -231,7 +240,8 @@ namespace MomentumDiscordBot.Services
                 }
                 catch
                 {
-                    _logger.Warning("StreamMonitorService: Tried to delete message " + messageId + " but it does not exist.");
+                    _logger.Warning("StreamMonitorService: Tried to delete message " + messageId +
+                                    " but it does not exist.");
                 }
 
                 _cachedStreamsIds.Remove(endedStreamId);
@@ -245,14 +255,13 @@ namespace MomentumDiscordBot.Services
             {
                 var bannedStreams = streams.Where(x => _config.TwitchUserBans.Contains(x.UserId));
 
-                foreach (var bannedStream in bannedStreams) 
+                foreach (var bannedStream in bannedStreams)
                 {
                     if (_cachedStreamsIds.TryGetValue(bannedStream.Id, out var messageId))
                     {
                         await GetTextChannel().DeleteMessageAsync(messageId);
                     }
                 }
-                    
             }
         }
 
@@ -264,12 +273,18 @@ namespace MomentumDiscordBot.Services
             // Get all messages
             var messages = (await GetTextChannel().GetMessagesAsync().FlattenAsync()).FromSelf(_discordClient).ToList();
 
-            if (!messages.Any()) return true;
+            if (!messages.Any())
+            {
+                return true;
+            }
 
             var streams = await TwitchApiService.GetLiveMomentumModStreamersAsync();
 
             // Error getting streams, don't continue
-            if (streams == null) return false;
+            if (streams == null)
+            {
+                return false;
+            }
 
             // Delete existing bot messages simultaneously
             var deleteTasks = messages
@@ -279,7 +294,8 @@ namespace MomentumDiscordBot.Services
                     {
                         if (x.Embeds.Count == 1)
                         {
-                            var matchingStream = streams.FirstOrDefault(y => y.UserName == x.Embeds.First().Author?.Name);
+                            var matchingStream =
+                                streams.FirstOrDefault(y => y.UserName == x.Embeds.First().Author?.Name);
                             if (matchingStream == null)
                             {
                                 // No matching stream
@@ -288,8 +304,9 @@ namespace MomentumDiscordBot.Services
                             else if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
                             {
                                 // Found the matching stream
-                                _logger.Warning("StreamMonitorService: Duplicate cached streamer: " + matchingStream.UserName + ", deleting...");
-                                    await x.DeleteAsync();
+                                _logger.Warning("StreamMonitorService: Duplicate cached streamer: " +
+                                                matchingStream.UserName + ", deleting...");
+                                await x.DeleteAsync();
                             }
                         }
                         else

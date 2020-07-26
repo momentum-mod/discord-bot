@@ -7,11 +7,18 @@
             var count = 0;
             for (var i = 0; i < input.Length; i++)
             {
-                if (input[i] != searchInput) continue;
+                if (input[i] != searchInput)
+                {
+                    continue;
+                }
 
                 count++;
-                if (count == nOccurrence) return i;
+                if (count == nOccurrence)
+                {
+                    return i;
+                }
             }
+
             return -1;
         }
     }

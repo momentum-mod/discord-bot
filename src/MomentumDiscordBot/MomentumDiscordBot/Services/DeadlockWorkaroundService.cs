@@ -13,14 +13,17 @@ namespace MomentumDiscordBot.Services
     // terminate the process and the bot will not restart.
     public class DeadlockWorkaroundService
     {
-        // --- Begin Configuration Section ---
-        // How long should we wait on the client to reconnect before resetting?
-        private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
-
         // Change log levels if desired:
         private const LogSeverity Debug = LogSeverity.Debug;
         private const LogSeverity Info = LogSeverity.Info;
         private const LogSeverity Critical = LogSeverity.Critical;
+
+        // Logging Helpers
+        private const string LogSource = "DeadlockWorkaroundService";
+
+        // --- Begin Configuration Section ---
+        // How long should we wait on the client to reconnect before resetting?
+        private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
 
         // --- End Configuration Section ---
 
@@ -95,9 +98,6 @@ namespace MomentumDiscordBot.Services
 
         private static void FailFast()
             => Environment.Exit(1);
-
-        // Logging Helpers
-        private const string LogSource = "DeadlockWorkaroundService";
 
         private Task DebugAsync(string message)
             => _logger.Invoke(new LogMessage(Debug, LogSource, message));

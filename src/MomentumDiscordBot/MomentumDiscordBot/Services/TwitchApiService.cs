@@ -13,9 +13,8 @@ namespace MomentumDiscordBot.Services
     public class TwitchApiService
     {
         private readonly TwitchAPI _apiService;
-        private string _momentumModGameId = null;
-        private ILogger _logger;
-        public List<Stream> PreviousLivestreams { get; set; }
+        private readonly ILogger _logger;
+        private readonly string _momentumModGameId = null;
 
         public TwitchApiService(ILogger logger)
         {
@@ -47,6 +46,8 @@ namespace MomentumDiscordBot.Services
             }
         }
 
+        public List<Stream> PreviousLivestreams { get; set; }
+
         public async Task<string> GetMomentumModIdAsync()
         {
             var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> {"Momentum Mod"});
@@ -56,7 +57,7 @@ namespace MomentumDiscordBot.Services
         public async Task<List<Stream>> GetLiveMomentumModStreamersAsync()
         {
             try
-            {            
+            {
                 // Get the game ID once, then reuse it
                 var streams = await _apiService.Helix.Streams.GetStreamsAsync(gameIds: new List<string>
                     {_momentumModGameId ?? await GetMomentumModIdAsync()});
@@ -68,11 +69,12 @@ namespace MomentumDiscordBot.Services
                 return null;
             }
         }
+
         public async Task<string> GetStreamerIconUrlAsync(string id)
         {
             try
             {
-                var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> { id });
+                var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> {id});
 
                 // Selected through ID, should only return one
                 var user = users.Users.First();
@@ -83,8 +85,8 @@ namespace MomentumDiscordBot.Services
                 _logger.Error(e, "TwitchApiService");
                 return string.Empty;
             }
-
         }
+
         public async Task<string> GetStreamerIDAsync(string name)
         {
             var response = await _apiService.Helix.Users.GetUsersAsync(logins: new List<string> {name});
@@ -102,9 +104,10 @@ namespace MomentumDiscordBot.Services
 
             return users.First().Id;
         }
+
         public async Task<string> GetStreamerNameAsync(string id)
         {
-            var response = await _apiService.Helix.Users.GetUsersAsync(ids: new List<string> { id });
+            var response = await _apiService.Helix.Users.GetUsersAsync(new List<string> {id});
             var users = response.Users;
 
             if (users.Length == 0)
@@ -119,6 +122,7 @@ namespace MomentumDiscordBot.Services
 
             return users.First().DisplayName;
         }
+
         public async Task<string> GetOrDownloadTwitchIDAsync(string username)
         {
             if (ulong.TryParse(username, out _))
@@ -126,29 +130,26 @@ namespace MomentumDiscordBot.Services
                 // Input is a explicit Twitch ID
                 return username;
             }
-            else
+
+            // Input is the Twitch username
+            var cachedUser = PreviousLivestreams.FirstOrDefault(x =>
+                string.Equals(username, x.UserName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (cachedUser != null)
             {
-                // Input is the Twitch username
-                var cachedUser = PreviousLivestreams.FirstOrDefault(x =>
-                    string.Equals(username, x.UserName, StringComparison.InvariantCultureIgnoreCase));
+                // User is in the cache
+                return cachedUser.UserId;
+            }
 
-                if (cachedUser != null)
-                {
-                    // User is in the cache
-                    return cachedUser.UserId;
-                }
-
-                try
-                {
-                    // Search the API, throws exception if not found
-                    return await GetStreamerIDAsync(username);
-                }
-                catch (Exception e)
-                {
-                    _logger.Error(e, "TwitchApiService");
-                    return null;
-                }
-
+            try
+            {
+                // Search the API, throws exception if not found
+                return await GetStreamerIDAsync(username);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "TwitchApiService");
+                return null;
             }
         }
     }

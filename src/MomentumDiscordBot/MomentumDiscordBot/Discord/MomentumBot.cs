@@ -3,25 +3,23 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
-using MomentumDiscordBot.Models.Data;
 using MomentumDiscordBot.Services;
 using Serilog;
-using Serilog.Events;
 
 namespace MomentumDiscordBot.Discord
 {
     public class MomentumBot
     {
         private readonly Config _config;
+        private readonly DeadlockWorkaroundService _deadlockWorkaroundService;
         private readonly DiscordSocketClient _discordClient;
         private readonly string _discordToken;
+        private readonly ILogger _logger;
         private readonly MomentumCommandService _momentumCommandService;
         private readonly StreamMonitorService _streamMonitorService;
-        private readonly ILogger _logger;
-        private readonly DeadlockWorkaroundService _deadlockWorkaroundService;
+
         public MomentumBot(string discordToken, Config config, ILogger logger)
         {
             _discordToken = discordToken;

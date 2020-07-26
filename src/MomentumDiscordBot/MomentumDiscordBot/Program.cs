@@ -4,7 +4,6 @@ using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Discord;
 using MomentumDiscordBot.Models;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace MomentumDiscordBot
@@ -16,7 +15,9 @@ namespace MomentumDiscordBot
             Console.WriteLine("Loading discord token...");
             if (!TryGetDiscordToken(out var discordToken))
                 // No token, quit
+            {
                 return;
+            }
 
             Console.WriteLine("Loading config file...");
             var config = Config.LoadFromFile();

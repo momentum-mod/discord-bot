@@ -30,7 +30,8 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
                     .Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToArray();
             }
 
-            await ReplyNewEmbedAsync(string.Join(Environment.NewLine, configProperties.Select(x => x.Name)), MomentumColor.Blue);
+            await ReplyNewEmbedAsync(string.Join(Environment.NewLine, configProperties.Select(x => x.Name)),
+                MomentumColor.Blue);
         }
 
         [Command("set")]
@@ -55,13 +56,13 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
 
                 if (configParameterType == typeof(string))
                 {
-                    setter.Invoke(Config, new[] { value });
+                    setter.Invoke(Config, new[] {value});
                 }
                 else
                 {
                     var convertedValue = TypeDescriptor.GetConverter(configParameterType).ConvertFromString(value);
 
-                    setter.Invoke(Config, new[] { convertedValue });
+                    setter.Invoke(Config, new[] {convertedValue});
                     Config.SaveToFile();
                 }
 
@@ -78,7 +79,9 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         [Summary("Gets config option")]
         public async Task GetConfigOptionAsync(string key)
         {
-            var configProperty = Config.GetType().GetProperties().Where(x => !x.GetCustomAttributes().Any(x => x.GetType() == typeof(HiddenAttribute)) && x.Name.Contains(key, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var configProperty = Config.GetType().GetProperties().Where(x =>
+                !x.GetCustomAttributes().Any(x => x.GetType() == typeof(HiddenAttribute)) &&
+                x.Name.Contains(key, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             if (!configProperty.Any())
             {
@@ -90,7 +93,9 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
             }
             else
             {
-                await ReplyNewEmbedAsync(configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString().EscapeDiscordChars(), MomentumColor.Blue);
+                await ReplyNewEmbedAsync(
+                    configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString().EscapeDiscordChars(),
+                    MomentumColor.Blue);
             }
         }
     }

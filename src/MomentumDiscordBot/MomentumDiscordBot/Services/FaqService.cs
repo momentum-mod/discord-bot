@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
@@ -15,11 +14,11 @@ namespace MomentumDiscordBot.Services
     {
         private readonly Config _config;
         private readonly DiscordSocketClient _discordClient;
-        private SocketTextChannel _textChannel;
-        private IMessage _lastMessage;
-        private SemaphoreSlim _semaphoreLock = new SemaphoreSlim(1, 1);
-        public bool IsEnabled { get; private set; } = true;
         private List<ulong> _faqLockInformed = new List<ulong>();
+        private IMessage _lastMessage;
+        private readonly SemaphoreSlim _semaphoreLock = new SemaphoreSlim(1, 1);
+        private SocketTextChannel _textChannel;
+
         public FaqService(DiscordSocketClient discordClient, Config config)
         {
             _config = config;
@@ -28,6 +27,8 @@ namespace MomentumDiscordBot.Services
             _discordClient.Ready += _discordClient_Ready;
             _discordClient.ReactionAdded += ReactionAdded;
         }
+
+        public bool IsEnabled { get; private set; } = true;
 
         public void Lock()
         {
@@ -55,7 +56,10 @@ namespace MomentumDiscordBot.Services
                 {
                     // If the previous message hooked to, is the same as what is the new last message, don't remove all reactions
                     // This is to prevent unhandled reactions being wiped
-                    if (!(message is IUserMessage userMessage) || _lastMessage != null && message.Id == _lastMessage.Id) continue;
+                    if (!(message is IUserMessage userMessage) || _lastMessage != null && message.Id == _lastMessage.Id)
+                    {
+                        continue;
+                    }
 
                     if (userMessage.Reactions.Count > 0)
                     {
@@ -108,6 +112,7 @@ namespace MomentumDiscordBot.Services
 
             return Task.CompletedTask;
         }
+
         private Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
@@ -116,7 +121,10 @@ namespace MomentumDiscordBot.Services
                 await _semaphoreLock.WaitAsync();
                 _semaphoreLock.Release();
 
-                if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji)) return;
+                if (reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.FaqRoleEmoji))
+                {
+                    return;
+                }
 
                 // Get the user as a SocketGuildContext
 
@@ -125,7 +133,8 @@ namespace MomentumDiscordBot.Services
 
                 if (!IsEnabled)
                 {
-                    if (user == null || _faqLockInformed.Contains(user.Id) || user.Roles.Any(x => x.Id == _config.FaqRoleId))
+                    if (user == null || _faqLockInformed.Contains(user.Id) ||
+                        user.Roles.Any(x => x.Id == _config.FaqRoleId))
                     {
                         return;
                     }
@@ -135,7 +144,8 @@ namespace MomentumDiscordBot.Services
 
                     await user.SendMessageAsync(embed: new EmbedBuilder
                     {
-                        Description = "The FAQ verification process is temporarily locked, this is most likely due to spam bots joining. Please try again later.",
+                        Description =
+                            "The FAQ verification process is temporarily locked, this is most likely due to spam bots joining. Please try again later.",
                         Color = Color.Orange
                     }.Build());
                     return;
@@ -168,8 +178,9 @@ namespace MomentumDiscordBot.Services
         {
             await _semaphoreLock.WaitAsync();
 
-            var userReactions = (await _lastMessage.GetReactionUsersAsync(_config.FaqRoleEmoji, _textChannel.Guild.MemberCount).FlattenAsync()).
-                Where(x => !x.IsSelf(_discordClient));
+            var userReactions =
+                (await _lastMessage.GetReactionUsersAsync(_config.FaqRoleEmoji, _textChannel.Guild.MemberCount)
+                    .FlattenAsync()).Where(x => !x.IsSelf(_discordClient));
 
             var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
             foreach (var unhandledUserReaction in userReactions)

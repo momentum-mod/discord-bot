@@ -80,7 +80,8 @@ namespace MomentumDiscordBot.Services
 
         private async Task VerifyCurrentUserRolesAsync()
         {
-            var usersWithMentionRoles = _textChannel.Guild.Users.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
+            var usersWithMentionRoles = _textChannel.Guild.Users
+                .Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
 
             // Check users who have reacted to the embed
             foreach (var (roleId, messageId) in _existingRoleEmbeds)
@@ -88,10 +89,15 @@ namespace MomentumDiscordBot.Services
                 var message = await _textChannel.GetMessageAsync(messageId);
                 var role = _textChannel.Guild.GetRole(roleId);
 
-                if (!(message is IUserMessage userMessage)) continue;
+                if (!(message is IUserMessage userMessage))
+                {
+                    continue;
+                }
 
                 // Get all users who have reacted to the embed
-                var reactionUsers = (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount).FlattenAsync()).ToList();
+                var reactionUsers =
+                    (await userMessage.GetReactionUsersAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount)
+                        .FlattenAsync()).ToList();
 
                 foreach (var guildUser in reactionUsers.Where(user => !user.IsSelf(_discordClient))
                     .Where(user =>
@@ -108,14 +114,16 @@ namespace MomentumDiscordBot.Services
                 var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
                 foreach (var user in userWithRole)
                 {
-                    if (reactionUsers.Any(x => x.Id == user.Id) && !user.IsSelf(_discordClient)) continue;
-                        
+                    if (reactionUsers.Any(x => x.Id == user.Id) && !user.IsSelf(_discordClient))
+                    {
+                        continue;
+                    }
+
                     // User has not reacted, remove the role
                     var guildUser = _textChannel.Guild.GetUser(user.Id);
                     await guildUser.RemoveRoleAsync(role);
                 }
             }
-
         }
 
         /// <summary>
@@ -142,9 +150,13 @@ namespace MomentumDiscordBot.Services
         private Task ReactionAdded(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return Task.CompletedTask;
-            
-            _ = Task.Run(async () => 
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id ||
+                !reaction.Emote.Equals(_config.MentionRoleEmoji))
+            {
+                return Task.CompletedTask;
+            }
+
+            _ = Task.Run(async () =>
             {
                 // Check that the message reacted to is a role embed
                 if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
@@ -154,21 +166,32 @@ namespace MomentumDiscordBot.Services
                         .Users.First(x => x.Id == reaction.UserId);
 
                     // Ignore actions from the bot
-                    if (user.IsSelf(_discordClient)) return;
+                    if (user.IsSelf(_discordClient))
+                    {
+                        return;
+                    }
 
                     var message = await messageBefore.GetOrDownloadAsync();
-                    if (TryParseRoleFromEmbed(message, out var role)) await user.AddRoleAsync(role);
+                    if (TryParseRoleFromEmbed(message, out var role))
+                    {
+                        await user.AddRoleAsync(role);
+                    }
                 }
             });
-            
+
             return Task.CompletedTask;
         }
 
         private Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageBefore,
             ISocketMessageChannel messageAfter, SocketReaction reaction)
         {
-            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id || !reaction.Emote.Equals(_config.MentionRoleEmoji)) return Task.CompletedTask;
-            _ = Task.Run(async () => 
+            if (reaction == null || _textChannel == null || reaction.Channel.Id != _textChannel.Id ||
+                !reaction.Emote.Equals(_config.MentionRoleEmoji))
+            {
+                return Task.CompletedTask;
+            }
+
+            _ = Task.Run(async () =>
             {
                 // Check that the message reacted to is a role embed
                 if (_existingRoleEmbeds.ContainsValue(reaction.MessageId))
@@ -178,13 +201,19 @@ namespace MomentumDiscordBot.Services
                         .Users.First(x => x.Id == reaction.UserId);
 
                     // Ignore actions from the bot
-                    if (user.IsSelf(_discordClient)) return;
+                    if (user.IsSelf(_discordClient))
+                    {
+                        return;
+                    }
 
                     var message = await messageBefore.GetOrDownloadAsync();
-                    if (TryParseRoleFromEmbed(message, out var role)) await user.RemoveRoleAsync(role);
+                    if (TryParseRoleFromEmbed(message, out var role))
+                    {
+                        await user.RemoveRoleAsync(role);
+                    }
                 }
             });
-            
+
             return Task.CompletedTask;
         }
 

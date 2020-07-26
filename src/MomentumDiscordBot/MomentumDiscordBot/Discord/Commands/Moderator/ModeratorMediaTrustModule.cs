@@ -86,7 +86,6 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
 
         [Command("blacklist")]
         [Summary("Manually blacklist a user, if applicable, removing the trust")]
-
         public async Task BlacklistUserAsync(IGuildUser user)
         {
             var trustedRole = Context.Guild.GetRole(Config.MediaVerifiedRoleId);

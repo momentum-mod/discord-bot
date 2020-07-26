@@ -77,7 +77,8 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         {
             var bans = Config.TwitchUserBans ?? new string[0];
 
-            var banUsernameTasks = bans.Select(async x => await StreamMonitorService.TwitchApiService.GetStreamerNameAsync(x));
+            var banUsernameTasks =
+                bans.Select(async x => await StreamMonitorService.TwitchApiService.GetStreamerNameAsync(x));
             var usernames = await Task.WhenAll(banUsernameTasks);
 
             var embed = new EmbedBuilder

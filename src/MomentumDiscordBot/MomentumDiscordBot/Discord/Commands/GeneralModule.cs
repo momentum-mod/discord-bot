@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
@@ -14,19 +13,22 @@ namespace MomentumDiscordBot.Discord.Commands
         public CommandService CommandService { get; set; }
         public IServiceProvider Services { get; set; }
         public Config Config { get; set; }
+
         [Command("help")]
         [Summary("The command you are running")]
         public async Task HelpAsync(string moduleSearch = null)
         {
             await ReplyAsync("Only the messages you have permission to use in this channel are included.");
-            var message = await ReplyNewEmbedAsync("Building the help command... This message will be deleted when all help messages are sent", MomentumColor.Blue);
+            var message = await ReplyNewEmbedAsync(
+                "Building the help command... This message will be deleted when all help messages are sent",
+                MomentumColor.Blue);
 
             var desiredModules = CommandService.Modules.Where(x => !x.Name.Contains("ModuleBase")).ToList();
 
             if (moduleSearch != null)
             {
                 desiredModules = desiredModules
-                    .Where(x => x.Name.Equals(moduleSearch, StringComparison.InvariantCultureIgnoreCase) || 
+                    .Where(x => x.Name.Equals(moduleSearch, StringComparison.InvariantCultureIgnoreCase) ||
                                 x.Aliases.Contains(moduleSearch, StringComparer.InvariantCultureIgnoreCase)).ToList();
             }
 
@@ -38,6 +40,7 @@ namespace MomentumDiscordBot.Discord.Commands
                     await ReplyAsync(embed: moduleHelpEmbed);
                 }
             }
+
             await message.DeleteAsync();
         }
 

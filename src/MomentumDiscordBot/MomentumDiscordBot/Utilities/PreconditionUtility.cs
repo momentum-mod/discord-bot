@@ -12,11 +12,14 @@ namespace MomentumDiscordBot.Utilities
         {
             // Check if this user is a Guild User, which is the only context where roles exist
             if (!(user is SocketGuildUser guildUser))
+            {
                 return Task.FromResult(PreconditionResult.FromError("You must be a guild user"));
+            }
 
             return Task.FromResult(guildUser.Roles.Any(x => x.Id == roleId)
                 ? PreconditionResult.FromSuccess()
-                : PreconditionResult.FromError($"You must have the {guildUser.Guild.Roles.FirstOrDefault(x => x.Id == roleId)?.Name ?? "Unknown" } role to use that command"));
+                : PreconditionResult.FromError(
+                    $"You must have the {guildUser.Guild.Roles.FirstOrDefault(x => x.Id == roleId)?.Name ?? "Unknown"} role to use that command"));
         }
     }
 }
