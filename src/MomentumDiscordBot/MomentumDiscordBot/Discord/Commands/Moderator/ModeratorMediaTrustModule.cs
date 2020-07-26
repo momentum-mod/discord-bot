@@ -71,7 +71,7 @@ namespace MomentumDiscordBot.Discord.Commands.Moderator
             await ReplyAsync(embed: embedBuilder.Build());
         }
 
-        [Command]
+        [Command("")]
         [Summary("Manually trusts a user, if applicable, removing the blacklist")]
         public async Task TrustUserAsync(IGuildUser user)
         {
