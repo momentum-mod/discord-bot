@@ -30,8 +30,8 @@ namespace MomentumDiscordBot.Services
 
         private Task MessageReceived(SocketMessage message)
         {
-            // Ignore bots
-            if (message.Author.IsBot)
+            // Ignore bots or DMs 
+            if (message.Author.IsBot || message.Channel is IDMChannel)
             {
                 return Task.CompletedTask;
             }
