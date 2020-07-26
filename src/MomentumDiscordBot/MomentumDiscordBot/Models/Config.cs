@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using Discord;
 using MomentumDiscordBot.Constants;
+using MomentumDiscordBot.Discord.Commands;
 using Newtonsoft.Json;
 
 namespace MomentumDiscordBot.Models
@@ -36,6 +37,13 @@ namespace MomentumDiscordBot.Models
         [JsonProperty("faq_role")] public ulong FaqRoleId { get; set; }
         [JsonProperty("developer_id")] public ulong DeveloperID { get; set; }
         [JsonProperty("alt_account_emoji")] public string AltAccountEmojiString { get; set; }
+        [Hidden]
+        [JsonProperty("mysql_connection_string")] public string MySqlConnectionString { get; set; }
+
+        [JsonProperty("media_verified_role")] public ulong MediaVerifiedRoleId { get; set; }
+        [JsonProperty("media_blacklisted_role")] public ulong MediaBlacklistedRoleId { get; set; }
+        [JsonProperty("media_minimum_days")] public int MediaMinimumDays { get; set; }
+        [JsonProperty("media_minimum_messages")] public int MediaMinimumMessages { get; set; }
         [JsonIgnore] public Emoji MentionRoleEmoji => new Emoji(MentionRoleEmojiString);
         [JsonIgnore] public Emoji FaqRoleEmoji => new Emoji(FaqRoleEmojiString);
         [JsonIgnore] public Emoji AltAccountEmoji => new Emoji(AltAccountEmojiString);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -77,7 +78,7 @@ namespace MomentumDiscordBot.Discord.Commands.Admin
         [Summary("Gets config option")]
         public async Task GetConfigOptionAsync(string key)
         {
-            var configProperty = Config.GetType().GetProperties().Where(x => x.Name.Contains(key, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var configProperty = Config.GetType().GetProperties().Where(x => !x.GetCustomAttributes().Any(x => x.GetType() == typeof(HiddenAttribute)) && x.Name.Contains(key, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             if (!configProperty.Any())
             {

@@ -16,11 +16,21 @@ namespace MomentumDiscordBot.Discord.Commands
         public Config Config { get; set; }
         [Command("help")]
         [Summary("The command you are running")]
-        public async Task HelpAsync()
+        public async Task HelpAsync(string moduleSearch = null)
         {
             await ReplyAsync("Only the messages you have permission to use in this channel are included.");
             var message = await ReplyNewEmbedAsync("Building the help command... This message will be deleted when all help messages are sent", MomentumColor.Blue);
-            foreach (var module in CommandService.Modules.Where(x => !x.Name.Contains("ModuleBase")))
+
+            var desiredModules = CommandService.Modules.Where(x => !x.Name.Contains("ModuleBase")).ToList();
+
+            if (moduleSearch != null)
+            {
+                desiredModules = desiredModules
+                    .Where(x => x.Name.Equals(moduleSearch, StringComparison.InvariantCultureIgnoreCase) || 
+                                x.Aliases.Contains(moduleSearch, StringComparer.InvariantCultureIgnoreCase)).ToList();
+            }
+
+            foreach (var module in desiredModules)
             {
                 var moduleHelpEmbed = HelpCommandUtilities.GetModuleHelpEmbed(module, Context, Services, Config);
                 if (moduleHelpEmbed.Fields.Length > 0)
