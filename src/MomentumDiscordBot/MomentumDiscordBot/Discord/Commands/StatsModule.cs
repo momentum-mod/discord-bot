@@ -20,6 +20,7 @@ namespace MomentumDiscordBot.Discord.Commands
         [Command("")]
         public async Task UserStatsAsync(IUser user)
         {
+            var allMessages = await StatsUtility.GetAllMessages(Config);
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == user.Id);
 
             var embedBuilder = new EmbedBuilder
@@ -27,7 +28,7 @@ namespace MomentumDiscordBot.Discord.Commands
                     Title = "User Stats",
                     Color = MomentumColor.Blue
                 }.WithAuthor(user)
-                .AddField("Total Messages", $"{userStats.Sum(x => x.MessageCount)} - {(decimal)userStats.Sum(x => x.MessageCount) / userStats.Sum(x => x.MessageCount):P} of total"
+                .AddField("Total Messages", $"{userStats.Sum(x => x.MessageCount)} - {(decimal)userStats.Sum(x => x.MessageCount) / allMessages.Sum(x => x.MessageCount):P} of total"
                 )
                 .AddField("Top Channels", userStats
                     .GroupBy(x => x.ChannelId)
@@ -45,6 +46,7 @@ namespace MomentumDiscordBot.Discord.Commands
         {
             var allMessages = await StatsUtility.GetAllMessages(Config);
             var channelStats = await StatsUtility.GetMessages(Config, x => x.ChannelId == channel.Id);
+
             var embedBuilder = new EmbedBuilder
                 {
                     Title = $"#{channel.Name} Stats",
