@@ -33,5 +33,15 @@ namespace MomentumDiscordBot.Utilities
                     topStats.Select(elementStringConverterFunc)),
                 Color = MomentumColor.Blue
             };
+
+        public static async Task<List<DailyMessageCount>> GetMessages(Config config, Func<DailyMessageCount, bool> whereFunc)
+        {
+            await using var dbContext = DbContextHelper.GetNewDbContext(config);
+
+            return dbContext.DailyMessageCount
+                .ToList()
+                .Where(whereFunc)
+                .ToList();
+        }
     }
 }
