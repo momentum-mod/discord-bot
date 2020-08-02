@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
@@ -23,7 +24,8 @@ namespace MomentumDiscordBot.Discord.Commands
 
             var embedBuilder = new EmbedBuilder
                 {
-                    Title = "User Stats"
+                    Title = "User Stats",
+                    Color = MomentumColor.Blue
                 }.WithAuthor(user)
                 .AddField("Total Messages", userStats.Sum(x => x.MessageCount))
                 .AddField("Top Channels", userStats
@@ -43,8 +45,9 @@ namespace MomentumDiscordBot.Discord.Commands
             var channelStats = await StatsUtility.GetMessages(Config, x => x.ChannelId == channel.Id);
             var embedBuilder = new EmbedBuilder
                 {
-                    Title = $"#{channel.Name} Stats"
-                }.AddField("Total Messages", channelStats.Sum(x => x.MessageCount))
+                    Title = $"#{channel.Name} Stats",
+                    Color = MomentumColor.Blue
+            }.AddField("Total Messages", channelStats.Sum(x => x.MessageCount))
                 .AddField("Top Users", channelStats
                     .GroupBy(x => x.UserId)
                     .Select(x => new { Id = x.Key, MessageCount = x.Sum(x => x.MessageCount) })
