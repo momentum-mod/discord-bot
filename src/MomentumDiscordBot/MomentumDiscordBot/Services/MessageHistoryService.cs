@@ -93,7 +93,7 @@ namespace MomentumDiscordBot.Services
                     var embedBuilder = new EmbedBuilder
                     {
                         Title = "Message Deleted",
-                        Color = MomentumColor.Blue
+                        Color = Color.Orange
                     }.AddMessageContent(cachedMessage.Value);
 
                     await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
