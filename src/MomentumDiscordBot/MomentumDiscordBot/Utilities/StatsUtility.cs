@@ -43,5 +43,13 @@ namespace MomentumDiscordBot.Utilities
                 .Where(whereFunc)
                 .ToList();
         }
+
+        public static async Task<List<DailyMessageCount>> GetAllMessages(Config config)
+        {
+            await using var dbContext = DbContextHelper.GetNewDbContext(config);
+
+            return dbContext.DailyMessageCount
+                .ToList();
+        }
     }
 }
