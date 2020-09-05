@@ -28,6 +28,12 @@ namespace MomentumDiscordBot.Services
 
         public Task Log(LogMessage logMessage)
         {
+            if (logMessage.Exception is GatewayReconnectException)
+            {
+                _logger.Information(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
+                return Task.CompletedTask;
+            }
+
             switch (logMessage.Severity)
             {
                 case LogSeverity.Critical:
