@@ -44,12 +44,11 @@ namespace MomentumDiscordBot.Utilities
                 .ToList();
         }
 
-        public static async Task<List<DailyMessageCount>> GetAllMessages(Config config)
+        public static async Task<long> GetTotalMessageCount(Config config)
         {
             await using var dbContext = DbContextHelper.GetNewDbContext(config);
 
-            return dbContext.DailyMessageCount
-                .ToList();
+            return dbContext.DailyMessageCount.Sum(x => x.MessageCount);
         }
     }
 }

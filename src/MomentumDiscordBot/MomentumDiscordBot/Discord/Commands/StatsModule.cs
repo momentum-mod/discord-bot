@@ -20,7 +20,7 @@ namespace MomentumDiscordBot.Discord.Commands
         [Command("")]
         public async Task UserStatsAsync(IUser user)
         {
-            var allMessages = await StatsUtility.GetAllMessages(Config);
+            var totalMessageCount = await StatsUtility.GetTotalMessageCount(Config);
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == user.Id);
 
             var embedBuilder = new EmbedBuilder
@@ -28,15 +28,17 @@ namespace MomentumDiscordBot.Discord.Commands
                     Title = "User Stats",
                     Color = MomentumColor.Blue
                 }.WithAuthor(user)
-                .AddField("Total Messages", $"{userStats.Sum(x => x.MessageCount)} - {(decimal)userStats.Sum(x => x.MessageCount) / allMessages.Sum(x => x.MessageCount):P} of total"
+                .AddField("Total Messages",
+                    $"{userStats.Sum(x => x.MessageCount)} - {(decimal) userStats.Sum(x => x.MessageCount) / totalMessageCount:P} of total"
                 )
                 .AddField("Top Channels", userStats
                     .GroupBy(x => x.ChannelId)
-                    .Select(x => new { Id = x.Key, MessageCount = x.Sum(x => x.MessageCount)})
+                    .Select(x => new {Id = x.Key, MessageCount = x.Sum(x => x.MessageCount)})
                     .OrderByDescending(x => x.MessageCount)
                     .Take(5)
-                    .Aggregate("", (currentString, nextChannel) 
-                        => currentString + Environment.NewLine + $"{MentionUtils.MentionChannel(nextChannel.Id)} - {nextChannel.MessageCount} messages"));
+                    .Aggregate("", (currentString, nextChannel)
+                        => currentString + Environment.NewLine +
+                           $"{MentionUtils.MentionChannel(nextChannel.Id)} - {nextChannel.MessageCount} messages"));
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
@@ -44,22 +46,23 @@ namespace MomentumDiscordBot.Discord.Commands
         [Command("")]
         public async Task ChannelStatsAsync(ITextChannel channel)
         {
-            var allMessages = await StatsUtility.GetAllMessages(Config);
+            var totalMessageCount = await StatsUtility.GetTotalMessageCount(Config);
             var channelStats = await StatsUtility.GetMessages(Config, x => x.ChannelId == channel.Id);
 
             var embedBuilder = new EmbedBuilder
                 {
                     Title = $"#{channel.Name} Stats",
                     Color = MomentumColor.Blue
-            }.AddField("Total Messages",
-                $"{channelStats.Sum(x => x.MessageCount)} - {(decimal) channelStats.Sum(x => x.MessageCount) / allMessages.Sum(x => x.MessageCount):P} of total")
-                    .AddField("Top Users", channelStats
+                }.AddField("Total Messages",
+                    $"{channelStats.Sum(x => x.MessageCount)} - {(decimal) channelStats.Sum(x => x.MessageCount) / totalMessageCount:P} of total")
+                .AddField("Top Users", channelStats
                     .GroupBy(x => x.UserId)
-                    .Select(x => new { Id = x.Key, MessageCount = x.Sum(x => x.MessageCount) })
+                    .Select(x => new {Id = x.Key, MessageCount = x.Sum(x => x.MessageCount)})
                     .OrderByDescending(x => x.MessageCount)
                     .Take(5)
                     .Aggregate("", (currentString, nextUser)
-                        => currentString + Environment.NewLine + $"{MentionUtils.MentionUser(nextUser.Id)} - {nextUser.MessageCount} messages"));
+                        => currentString + Environment.NewLine +
+                           $"{MentionUtils.MentionUser(nextUser.Id)} - {nextUser.MessageCount} messages"));
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
