@@ -31,23 +31,22 @@ namespace MomentumDiscordBot.Services
             switch (logMessage.Severity)
             {
                 case LogSeverity.Critical:
-                    _logger.Fatal(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
+                    _logger.Fatal(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
                     break;
                 case LogSeverity.Error:
-                    _logger.Error(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
+                    _logger.Error(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
                     break;
                 case LogSeverity.Warning:
-                    _logger.Warning(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
+                    _logger.Warning(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
                     break;
                 case LogSeverity.Info:
-                    _logger.Information(logMessage.Exception, "{Source}: {Message}", logMessage.Source,
-                        logMessage.Message);
+                    _logger.Information(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
                     break;
                 case LogSeverity.Verbose:
-                    _logger.Verbose(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
+                    _logger.Verbose(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
                     break;
                 case LogSeverity.Debug:
-                    _logger.Debug(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message);
+                    _logger.Debug(logMessage.Exception, "{Source}: {Message}", logMessage.Source, logMessage.Message ?? logMessage.Exception?.Message);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
