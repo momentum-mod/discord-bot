@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
@@ -288,36 +289,36 @@ namespace MomentumDiscordBot.Services
 
             // Delete existing bot messages simultaneously
             var deleteTasks = messages
-                .Select(async x =>
+                .Select(async message =>
                 {
                     try
                     {
-                        if (x.Embeds.Count == 1)
+                        if (message.Embeds.Count == 1)
                         {
                             var matchingStream =
-                                streams.FirstOrDefault(y => y.UserName == x.Embeds.First().Author?.Name);
+                                streams.FirstOrDefault(y => y.UserName == message.Embeds.First().Author?.Name);
                             if (matchingStream == null)
                             {
                                 // No matching stream
-                                await x.DeleteAsync();
+                                await message.DeleteAsync();
                             }
-                            else if (!_cachedStreamsIds.TryAdd(matchingStream.Id, x.Id))
+                            else if (!_cachedStreamsIds.TryAdd(matchingStream.Id, message.Id))
                             {
                                 // Found the matching stream
                                 _logger.Warning("StreamMonitorService: Duplicate cached streamer: " +
                                                 matchingStream.UserName + ", deleting...");
-                                await x.DeleteAsync();
+                                await message.DeleteAsync();
                             }
                         }
                         else
                         {
                             // Stream has ended, or failed to parse
-                            await x.DeleteAsync();
+                            await message.DeleteAsync();
                         }
                     }
                     catch (Exception e)
                     {
-                        _logger.Warning(e, "Could not delete message {message}", x);
+                        _logger.Warning(e, "Could not delete message {message}", message);
                     }
                 });
             await Task.WhenAll(deleteTasks);
