@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -314,6 +315,16 @@ namespace MomentumDiscordBot.Services
                         {
                             // Stream has ended, or failed to parse
                             await message.DeleteAsync();
+                        }
+                    }
+                    catch (HttpException e)
+                    {
+                        if (e.HttpCode == HttpStatusCode.NotFound)
+                        {
+                            // Message wasn't found due to cache?
+                            
+                            // At the moment, for debugging purposes, just log the message ID
+                            _logger.Warning(e, "Could not delete message {message} ({id})", message, message.Id);
                         }
                     }
                     catch (Exception e)
