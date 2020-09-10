@@ -196,8 +196,8 @@ namespace MomentumDiscordBot.Services
                            Environment.TickCount,
                 Url = $"https://twitch.tv/{stream.UserName}",
                 Timestamp = DateTimeOffset.Now
-            }.AddField("🔴 Viewers", stream.ViewerCount)
-                .AddField("🎦 Uptime", (DateTime.UtcNow - stream.StartedAt).ToPrettyFormat())
+            }.AddField("🔴 Viewers", stream.ViewerCount, true)
+                .AddField("🎦 Uptime", (DateTime.UtcNow - stream.StartedAt).ToPrettyFormat(2), true)
                 .WithFooter("Streaming " + await TwitchApiService.GetGameNameAsync(stream.GameId))
                 .Build();
 
