@@ -194,10 +194,12 @@ namespace MomentumDiscordBot.Services
                 },
                 ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" +
                            Environment.TickCount,
-                Description = stream.ViewerCount + " viewers",
                 Url = $"https://twitch.tv/{stream.UserName}",
                 Timestamp = DateTimeOffset.Now
-            }.Build();
+            }.AddField("🔴 Viewers", stream.ViewerCount)
+                .AddField("🎦 Uptime", (DateTime.UtcNow - stream.StartedAt).ToPrettyFormat())
+                .WithFooter("Streaming " + await TwitchApiService.GetGameNameAsync(stream.GameId))
+                .Build();
 
             return new KeyValuePair<Embed, string>(embed, messageText);
         }
