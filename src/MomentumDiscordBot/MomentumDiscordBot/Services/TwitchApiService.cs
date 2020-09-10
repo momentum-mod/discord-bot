@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace MomentumDiscordBot.Services
         private readonly TwitchAPI _apiService;
         private readonly ILogger _logger;
         private readonly string _momentumModGameId = null;
+        private ConcurrentDictionary<string, string> _categoryNames = new ConcurrentDictionary<string, string>();
 
         public TwitchApiService(ILogger logger)
         {
@@ -52,6 +54,20 @@ namespace MomentumDiscordBot.Services
         {
             var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> {"Momentum Mod"});
             return games.Games.First().Id;
+        }
+
+        public async Task<string> GetGameNameAsync(string id)
+        {
+            if (_categoryNames.TryGetValue(id, out var result))
+            {
+                return result;
+            }
+
+
+            var game = await _apiService.Helix.Games.GetGamesAsync(gameIds: new List<string> { id });
+
+            _categoryNames.TryAdd(id, game.Games.First().Name);
+            return game.Games.First().Name;
         }
 
         public async Task<List<Stream>> GetLiveMomentumModStreamersAsync()
