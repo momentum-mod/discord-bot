@@ -18,7 +18,7 @@ namespace MomentumDiscordBot.Utilities
             return deltaTime.ToPrettyFormat() + " in the future";
         }
 
-        public static string ToPrettyFormat(this TimeSpan span)
+        public static string ToPrettyFormat(this TimeSpan span, int accuracy = 3)
         {
             if (span.TotalMilliseconds < 1)
             {
@@ -63,7 +63,7 @@ namespace MomentumDiscordBot.Utilities
 
             // When years are taken, no need to show ms - use 3 levels of accuracy
             // 3 levels of accuracy * 2 spaces per level
-            var thirdSpace = output.GetNthIndex(' ', 3 * 2);
+            var thirdSpace = output.GetNthIndex(' ', accuracy * 2);
 
             if (thirdSpace == -1)
             {
