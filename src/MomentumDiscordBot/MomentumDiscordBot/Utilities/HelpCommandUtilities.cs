@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using MomentumDiscordBot.Constants;
@@ -11,17 +13,17 @@ namespace MomentumDiscordBot.Utilities
 {
     public static class HelpCommandUtilities
     {
-        public static Embed GetModuleHelpEmbed(ModuleInfo module, ICommandContext context, IServiceProvider services,
+        public static async Task<Embed> GetModuleHelpEmbed(ModuleInfo module, ICommandContext context, IServiceProvider services,
             Config config) =>
-            new EmbedBuilder()
+            (await new EmbedBuilder()
                 .BuildTitle(module)
-                .AddValidCommandFields(module, context, services, config)
-                .WithColor(MomentumColor.Blue)
-                .Build();
+                .AddValidCommandFields(module, context, services, config))
+            .WithColor(MomentumColor.Blue)
+            .Build();
 
-        private static EmbedBuilder AddValidCommandFields(this EmbedBuilder embedBuilder, ModuleInfo module,
+        private static async Task<EmbedBuilder> AddValidCommandFields(this EmbedBuilder embedBuilder, ModuleInfo module,
             ICommandContext context, IServiceProvider services, Config config)
-            => GetValidCommands(module, context, services)
+            => (await GetValidCommandsAsync(module, context, services))
                 .Aggregate(embedBuilder, (currentEmbedBuilder, nextCommand)
                     => currentEmbedBuilder.AddCommandField(nextCommand, module, config));
 
@@ -41,11 +43,21 @@ namespace MomentumDiscordBot.Utilities
                 GetCommandSummary(command));
         }
 
-        private static IEnumerable<CommandInfo> GetValidCommands(ModuleInfo module, ICommandContext context,
+        private static async Task<IEnumerable<CommandInfo>> GetValidCommandsAsync(ModuleInfo module, ICommandContext context,
             IServiceProvider services)
-            => module.Commands.Where(x =>
-                x.Attributes.All(y => y.GetType() != typeof(HiddenAttribute)) &&
-                x.CheckPreconditionsAsync(context, services).GetAwaiter().GetResult().IsSuccess);
+        {
+            var preconditionCheckTasks = module.Commands.Select(async command =>
+            {
+                var valid = command.Attributes.All(y => y.GetType() != typeof(HiddenAttribute)) &&
+                    (await command.CheckPreconditionsAsync(context, services)).IsSuccess;
+
+                return (Command: command, HasPermission:valid);
+            });
+
+            return (await Task.WhenAll(preconditionCheckTasks))
+                .Where(x => x.HasPermission)
+                .Select(x => x.Command);
+        }
 
         private static EmbedBuilder BuildTitle(this EmbedBuilder embedBuilder, ModuleInfo module)
         {
