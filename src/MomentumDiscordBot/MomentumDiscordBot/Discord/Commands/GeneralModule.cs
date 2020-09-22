@@ -32,14 +32,16 @@ namespace MomentumDiscordBot.Discord.Commands
                                 x.Aliases.Contains(moduleSearch, StringComparer.InvariantCultureIgnoreCase)).ToList();
             }
 
-            foreach (var module in desiredModules)
+            var moduleEmbedTasks = desiredModules.Select(async module =>
             {
-                var moduleHelpEmbed = HelpCommandUtilities.GetModuleHelpEmbed(module, Context, Services, Config);
+                var moduleHelpEmbed = await HelpCommandUtilities.GetModuleHelpEmbed(module, Context, Services, Config);
                 if (moduleHelpEmbed.Fields.Length > 0)
                 {
                     await ReplyAsync(embed: moduleHelpEmbed);
                 }
-            }
+            });
+
+            await Task.WhenAll(moduleEmbedTasks);
 
             await message.DeleteAsync();
         }

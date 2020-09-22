@@ -4,10 +4,10 @@ using Discord.Commands;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
-namespace MomentumDiscordBot.Discord.Commands
+namespace MomentumDiscordBot.Discord.Commands.Moderator
 {
     [Group("stats top")]
-    public class StatsTopModule : MomentumModuleBase
+    public class StatsTopModule : ModeratorModuleBase
     {
         public Config Config { get; set; }
 

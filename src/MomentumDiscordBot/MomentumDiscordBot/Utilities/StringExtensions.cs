@@ -1,4 +1,6 @@
-﻿namespace MomentumDiscordBot.Utilities
+﻿using System.Linq;
+
+namespace MomentumDiscordBot.Utilities
 {
     public static class StringExtensions
     {
@@ -21,5 +23,8 @@
 
             return -1;
         }
+
+        public static string RemoveControlChars(this string input)
+            => new string(input.Where(c => !char.IsControl(c) && c != '\u1652' && c != 'ٴ').ToArray());
     }
 }

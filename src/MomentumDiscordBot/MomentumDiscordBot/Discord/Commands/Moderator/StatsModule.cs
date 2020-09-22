@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -10,10 +7,10 @@ using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 
-namespace MomentumDiscordBot.Discord.Commands
+namespace MomentumDiscordBot.Discord.Commands.Moderator
 {
     [Group("stats")]
-    public class StatsModule : MomentumModuleBase
+    public class StatsModule : ModeratorModuleBase
     {
         public Config Config { get; set; }
 

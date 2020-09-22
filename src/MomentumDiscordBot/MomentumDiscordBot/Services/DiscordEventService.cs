@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -74,7 +75,7 @@ namespace MomentumDiscordBot.Services
                         var accountAge = DateTimeOffset.UtcNow - user.CreatedAt;
 
                         var userJoinedMessage = await channel.SendMessageAsync(
-                            $"{user.Mention} {user.Username}#{user.Discriminator} joined, account was created {accountAge.ToPrettyFormat()} ago");
+                            $"{user.Mention} {Format.Sanitize(user.Username.RemoveControlChars())}#{user.Discriminator} joined, account was created {accountAge.ToPrettyFormat()} ago");
 
                         if (accountAge.TotalHours <= 24)
                         {
