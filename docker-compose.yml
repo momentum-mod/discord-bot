@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  discord-bot:
+    image: docker.pkg.github.com/momentum-mod/discord-bot/mmod-discord-bot:net-core
+    container_name: MomentumDiscordBot
+    volumes:
+      - config:app/config
