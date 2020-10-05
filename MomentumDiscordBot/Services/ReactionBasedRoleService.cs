@@ -81,8 +81,8 @@ namespace MomentumDiscordBot.Services
 
         private async Task VerifyCurrentUserRolesAsync()
         {
-            var usersWithMentionRoles = _textChannel.Guild.Members
-                .Where(x => _config.MentionRoles.Intersect(x.Value.Roles.Select(y => y.Id)).Any()).ToList();
+            var members = await _textChannel.Guild.GetAllMembersAsync();
+            var usersWithMentionRoles = members.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
 
             // Check users who have reacted to the embed
             foreach (var (roleId, messageId) in _existingRoleEmbeds)
@@ -100,33 +100,32 @@ namespace MomentumDiscordBot.Services
                     (await message.GetReactionsAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount))
                     .ToList();
 
-                foreach (var user in reactionUsers.Where(user => !user.IsSelf(_discordClient))
-                    .Where(user =>
-                        !usersWithMentionRoles.Any(x => x.Value.Roles.Any(y => y.Id == roleId) && x.Key == user.Id)))
+                foreach (var user in reactionUsers.Where(user => !user.IsSelf(_discordClient) 
+                                                                 && !usersWithMentionRoles.Any(x => x.Roles.Any(y => y.Id == roleId) && x.Id == user.Id)))
                 {
-                    try
-                    {
-                        var member = await _textChannel.Guild.GetMemberAsync(user.Id);
+                    var member = members.FirstOrDefault(x => x.Id == user.Id);
 
-                        // Make sure the user is not null, in case they have been banned/left the server
-                        await member.GrantRoleAsync(role);
-                    }
-                    catch (Exception e)
+                    if (member == null)
                     {
-                        _discordClient.GetCommandsNext().Services.GetRequiredService<ILogger>().Error(e, "Error getting/giving role in VerifyCurrentUserRolesAsync");
+                        // User doesn't exist in the guild lets delete their reaction
+                        continue;
                     }
+
+                    // Make sure the user is not null, in case they have been banned/left the server
+                    await member.GrantRoleAsync(role);
+
                 }
 
-                var userWithRole = usersWithMentionRoles.Where(x => x.Value.Roles.Any(x => x.Id == roleId));
-                foreach (var (memberId, member) in userWithRole)
+                var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
+                foreach (var member in userWithRole)
                 {
-                    if (reactionUsers.Any(x => x.Id == memberId) && !member.IsSelf(_discordClient))
+                    if (reactionUsers.Any(x => x.Id == member.Id) && !member.IsSelf(_discordClient))
                     {
                         continue;
                     }
 
                     // User has not reacted, remove the role
-                    var guildUser = await _textChannel.Guild.GetMemberAsync(memberId);
+                    var guildUser = await _textChannel.Guild.GetMemberAsync(member.Id);
                     await guildUser.RevokeRoleAsync(role);
                 }
             }
