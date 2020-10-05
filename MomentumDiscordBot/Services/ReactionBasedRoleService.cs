@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
+using Serilog;
 
 namespace MomentumDiscordBot.Services
 {
@@ -101,9 +104,17 @@ namespace MomentumDiscordBot.Services
                     .Where(user =>
                         !usersWithMentionRoles.Any(x => x.Value.Roles.Any(y => y.Id == roleId) && x.Key == user.Id)))
                 {
-                    var member = await _textChannel.Guild.GetMemberAsync(user.Id);
-                    // Make sure the user is not null, in case they have been banned/left the server
-                    await member.GrantRoleAsync(role);
+                    try
+                    {
+                        var member = await _textChannel.Guild.GetMemberAsync(user.Id);
+
+                        // Make sure the user is not null, in case they have been banned/left the server
+                        await member.GrantRoleAsync(role);
+                    }
+                    catch (Exception e)
+                    {
+                        _discordClient.GetCommandsNext().Services.GetRequiredService<ILogger>().Error(e, "Error getting/giving role in VerifyCurrentUserRolesAsync");
+                    }
                 }
 
                 var userWithRole = usersWithMentionRoles.Where(x => x.Value.Roles.Any(x => x.Id == roleId));
