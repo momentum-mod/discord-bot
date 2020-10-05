@@ -1,0 +1,18 @@
+name: Publish Docker
+on:
+  push:
+    branches: 
+      - net-core
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@2.14
+      with:
+        name: momentum-mod/discord-bot/mmod-discord-bot
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        dockerfile: MomentumDiscordBot/Dockerfile
