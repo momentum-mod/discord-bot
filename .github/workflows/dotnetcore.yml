@@ -1,0 +1,27 @@
+name: .NET Core
+
+on:
+  push:
+    branches: net-core
+    paths-ignore:
+      - README.md
+  pull_request:
+    branches: net-core
+    paths-ignore:
+      - README.md
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.202
+    - name: Build with dotnet
+      run: dotnet build --configuration Release
