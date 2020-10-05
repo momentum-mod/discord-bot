@@ -15,4 +15,4 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
-        dockerfile: src/MomentumDiscordBot/MomentumDiscordBot/Dockerfile
+        dockerfile: MomentumDiscordBot/Dockerfile

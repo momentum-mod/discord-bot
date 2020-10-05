@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MomentumDiscordBot": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
