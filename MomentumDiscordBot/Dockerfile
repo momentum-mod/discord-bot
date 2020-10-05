@@ -6,6 +6,7 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["MomentumDiscordBot/MomentumDiscordBot.csproj", "MomentumDiscordBot/"]
+COPY ["nuget.config", "MomentumDiscordBot/"]
 RUN dotnet restore "MomentumDiscordBot/MomentumDiscordBot.csproj"
 COPY . .
 WORKDIR "/src/MomentumDiscordBot"
