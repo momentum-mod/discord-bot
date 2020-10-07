@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MomentumDiscordBot.Models;
 using Serilog;
+using Serilog.Debugging;
 using Serilog.Events;
 
 namespace MomentumDiscordBot
@@ -13,6 +15,8 @@ namespace MomentumDiscordBot
         private static async Task MainAsync()
         {
             var config = await Configuration.LoadFromFileAsync();
+
+            SelfLog.Enable(Console.WriteLine);
 
             using var logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
