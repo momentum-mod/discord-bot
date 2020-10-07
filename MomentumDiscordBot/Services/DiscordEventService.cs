@@ -21,7 +21,16 @@ namespace MomentumDiscordBot.Services
             _discordClient = discordClient;
             _config = config;
 
+            _discordClient.GuildDownloadCompleted += _discordClient_GuildDownloadCompleted;
             _discordClient.GuildMemberAdded += UserJoined;
+        }
+
+        private async Task _discordClient_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
+        {
+            foreach (var (_, guild) in _discordClient.Guilds)
+            {
+                await guild.RequestMembersAsync(presences: true, nonce: Environment.TickCount.ToString());
+            }
         }
 
         private async Task UserJoined(GuildMemberAddEventArgs e)
