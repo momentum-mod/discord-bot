@@ -81,7 +81,14 @@ namespace MomentumDiscordBot.Services
 
         private async Task VerifyCurrentUserRolesAsync()
         {
-            var members = await _textChannel.Guild.GetAllMembersAsync();
+            var members = _textChannel.Guild.Members.Values.ToList();
+
+            if (_textChannel.Guild.MemberCount != _textChannel.Guild.Members.Count)
+            {
+                // Here some users musn't be downloaded yet
+                members = (await _textChannel.Guild.GetAllMembersAsync()).ToList();
+            }
+
             var usersWithMentionRoles = members.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
 
             // Check users who have reacted to the embed
