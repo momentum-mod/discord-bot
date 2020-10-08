@@ -14,11 +14,12 @@ namespace MomentumDiscordBot.Services
     public class TwitchApiService
     {
         private readonly TwitchAPI _apiService;
-        private readonly ILogger _logger;
-        private readonly string _momentumModGameId = null;
 
         private readonly ConcurrentDictionary<string, string> _categoryNames =
             new ConcurrentDictionary<string, string>();
+
+        private readonly ILogger _logger;
+        private readonly string _momentumModGameId = null;
 
         public TwitchApiService(ILogger logger, Configuration config)
         {

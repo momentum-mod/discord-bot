@@ -21,6 +21,7 @@ namespace MomentumDiscordBot.Commands.Moderator
             await ReplyNewEmbedAsync(context, $"Banned {member}, purging their messages in the last 7 days.",
                 MomentumColor.Red);
         }
+
         [Command("membercount")]
         [Description("Get the number of members with a role")]
         public async Task GetMembersWithRoleAsync(CommandContext context, DiscordRole role)
