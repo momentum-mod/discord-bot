@@ -7,22 +7,14 @@ namespace MomentumDiscordBot.Utilities
 {
     public static class DiscordExtensions
     {
-        private static readonly Permissions DangerousGuildPermissions =
-            Permissions.Administrator |
-            Permissions.BanMembers |
-            Permissions.DeafenMembers |
-            Permissions.KickMembers |
-            Permissions.ManageChannels |
-            Permissions.ManageEmojis |
-            Permissions.ManageGuild |
-            Permissions.ManageMessages |
-            Permissions.ManageNicknames |
-            Permissions.ManageRoles |
-            Permissions.ManageWebhooks |
-            Permissions.MoveMembers |
-            Permissions.MuteMembers |
-            Permissions.ViewAuditLog |
-            Permissions.UseExternalEmojis;
+        private const Permissions DangerousGuildPermissions = Permissions.Administrator | Permissions.BanMembers |
+                                                              Permissions.DeafenMembers | Permissions.KickMembers |
+                                                              Permissions.ManageChannels | Permissions.ManageEmojis |
+                                                              Permissions.ManageGuild | Permissions.ManageMessages |
+                                                              Permissions.ManageNicknames | Permissions.ManageRoles |
+                                                              Permissions.ManageWebhooks | Permissions.MoveMembers |
+                                                              Permissions.MuteMembers | Permissions.ViewAuditLog |
+                                                              Permissions.UseExternalEmojis;
 
         public static IEnumerable<DiscordMessage> FromSelf(this IEnumerable<DiscordMessage> source,
             DiscordClient discordClient)
