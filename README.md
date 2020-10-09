@@ -1,6 +1,6 @@
 # Momentum Mod Discord Bot
 
-![Momentum Mod](https://i.imgur.com/80pzbzZ.png)
+![Momentum Mod](https://momentum-mod.org/assets/images/site.png)
 
 > A Discord bot for Momentum Mod's Official Discord, running in a [dockerized](https://www.docker.com/) [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/) container, using [Discord.NET](https://discord.foxbot.me/).
 
