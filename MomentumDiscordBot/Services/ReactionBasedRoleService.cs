@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
-using Serilog;
 
 namespace MomentumDiscordBot.Services
 {
@@ -89,7 +86,8 @@ namespace MomentumDiscordBot.Services
                 members = (await _textChannel.Guild.GetAllMembersAsync()).ToList();
             }
 
-            var usersWithMentionRoles = members.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
+            var usersWithMentionRoles =
+                members.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
 
             // Check users who have reacted to the embed
             foreach (var (roleId, messageId) in _existingRoleEmbeds)
@@ -107,8 +105,10 @@ namespace MomentumDiscordBot.Services
                     (await message.GetReactionsAsync(_config.MentionRoleEmoji, _textChannel.Guild.MemberCount))
                     .ToList();
 
-                foreach (var user in reactionUsers.Where(user => !user.IsSelf(_discordClient) 
-                                                                 && !usersWithMentionRoles.Any(x => x.Roles.Any(y => y.Id == roleId) && x.Id == user.Id)))
+                foreach (var user in reactionUsers.Where(user => !user.IsSelf(_discordClient)
+                                                                 && !usersWithMentionRoles.Any(x =>
+                                                                     x.Roles.Any(y => y.Id == roleId) &&
+                                                                     x.Id == user.Id)))
                 {
                     var member = members.FirstOrDefault(x => x.Id == user.Id);
 
@@ -120,7 +120,6 @@ namespace MomentumDiscordBot.Services
 
                     // Make sure the user is not null, in case they have been banned/left the server
                     await member.GrantRoleAsync(role);
-
                 }
 
                 var userWithRole = usersWithMentionRoles.Where(x => x.Roles.Any(x => x.Id == roleId));
