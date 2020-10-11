@@ -38,7 +38,9 @@ namespace MomentumDiscordBot.Services
 
         private async Task _discordClient_MessageUpdated(MessageUpdateEventArgs e)
         {
-            if (_textChannel == null || e.Channel.Guild == null || e.Author == null || e.Author.IsSelf(_discordClient))
+            // Early exits + if an embed appears, it is just a rich URL
+            if (_textChannel == null || e.Channel.Guild == null || e.Author == null || e.Author.IsSelf(_discordClient) 
+                || e.Message == e.MessageBefore && e.MessageBefore.Embeds.Count == 0 && e.Message.Embeds.Count != 0)
             {
                 return;
             }
