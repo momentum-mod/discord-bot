@@ -20,6 +20,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         public Configuration Config { get; set; }
 
         [Command("user")]
+        [Description("Compares a user's message count in two groups of 30 day periods")]
         public async Task UserStatsAsync(CommandContext context, DiscordMember member)
         {
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == member.Id);
@@ -27,6 +28,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [Command("channel")]
+        [Description("Compares a channels's message count in two groups of 30 day periods")]
         public async Task ChannelStatsAsync(CommandContext context, DiscordChannel channel)
         {
             if (channel.Type != ChannelType.Text)
