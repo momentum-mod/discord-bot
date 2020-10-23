@@ -89,7 +89,7 @@ namespace MomentumDiscordBot.Commands.Moderator
 
             return new DiscordEmbedBuilder
             {
-                Description = $"{mention}'s activity has {deltaText}",
+                Description = $"{mention}'s activity has {deltaText} ({thisMonthMessages} vs {lastMonthMessages})",
                 Color = MomentumColor.Blue
             };
         }
