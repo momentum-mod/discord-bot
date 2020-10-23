@@ -9,6 +9,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Models.Data;
 using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Commands.Moderator
@@ -22,43 +23,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         public async Task UserStatsAsync(CommandContext context, DiscordMember member)
         {
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == member.Id);
-
-            var thisMonthMessages = userStats.Where(x => x.Date.Month == DateTime.UtcNow.Month)
-                .Aggregate((long)0, (totalCount, nextCount) => totalCount + nextCount.MessageCount);
-
-            var lastMonthMessages = userStats.Where(x => x.Date.Month == DateTime.UtcNow.Month - 1)
-                .Aggregate((long)0, (totalCount, nextCount) => totalCount + nextCount.MessageCount);
-
-            if (lastMonthMessages == 0)
-            {
-                // Can't divide by zero
-                await ReplyNewEmbedAsync(context, "No data from last month to compare", DiscordColor.Orange);
-                return;
-            }
-
-            if (thisMonthMessages == 0)
-            {
-                await ReplyNewEmbedAsync(context, "No data from this month to compare", DiscordColor.Orange);
-                return;
-            }
-
-            var delta = (decimal) thisMonthMessages / lastMonthMessages;
-
-            string deltaText;
-            if (delta == 1)
-            {
-                deltaText = "stayed exactly the same as last month";
-            }
-            else if (delta < 1)
-            {
-                deltaText = $"gone down by {1 - delta:P2} this month";
-            }
-            else
-            {
-                deltaText = $"gone up by {delta - 1:P2} this month";
-            }
-
-            await ReplyNewEmbedAsync(context, $"{member.Mention}'s activity has {deltaText}", MomentumColor.Blue);
+            await context.RespondAsync(embed: GetGrowthEmbed(userStats, member.Mention));
         }
 
         [Command("channel")]
@@ -71,24 +36,37 @@ namespace MomentumDiscordBot.Commands.Moderator
             }
 
             var channelStats = await StatsUtility.GetMessages(Config, x => x.ChannelId == channel.Id);
+            await context.RespondAsync(embed: GetGrowthEmbed(channelStats, channel.Mention));
+        }
 
-            var thisMonthMessages = channelStats.Where(x => x.Date.Month == DateTime.UtcNow.Month)
+        private DiscordEmbedBuilder GetGrowthEmbed(List<DailyMessageCount> filteredMessages, string mention)
+        {
+            // Filters the past 30 days
+            var thisMonthMessages = filteredMessages.Where(x => x.Date.Ticks > DateTime.UtcNow.Subtract(new TimeSpan(30, 0,0,0)).Ticks)
                 .Aggregate((long)0, (totalCount, nextCount) => totalCount + nextCount.MessageCount);
 
-            var lastMonthMessages = channelStats.Where(x => x.Date.Month == DateTime.UtcNow.Month - 1)
+            // Filters the past 60 days, but not the past 30
+            var lastMonthMessages = filteredMessages.Where(x => x.Date.Ticks < DateTime.UtcNow.Subtract(new TimeSpan(30, 0, 0, 0)).Ticks
+                                                             && x.Date.Ticks > DateTime.UtcNow.Subtract(new TimeSpan(60, 0, 0, 0)).Ticks)
                 .Aggregate((long)0, (totalCount, nextCount) => totalCount + nextCount.MessageCount);
 
             if (lastMonthMessages == 0)
             {
                 // Can't divide by zero
-                await ReplyNewEmbedAsync(context, "No data from last month to compare", DiscordColor.Orange);
-                return;
+                return new DiscordEmbedBuilder
+                {
+                    Description = "No data from last month to compare",
+                    Color = DiscordColor.Orange
+                };
             }
 
             if (thisMonthMessages == 0)
             {
-                await ReplyNewEmbedAsync(context, "No data from this month to compare", DiscordColor.Orange);
-                return;
+                return new DiscordEmbedBuilder
+                {
+                    Description = "No data from this month to compare",
+                    Color = DiscordColor.Orange
+                };
             }
 
             var delta = (decimal)thisMonthMessages / lastMonthMessages;
@@ -107,7 +85,11 @@ namespace MomentumDiscordBot.Commands.Moderator
                 deltaText = $"gone up by {delta - 1:P2} this month";
             }
 
-            await ReplyNewEmbedAsync(context, $"{channel.Mention}'s activity has {deltaText}", MomentumColor.Blue);
+            return new DiscordEmbedBuilder
+            {
+                Description = $"{mention}'s activity has {deltaText}",
+                Color = MomentumColor.Blue
+            };
         }
     }
 }
