@@ -45,17 +45,17 @@ namespace MomentumDiscordBot.Commands.Moderator
             var delta = (decimal) thisMonthMessages / lastMonthMessages;
 
             string deltaText;
-            if (delta == 0)
+            if (delta == 1)
             {
                 deltaText = "stayed exactly the same as last month";
             }
-            else if (delta < 0)
+            else if (delta < 1)
             {
-                deltaText = $"gone down by {delta:P2} this month";
+                deltaText = $"gone down by {1 - delta:P2} this month";
             }
             else
             {
-                deltaText = $"gone up by {delta:P2} this month";
+                deltaText = $"gone up by {delta - 1:P2} this month";
             }
 
             await ReplyNewEmbedAsync(context, $"{member.Mention}'s activity has {deltaText}", MomentumColor.Blue);
@@ -94,17 +94,17 @@ namespace MomentumDiscordBot.Commands.Moderator
             var delta = (decimal)thisMonthMessages / lastMonthMessages;
 
             string deltaText;
-            if (delta == 0)
+            if (delta == 1)
             {
                 deltaText = "stayed exactly the same as last month";
             }
-            else if (delta < 0)
+            else if (delta < 1)
             {
-                deltaText = $"gone down by {delta:P2} this month";
+                deltaText = $"gone down by {1 - delta:P2} this month";
             }
             else
             {
-                deltaText = $"gone up by {delta:P2} this month";
+                deltaText = $"gone up by {delta - 1:P2} this month";
             }
 
             await ReplyNewEmbedAsync(context, $"{channel.Mention}'s activity has {deltaText}", MomentumColor.Blue);
