@@ -23,6 +23,15 @@ namespace MomentumDiscordBot.Services
             _discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
             _discordClient.MessageDeleted += _discordClient_MessageDeleted;
             _discordClient.MessageUpdated += _discordClient_MessageUpdated;
+            _discordClient.MessagesBulkDeleted += _discordClient_MessagesBulkDeleted;
+        }
+
+        private async Task _discordClient_MessagesBulkDeleted(MessageBulkDeleteEventArgs e)
+        {
+            foreach (var message in e.Messages)
+            {
+                await HandleDeletedMessageAsync(message, true);
+            }
         }
 
         private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
@@ -66,23 +75,28 @@ namespace MomentumDiscordBot.Services
 
         private async Task _discordClient_MessageDeleted(MessageDeleteEventArgs e)
         {
-            if (_textChannel == null || e.Guild == null)
+            await HandleDeletedMessageAsync(e.Message);
+        }
+
+        private async Task HandleDeletedMessageAsync(DiscordMessage message, bool bulkDelete = false)
+        {
+            if (_textChannel == null || message != null && message.Channel.Guild == null)
             {
                 return;
             }
 
-            if (e.Message != null)
+            if (message != null)
             {
-                if (e.Message.Author?.IsBot ?? true)
+                if (message.Author?.IsBot ?? true)
                 {
                     return;
                 }
 
                 var embedBuilder = new DiscordEmbedBuilder
                 {
-                    Title = "Message Deleted",
-                    Color = DiscordColor.Orange
-                }.AddMessageContent(e.Message);
+                    Title = bulkDelete ? "Message Purged" : "Message Deleted",
+                    Color = bulkDelete ? MomentumColor.Red : DiscordColor.Orange
+                }.AddMessageContent(message);
 
                 await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
             }
