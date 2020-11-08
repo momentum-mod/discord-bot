@@ -31,19 +31,14 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessageReactionRemoved += _discordClient_MessageReactionRemoved;
         }
 
-        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private async Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
         {
-            _ = Task.Run(async () =>
-            {
-                _textChannel = _discordClient.FindChannel(_config.RolesChannelId);
+            _textChannel = await _discordClient.GetChannelAsync(_config.RolesChannelId);
 
-                await LoadExistingRoleEmbedsAsync();
-                await SendRoleEmbedsAsync();
+            await LoadExistingRoleEmbedsAsync();
+            await SendRoleEmbedsAsync();
 
-                await VerifyCurrentUserRolesAsync();
-            });
-
-            return Task.CompletedTask;
+            await VerifyCurrentUserRolesAsync();
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
@@ -83,13 +78,7 @@ namespace MomentumDiscordBot.Services
 
         private async Task VerifyCurrentUserRolesAsync()
         {
-            var members = _textChannel.Guild.Members.Values.ToList();
-
-            if (_textChannel.Guild.MemberCount != _textChannel.Guild.Members.Count)
-            {
-                // Here some users musn't be downloaded yet
-                members = (await _textChannel.Guild.GetAllMembersAsync()).ToList();
-            }
+            var members = (await _textChannel.Guild.GetAllMembersAsync()).ToList();
 
             var usersWithMentionRoles =
                 members.Where(x => _config.MentionRoles.Intersect(x.Roles.Select(y => y.Id)).Any()).ToList();
