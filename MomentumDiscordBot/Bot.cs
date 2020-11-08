@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
+using Serilog;
 using Serilog.Extensions.Logging;
 using ILogger = Serilog.ILogger;
 
@@ -22,13 +23,15 @@ namespace MomentumDiscordBot
             _config = config;
             _logger = logger;
 
+            var logFactory = new LoggerFactory().AddSerilog(logger);
+
             _discordClient = new DiscordClient(new DiscordConfiguration
             {
                 Token = _config.BotToken,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.None,
-                LoggerFactory = new SerilogLoggerFactory(logger),
+                LoggerFactory = logFactory,
                 MessageCacheSize = 512
             });
 
