@@ -33,6 +33,9 @@ namespace MomentumDiscordBot.Services
 
         private async Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
         {
+            // Somehow this can't run in an unawaited Task.Run
+            // This WILL cause a deadlock eventually, and will block any other handlers for a long time.
+            // TODO: Fix this when DSharpPlus works or we figure out some other issue that is causing this
             _textChannel = await _discordClient.GetChannelAsync(_config.RolesChannelId);
 
             await LoadExistingRoleEmbedsAsync();
