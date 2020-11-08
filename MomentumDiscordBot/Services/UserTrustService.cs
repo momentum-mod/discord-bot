@@ -24,17 +24,22 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessageCreated += _discordClient_MessageCreated;
         }
 
-        private async Task _discordClient_MessageCreated(MessageCreateEventArgs e)
+        private Task _discordClient_MessageCreated(MessageCreateEventArgs e)
         {
-            // Ignore bots or DMs 
-            if (e.Author.IsBot || e.Channel.IsPrivate)
+            _ = Task.Run(async () =>
             {
-                return;
-            }
+                // Ignore bots or DMs 
+                if (e.Author.IsBot || e.Channel.IsPrivate)
+                {
+                    return;
+                }
 
-            await using var dbContext = DbContextHelper.GetNewDbContext(_config);
-            LogMessageCount(dbContext, e.Message);
-            await CheckVerifiedRoleAsync(dbContext, e.Message);
+                await using var dbContext = DbContextHelper.GetNewDbContext(_config);
+                LogMessageCount(dbContext, e.Message);
+                await CheckVerifiedRoleAsync(dbContext, e.Message);
+            });
+
+            return Task.CompletedTask;
         }
 
         private void LogMessageCount(MomentumDiscordDbContext dbContext, DiscordMessage message)

@@ -25,46 +25,51 @@ namespace MomentumDiscordBot.Services
             _logger = logger;
             _config = config;
 
-            _discordClient.MessageCreated += MessageCreated;
+            _discordClient.MessageCreated += _discordClient_MessageCreated;
         }
 
-        private async Task MessageCreated(MessageCreateEventArgs e)
+        private Task _discordClient_MessageCreated(MessageCreateEventArgs e)
         {
-            // Early return when relevant config isn't set
-            if (string.IsNullOrWhiteSpace(_config.KeyBeggingResponse) ||
-                string.IsNullOrWhiteSpace(_config.KeyRegexString) ||
-                !e.Message.IsUserMessage())
+            _ = Task.Run(async () =>
             {
-                return;
-            }
-
-            try
-            {
-                // First check for whitelisted roles
-                if (_config.WhitelistKeyBeggingRoles != null
-                    && _config.WhitelistKeyBeggingRoles.Length > 0
-                    && e.Message.Author is DiscordMember member
-                    && member.Roles.Select(x => x.Id).Any(x => _config.WhitelistKeyBeggingRoles.Contains(x)))
+                // Early return when relevant config isn't set
+                if (string.IsNullOrWhiteSpace(_config.KeyBeggingResponse) ||
+                    string.IsNullOrWhiteSpace(_config.KeyRegexString) ||
+                    !e.Message.IsUserMessage())
                 {
                     return;
                 }
 
-                if (Regex.IsMatch(e.Message.Content, _config.KeyRegexString))
+                try
                 {
-                    await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(_config.KeyEmojiString));
-                    var embed = new DiscordEmbedBuilder
+                    // First check for whitelisted roles
+                    if (_config.WhitelistKeyBeggingRoles != null
+                        && _config.WhitelistKeyBeggingRoles.Length > 0
+                        && e.Message.Author is DiscordMember member
+                        && member.Roles.Select(x => x.Id).Any(x => _config.WhitelistKeyBeggingRoles.Contains(x)))
                     {
-                        Description = _config.KeyBeggingResponse,
-                        Color = MomentumColor.Blue
-                    }.Build();
-                    await e.Message.Channel.SendMessageAsync(e.Author.Mention, embed: embed);
+                        return;
+                    }
+
+                    if (Regex.IsMatch(e.Message.Content, _config.KeyRegexString))
+                    {
+                        await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(_config.KeyEmojiString));
+                        var embed = new DiscordEmbedBuilder
+                        {
+                            Description = _config.KeyBeggingResponse,
+                            Color = MomentumColor.Blue
+                        }.Build();
+                        await e.Message.Channel.SendMessageAsync(e.Author.Mention, embed: embed);
+                    }
                 }
-            }
-            catch (Exception exception)
-            {
-                // If it fails, oh well
-                _logger.Error(exception, "KeyBeggingService");
-            }
+                catch (Exception exception)
+                {
+                    // If it fails, oh well
+                    _logger.Error(exception, "KeyBeggingService");
+                }
+            });
+
+            return Task.CompletedTask;
         }
     }
 }

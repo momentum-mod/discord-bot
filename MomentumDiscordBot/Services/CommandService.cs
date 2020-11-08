@@ -37,27 +37,32 @@ namespace MomentumDiscordBot.Services
             commands.CommandErrored += _commands_CommandErrored;
         }
 
-        private async Task _commands_CommandErrored(CommandErrorEventArgs e)
+        private Task _commands_CommandErrored(CommandErrorEventArgs e)
         {
-            if (e.Exception is ChecksFailedException exception)
+            _ = Task.Run(async () =>
             {
-                var embed = new DiscordEmbedBuilder
+                if (e.Exception is ChecksFailedException exception)
                 {
-                    Title = "Access Denied",
-                    Description = exception.FailedChecks.ToCleanResponse(),
-                    Color = MomentumColor.Red
-                };
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Access Denied",
+                        Description = exception.FailedChecks.ToCleanResponse(),
+                        Color = MomentumColor.Red
+                    };
 
-                await e.Context.RespondAsync(embed: embed);
-            }
+                    await e.Context.RespondAsync(embed: embed);
+                }
 
-            // No need to log when a command isn't found
-            else if (!(e.Exception is CommandNotFoundException))
-            {
-                e.Context.Client.Logger.LogError(
-                    $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
-                    DateTime.Now);
-            }
+                // No need to log when a command isn't found
+                else if (!(e.Exception is CommandNotFoundException))
+                {
+                    e.Context.Client.Logger.LogError(
+                        $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
+                        DateTime.Now);
+                }
+            });
+
+            return Task.CompletedTask;
         }
     }
 }

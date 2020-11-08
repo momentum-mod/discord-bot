@@ -22,39 +22,49 @@ namespace MomentumDiscordBot.Services
             _config = config;
 
             _discordClient.GuildDownloadCompleted += _discordClient_GuildDownloadCompleted;
-            _discordClient.GuildMemberAdded += UserJoined;
+            _discordClient.GuildMemberAdded += _discordClient_UserJoined;
         }
 
-        private async Task _discordClient_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
         {
-            foreach (var (_, guild) in _discordClient.Guilds)
+            _ = Task.Run(async () =>
             {
-                await guild.RequestMembersAsync(presences: true, nonce: Environment.TickCount.ToString());
-            }
+                foreach (var (_, guild) in _discordClient.Guilds)
+                {
+                    await guild.RequestMembersAsync(presences: true, nonce: Environment.TickCount.ToString());
+                }
+            });
+
+            return Task.CompletedTask;
         }
 
-        private async Task UserJoined(GuildMemberAddEventArgs e)
+        private Task _discordClient_UserJoined(GuildMemberAddEventArgs e)
         {
-            // Haven't set the config
-            if (_config.JoinLogChannel == default)
+            _ = Task.Run(async () =>
             {
-                return;
-            }
+                // Haven't set the config
+                if (_config.JoinLogChannel == default)
+                {
+                    return;
+                }
 
-            _joinLogChannel ??= _discordClient.FindChannel(_config.JoinLogChannel);
+                _joinLogChannel ??= _discordClient.FindChannel(_config.JoinLogChannel);
 
-            // Invalid channel ID
-            if (_joinLogChannel == null)
-            {
-                return;
-            }
+                // Invalid channel ID
+                if (_joinLogChannel == null)
+                {
+                    return;
+                }
 
-            var accountAge = DateTimeOffset.UtcNow - e.Member.CreationTimestamp.UtcDateTime;
-            var userJoinedMessage = await _joinLogChannel.SendMessageAsync(
-                $"{e.Member.Mention} {Formatter.Sanitize(e.Member.Username.RemoveControlChars())}#{e.Member.Discriminator} joined, account was created {accountAge.ToPrettyFormat()} ago");
+                var accountAge = DateTimeOffset.UtcNow - e.Member.CreationTimestamp.UtcDateTime;
+                var userJoinedMessage = await _joinLogChannel.SendMessageAsync(
+                    $"{e.Member.Mention} {Formatter.Sanitize(e.Member.Username.RemoveControlChars())}#{e.Member.Discriminator} joined, account was created {accountAge.ToPrettyFormat()} ago");
 
-            await WarnIfNewAccountAsync(userJoinedMessage, accountAge);
-            await WarnIfDuplicatedNewAccountAsync(e.Member);
+                await WarnIfNewAccountAsync(userJoinedMessage, accountAge);
+                await WarnIfDuplicatedNewAccountAsync(e.Member);
+            });
+
+            return Task.CompletedTask;
         }
 
         private async Task WarnIfNewAccountAsync(DiscordMessage userJoinedMessage, TimeSpan accountAge)

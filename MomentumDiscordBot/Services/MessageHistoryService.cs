@@ -26,12 +26,17 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessagesBulkDeleted += _discordClient_MessagesBulkDeleted;
         }
 
-        private async Task _discordClient_MessagesBulkDeleted(MessageBulkDeleteEventArgs e)
+        private Task _discordClient_MessagesBulkDeleted(MessageBulkDeleteEventArgs e)
         {
-            foreach (var message in e.Messages)
+            _ = Task.Run(async () =>
             {
-                await HandleDeletedMessageAsync(message, true);
-            }
+                foreach (var message in e.Messages)
+                {
+                    await HandleDeletedMessageAsync(message, true);
+                }
+            });
+
+            return Task.CompletedTask;
         }
 
         private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
@@ -45,37 +50,48 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private async Task _discordClient_MessageUpdated(MessageUpdateEventArgs e)
+        private Task _discordClient_MessageUpdated(MessageUpdateEventArgs e)
         {
-            // Early exits + if an embed appears, it is just a rich URL
-            if (_textChannel == null || e.Channel.Guild == null || e.Author == null || e.Author.IsSelf(_discordClient) 
-                || e.Message == e.MessageBefore && e.MessageBefore.Embeds.Count == 0 && e.Message.Embeds.Count != 0)
+            _ = Task.Run(async () =>
             {
-                return;
-            }
+                // Early exits + if an embed appears, it is just a rich URL
+                if (_textChannel == null || e.Channel.Guild == null || e.Author == null ||
+                    e.Author.IsSelf(_discordClient)
+                    || e.Message == e.MessageBefore && e.MessageBefore.Embeds.Count == 0 && e.Message.Embeds.Count != 0)
+                {
+                    return;
+                }
 
-            if (e.MessageBefore != null)
-            {
-                var embedBuilder = new DiscordEmbedBuilder
-                    {
-                        Title = "Message Edited - Old Message Content",
-                        Color = MomentumColor.Blue
-                    }
-                    .WithDescription(Formatter.MaskedUrl("Jump to Message", e.MessageBefore.JumpLink))
-                    .AddMessageContent(e.MessageBefore);
+                if (e.MessageBefore != null)
+                {
+                    var embedBuilder = new DiscordEmbedBuilder
+                        {
+                            Title = "Message Edited - Old Message Content",
+                            Color = MomentumColor.Blue
+                        }
+                        .WithDescription(Formatter.MaskedUrl("Jump to Message", e.MessageBefore.JumpLink))
+                        .AddMessageContent(e.MessageBefore);
 
-                await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
-            }
-            else
-            {
-                await _textChannel.SendMessageAsync("A message was updated, but it was not in cache. " +
-                                                    e.Message.JumpLink);
-            }
+                    await _textChannel.SendMessageAsync(embed: embedBuilder.Build());
+                }
+                else
+                {
+                    await _textChannel.SendMessageAsync("A message was updated, but it was not in cache. " +
+                                                        e.Message.JumpLink);
+                }
+            });
+
+            return Task.CompletedTask;
         }
 
-        private async Task _discordClient_MessageDeleted(MessageDeleteEventArgs e)
+        private Task _discordClient_MessageDeleted(MessageDeleteEventArgs e)
         {
-            await HandleDeletedMessageAsync(e.Message);
+            _ = Task.Run(async () =>
+            {
+                await HandleDeletedMessageAsync(e.Message);
+            });
+
+            return Task.CompletedTask;
         }
 
         private async Task HandleDeletedMessageAsync(DiscordMessage message, bool bulkDelete = false)

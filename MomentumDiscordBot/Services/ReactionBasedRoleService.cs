@@ -31,14 +31,19 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessageReactionRemoved += _discordClient_MessageReactionRemoved;
         }
 
-        private async Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
         {
-            _textChannel = _discordClient.FindChannel(_config.RolesChannelId);
+            _ = Task.Run(async () =>
+            {
+                _textChannel = _discordClient.FindChannel(_config.RolesChannelId);
 
-            await LoadExistingRoleEmbedsAsync();
-            await SendRoleEmbedsAsync();
+                await LoadExistingRoleEmbedsAsync();
+                await SendRoleEmbedsAsync();
 
-            await VerifyCurrentUserRolesAsync();
+                await VerifyCurrentUserRolesAsync();
+            });
+
+            return Task.CompletedTask;
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
@@ -159,60 +164,70 @@ namespace MomentumDiscordBot.Services
             return (false, null);
         }
 
-        private async Task _discordClient_MessageReactionAdded(MessageReactionAddEventArgs e)
+        private Task _discordClient_MessageReactionAdded(MessageReactionAddEventArgs e)
         {
-            if (e.Guild == null || e.Emoji == null || _textChannel == null || e.Channel.Id != _textChannel.Id ||
-                e.Emoji != _config.MentionRoleEmoji)
+            _ = Task.Run(async () =>
             {
-                return;
-            }
-
-            // Check that the message reacted to is a role embed
-            if (_existingRoleEmbeds.ContainsValue(e.Message.Id))
-            {
-                if (e.User is DiscordMember member)
+                if (e.Guild == null || e.Emoji == null || _textChannel == null || e.Channel.Id != _textChannel.Id ||
+                    e.Emoji != _config.MentionRoleEmoji)
                 {
-                    // Ignore actions from the bot
-                    if (member.IsSelf(_discordClient))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var (result, role) = await TryParseRoleFromEmbedAsync(e.Message);
-                    if (result)
+                // Check that the message reacted to is a role embed
+                if (_existingRoleEmbeds.ContainsValue(e.Message.Id))
+                {
+                    if (e.User is DiscordMember member)
                     {
-                        await member.GrantRoleAsync(role);
+                        // Ignore actions from the bot
+                        if (member.IsSelf(_discordClient))
+                        {
+                            return;
+                        }
+
+                        var (result, role) = await TryParseRoleFromEmbedAsync(e.Message);
+                        if (result)
+                        {
+                            await member.GrantRoleAsync(role);
+                        }
                     }
                 }
-            }
+            });
+
+            return Task.CompletedTask;
         }
 
-        private async Task _discordClient_MessageReactionRemoved(MessageReactionRemoveEventArgs e)
+        private Task _discordClient_MessageReactionRemoved(MessageReactionRemoveEventArgs e)
         {
-            if (e.Guild == null && e.Emoji == null || _textChannel == null || e.Channel.Id != _textChannel.Id ||
-                e.Emoji != _config.MentionRoleEmoji)
+            _ = Task.Run(async () =>
             {
-                return;
-            }
-
-            // Check that the message reacted to is a role embed
-            if (_existingRoleEmbeds.ContainsValue(e.Message.Id))
-            {
-                if (e.User is DiscordMember member)
+                if (e.Guild == null && e.Emoji == null || _textChannel == null || e.Channel.Id != _textChannel.Id ||
+                    e.Emoji != _config.MentionRoleEmoji)
                 {
-                    // Ignore actions from the bot
-                    if (member.IsSelf(_discordClient))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var (result, role) = await TryParseRoleFromEmbedAsync(e.Message);
-                    if (result)
+                // Check that the message reacted to is a role embed
+                if (_existingRoleEmbeds.ContainsValue(e.Message.Id))
+                {
+                    if (e.User is DiscordMember member)
                     {
-                        await member.RevokeRoleAsync(role);
+                        // Ignore actions from the bot
+                        if (member.IsSelf(_discordClient))
+                        {
+                            return;
+                        }
+
+                        var (result, role) = await TryParseRoleFromEmbedAsync(e.Message);
+                        if (result)
+                        {
+                            await member.RevokeRoleAsync(role);
+                        }
                     }
                 }
-            }
+            });
+
+            return Task.CompletedTask;
         }
 
         public async Task SendRoleEmbed(DiscordRole role)

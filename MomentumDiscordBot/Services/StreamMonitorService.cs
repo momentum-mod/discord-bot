@@ -67,24 +67,29 @@ namespace MomentumDiscordBot.Services
             _textChannel = _discordClient.FindChannel(_config.MomentumModStreamerChannelId);
         }
 
-        private async Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
         {
-            UpdateTextChannel();
-
-            // Enter and lock the semaphore, incase this occurs simultaneously with updating streams
-            await semaphoreSlimLock.WaitAsync();
-            var messages = (await _textChannel.GetMessagesAsync()).ToList();
-            await TryParseExistingEmbedsAsync(messages);
-            semaphoreSlimLock.Release();
-
-            // When reconnects occur, this will stack update events
-            // Therefore, dispose every time
-            if (_intervalFunctionTimer != null)
+            _ = Task.Run(async () =>
             {
-                await _intervalFunctionTimer.DisposeAsync();
-            }
+                UpdateTextChannel();
 
-            _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
+                // Enter and lock the semaphore, incase this occurs simultaneously with updating streams
+                await semaphoreSlimLock.WaitAsync();
+                var messages = (await _textChannel.GetMessagesAsync()).ToList();
+                await TryParseExistingEmbedsAsync(messages);
+                semaphoreSlimLock.Release();
+
+                // When reconnects occur, this will stack update events
+                // Therefore, dispose every time
+                if (_intervalFunctionTimer != null)
+                {
+                    await _intervalFunctionTimer.DisposeAsync();
+                }
+
+                _intervalFunctionTimer = new Timer(UpdateCurrentStreamersAsync, null, TimeSpan.Zero, _updateInterval);
+            });
+
+            return Task.CompletedTask;
         }
 
         public async void UpdateCurrentStreamersAsync(object state)

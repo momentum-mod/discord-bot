@@ -107,60 +107,71 @@ namespace MomentumDiscordBot.Services
             _semaphoreLock.Release();
         }
 
-        private async Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
         {
-            await HookToLastMessageAsync();
-            await AddUnhandedReactionRolesAsync();
+            _ = Task.Run(async () =>
+            {
+                await HookToLastMessageAsync();
+                await AddUnhandedReactionRolesAsync();
+            });
+
+            return Task.CompletedTask;
         }
 
-        private async Task _discordClient_MessageReactionAdded(MessageReactionAddEventArgs e)
+        private Task _discordClient_MessageReactionAdded(MessageReactionAddEventArgs e)
         {
-            await _semaphoreLock.WaitAsync();
-            _semaphoreLock.Release();
-
-            if (e.Channel.Id != _textChannel.Id || e.Emoji != _config.FaqRoleEmoji || !(e.User is DiscordMember member))
+            _ = Task.Run(async () =>
             {
-                return;
-            }
+                await _semaphoreLock.WaitAsync();
+                _semaphoreLock.Release();
 
-            if (!IsEnabled)
-            {
-                if (_faqLockInformed.Contains(member.Id) || member.Roles.Any(x => x.Id == _config.FaqRoleId))
+                if (e.Channel.Id != _textChannel.Id || e.Emoji != _config.FaqRoleEmoji ||
+                    !(e.User is DiscordMember member))
                 {
                     return;
                 }
 
-                // Only send the DM once.
-                _faqLockInformed.Add(member.Id);
-
-                await member.SendMessageAsync(embed: new DiscordEmbedBuilder
+                if (!IsEnabled)
                 {
-                    Description =
-                        "The FAQ verification process is temporarily locked, this is most likely due to spam bots joining. Please try again later.",
-                    Color = DiscordColor.Orange
-                }.Build());
-
-                return;
-            }
-
-            // Check that the message reacted to is the last message in the channel
-            if (_lastMessage.Id == e.Message.Id)
-            {
-                // Ignore actions from the bot, or if the user already has the role
-                if (!member.IsSelf(_discordClient))
-                {
-                    if (member.Roles.All(x => x.Id != _config.FaqRoleId))
+                    if (_faqLockInformed.Contains(member.Id) || member.Roles.Any(x => x.Id == _config.FaqRoleId))
                     {
-                        var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
-                        await member.GrantRoleAsync(role);
+                        return;
                     }
 
-                    if (_lastMessage.IsUserMessage())
+                    // Only send the DM once.
+                    _faqLockInformed.Add(member.Id);
+
+                    await member.SendMessageAsync(embed: new DiscordEmbedBuilder
                     {
-                        await _lastMessage.DeleteReactionAsync(_config.FaqRoleEmoji, member);
+                        Description =
+                            "The FAQ verification process is temporarily locked, this is most likely due to spam bots joining. Please try again later.",
+                        Color = DiscordColor.Orange
+                    }.Build());
+
+                    return;
+                }
+
+                // Check that the message reacted to is the last message in the channel
+                if (_lastMessage.Id == e.Message.Id)
+                {
+                    // Ignore actions from the bot, or if the user already has the role
+                    if (!member.IsSelf(_discordClient))
+                    {
+                        if (member.Roles.All(x => x.Id != _config.FaqRoleId))
+                        {
+                            var role = _textChannel.Guild.GetRole(_config.FaqRoleId);
+                            await member.GrantRoleAsync(role);
+                        }
+
+                        if (_lastMessage.IsUserMessage())
+                        {
+                            await _lastMessage.DeleteReactionAsync(_config.FaqRoleEmoji, member);
+                        }
                     }
                 }
-            }
+            });
+
+            return Task.CompletedTask;
         }
 
         public async Task AddUnhandedReactionRolesAsync()
