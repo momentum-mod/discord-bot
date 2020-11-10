@@ -32,7 +32,8 @@ namespace MomentumDiscordBot
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.None,
                 LoggerFactory = logFactory,
-                MessageCacheSize = 512
+                MessageCacheSize = 512,
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers
             });
 
             var services = BuildServiceProvider();
