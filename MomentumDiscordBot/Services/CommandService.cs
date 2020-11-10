@@ -37,7 +37,7 @@ namespace MomentumDiscordBot.Services
             commands.CommandErrored += _commands_CommandErrored;
         }
 
-        private Task _commands_CommandErrored(CommandErrorEventArgs e)
+        private Task _commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
             _ = Task.Run(async () =>
             {

@@ -49,13 +49,13 @@ namespace MomentumDiscordBot.Services
             _updateInterval = TimeSpan.FromMinutes(_config.StreamUpdateInterval);
             _discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
 
-            _discordClient.SocketOpened += () =>
+            _discordClient.SocketOpened += (s, e) =>
             {
                 _discordClientConnected = true;
                 return Task.CompletedTask;
             };
 
-            _discordClient.SocketClosed += e =>
+            _discordClient.SocketClosed += (s, e) =>
             {
                 _discordClientConnected = false;
                 return Task.CompletedTask;
@@ -67,7 +67,7 @@ namespace MomentumDiscordBot.Services
             _textChannel = _discordClient.FindChannel(_config.MomentumModStreamerChannelId);
         }
 
-        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             _ = Task.Run(async () =>
             {

@@ -24,7 +24,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessageCreated += _discordClient_MessageCreated;
         }
 
-        private Task _discordClient_MessageCreated(MessageCreateEventArgs e)
+        private Task _discordClient_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             _ = Task.Run(async () =>
             {

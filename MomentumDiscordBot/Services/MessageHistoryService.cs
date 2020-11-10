@@ -26,7 +26,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessagesBulkDeleted += _discordClient_MessagesBulkDeleted;
         }
 
-        private Task _discordClient_MessagesBulkDeleted(MessageBulkDeleteEventArgs e)
+        private Task _discordClient_MessagesBulkDeleted(DiscordClient sender, MessageBulkDeleteEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -39,7 +39,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             var channel = _discordClient.FindChannel(_config.MessageHistoryChannel);
             if (channel.Type == ChannelType.Text)
@@ -50,7 +50,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageUpdated(MessageUpdateEventArgs e)
+        private Task _discordClient_MessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -84,7 +84,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageDeleted(MessageDeleteEventArgs e)
+        private Task _discordClient_MessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
         {
             _ = Task.Run(async () =>
             {

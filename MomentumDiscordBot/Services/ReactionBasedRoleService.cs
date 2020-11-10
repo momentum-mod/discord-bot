@@ -31,7 +31,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessageReactionRemoved += _discordClient_MessageReactionRemoved;
         }
 
-        private async Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private async Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             // Somehow this can't run in an unawaited Task.Run
             // This WILL cause a deadlock eventually, and will block any other handlers for a long time.
@@ -156,7 +156,7 @@ namespace MomentumDiscordBot.Services
             return (false, null);
         }
 
-        private Task _discordClient_MessageReactionAdded(MessageReactionAddEventArgs e)
+        private Task _discordClient_MessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -189,7 +189,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageReactionRemoved(MessageReactionRemoveEventArgs e)
+        private Task _discordClient_MessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
         {
             _ = Task.Run(async () =>
             {

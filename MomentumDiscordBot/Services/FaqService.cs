@@ -107,7 +107,7 @@ namespace MomentumDiscordBot.Services
             _semaphoreLock.Release();
         }
 
-        private Task _discordClient_GuildsDownloaded(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -118,7 +118,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageReactionAdded(MessageReactionAddEventArgs e)
+        private Task _discordClient_MessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
         {
             _ = Task.Run(async () =>
             {

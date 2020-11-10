@@ -25,7 +25,7 @@ namespace MomentumDiscordBot.Services
             _discordClient.GuildMemberAdded += _discordClient_UserJoined;
         }
 
-        private Task _discordClient_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -38,7 +38,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_UserJoined(GuildMemberAddEventArgs e)
+        private Task _discordClient_UserJoined(DiscordClient sender, GuildMemberAddEventArgs e)
         {
             _ = Task.Run(async () =>
             {
