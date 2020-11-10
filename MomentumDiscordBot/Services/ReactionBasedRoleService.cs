@@ -31,17 +31,19 @@ namespace MomentumDiscordBot.Services
             _discordClient.MessageReactionRemoved += _discordClient_MessageReactionRemoved;
         }
 
-        private async Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
-            // Somehow this can't run in an unawaited Task.Run
-            // This WILL cause a deadlock eventually, and will block any other handlers for a long time.
-            // TODO: Fix this when DSharpPlus works or we figure out some other issue that is causing this
-            _textChannel = await _discordClient.GetChannelAsync(_config.RolesChannelId);
+            _ = Task.Run(async () =>
+            {
+                _textChannel = await _discordClient.GetChannelAsync(_config.RolesChannelId);
 
-            await LoadExistingRoleEmbedsAsync();
-            await SendRoleEmbedsAsync();
+                await LoadExistingRoleEmbedsAsync();
+                await SendRoleEmbedsAsync();
 
-            await VerifyCurrentUserRolesAsync();
+                await VerifyCurrentUserRolesAsync();
+            });
+
+            return Task.CompletedTask;
         }
 
         private async Task LoadExistingRoleEmbedsAsync()
