@@ -236,7 +236,13 @@ namespace MomentumDiscordBot.Services
             {
                 var existingSelfMessages =
                     messages.FromSelf(_discordClient);
-                var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value));
+                var softBannedMessages = _cachedStreamsIds.Where(x => existingSelfMessages.All(y => y.Id != x.Value)).ToList();
+
+                foreach (var softBannedMessage in softBannedMessages)
+                {
+                    _logger.Information("Registered softban for streamer {streamId}", softBannedMessage.Key);
+                }
+
                 _streamSoftBanList.AddRange(softBannedMessages.Select(x => x.Key));
             }
             catch (Exception e)
