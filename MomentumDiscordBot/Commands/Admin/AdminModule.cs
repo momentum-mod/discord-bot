@@ -10,7 +10,7 @@ namespace MomentumDiscordBot.Commands.Admin
     public class AdminModule : AdminModuleBase
     {
         public StreamMonitorService StreamMonitorService { get; set; }
-        public DiscordClient DiscordSocketClient { get; set; }
+        public DiscordClient DiscordClient { get; set; }
 
         [Command("updatestreams")]
         [Description("Force an update of Twitch livestreams")]
@@ -25,9 +25,9 @@ namespace MomentumDiscordBot.Commands.Admin
         [Description("Simulates the Discord API requesting a reconnect")]
         public async Task ForceReconnectAsync(CommandContext context, int seconds)
         {
-            await DiscordSocketClient.DisconnectAsync();
+            await DiscordClient.DisconnectAsync();
             await Task.Delay(seconds * 1000);
-            await DiscordSocketClient.ReconnectAsync();
+            await DiscordClient.ReconnectAsync();
         }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 using Serilog;
-using Serilog.Extensions.Logging;
 using ILogger = Serilog.ILogger;
 
 namespace MomentumDiscordBot

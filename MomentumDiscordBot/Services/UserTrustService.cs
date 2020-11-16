@@ -44,7 +44,6 @@ namespace MomentumDiscordBot.Services
 
         private void LogMessageCount(MomentumDiscordDbContext dbContext, DiscordMessage message)
         {
-            var users = dbContext.DailyMessageCount.ToList();
             var user = dbContext.DailyMessageCount
                 .SingleOrDefault(x => x.UserId == message.Author.Id &&
                                       x.ChannelId == message.Channel.Id &&
