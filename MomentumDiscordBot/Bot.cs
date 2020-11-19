@@ -32,7 +32,7 @@ namespace MomentumDiscordBot
                 MinimumLogLevel = LogLevel.None,
                 LoggerFactory = logFactory,
                 MessageCacheSize = 512,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers
+                Intents = DiscordIntents.All
             });
 
             var services = BuildServiceProvider();
