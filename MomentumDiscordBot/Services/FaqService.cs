@@ -31,7 +31,7 @@ namespace MomentumDiscordBot.Services
         }
 
         public bool IsEnabled { get; private set; } = true;
-
+        public DiscordMessage FaqMessage => _lastMessage;
         public void Lock()
         {
             IsEnabled = false;

@@ -48,5 +48,17 @@ namespace MomentumDiscordBot.Commands.Admin
 
             await ReplyNewEmbedAsync(context, "Done", MomentumColor.Blue);
         }
+
+        [Command("fix")]
+        [Description(
+            "Removes all reactions from the FAQ message, then reloads the module. A quick fix to the hidden reaction bug")]
+        public async Task FixFaqReactionAsync(CommandContext context)
+        {
+            await ReplyNewEmbedAsync(context, "Clearing all reactions", MomentumColor.Blue);
+            
+            await FaqService.FaqMessage.DeleteAllReactionsAsync();
+
+            await ReloadFaqAsync(context);
+        }
     }
 }
