@@ -12,7 +12,7 @@ namespace MomentumDiscordBot.Commands.Checks
     {
         protected Func<Configuration, ulong> RoleIdSelector;
 
-        public sealed override Task<bool> ExecuteCheckAsync(CommandContext context, bool help)
+        public override Task<bool> ExecuteCheckAsync(CommandContext context, bool help)
         {
             var config = context.Services.GetRequiredService<Configuration>();
             return Task.FromResult(RequireRole(context.User, RoleIdSelector(config)));
