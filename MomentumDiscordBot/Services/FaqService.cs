@@ -11,7 +11,7 @@ using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Services
 {
-    [Microservice(MicroserviceType.InjectAndInitialize)]
+    [Microservice(MicroserviceType.Manual)]
     public class FaqService
     {
         private readonly Configuration _config;
