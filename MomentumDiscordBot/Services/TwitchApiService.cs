@@ -7,6 +7,7 @@ using MomentumDiscordBot.Models;
 using Serilog;
 using TwitchLib.Api;
 using TwitchLib.Api.Helix.Models.Streams;
+using TwitchLib.Api.Helix.Models.Streams.GetStreams;
 
 namespace MomentumDiscordBot.Services
 {
