@@ -9,7 +9,7 @@ using DSharpPlus.EventArgs;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 using Serilog;
-using TwitchLib.Api.Helix.Models.Streams;
+using TwitchLib.Api.Helix.Models.Streams.GetStreams;
 
 namespace MomentumDiscordBot.Services
 {
