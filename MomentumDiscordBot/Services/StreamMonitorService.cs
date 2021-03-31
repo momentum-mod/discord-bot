@@ -211,11 +211,11 @@ namespace MomentumDiscordBot.Services
                     {
                         Name = stream.UserName,
                         IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
-                        Url = $"https://twitch.tv/{stream.UserName}"
+                        Url = $"https://twitch.tv/{stream.UserLogin}"
                     },
                     ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" +
                                Environment.TickCount,
-                    Url = $"https://twitch.tv/{stream.UserName}",
+                    Url = $"https://twitch.tv/{stream.UserLogin}",
                     Timestamp = DateTimeOffset.Now
                 }.AddField("🔴 Viewers", stream.ViewerCount.ToString(), true)
                 .AddField("🎦 Uptime", (DateTime.UtcNow - stream.StartedAt).ToPrettyFormat(2), true)
