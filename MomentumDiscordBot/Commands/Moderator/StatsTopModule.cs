@@ -32,7 +32,7 @@ namespace MomentumDiscordBot.Commands.Moderator
 
             var embedBuilder = topChannels.GetTopStatsEmbedBuilder("Most Active Channels",
                 x =>
-                    $"{context.Guild.Members.Values.FirstOrDefault(y => y.Id == x.Grouping)?.Mention ?? x.Grouping.ToString()} - {x.MessageCount} messages");
+                    $"{context.Guild.Channels.Values.FirstOrDefault(y => y.Id == x.Grouping)?.Mention ?? x.Grouping.ToString()} - {x.MessageCount} messages");
 
             await context.RespondAsync(embed: embedBuilder.Build());
         }
