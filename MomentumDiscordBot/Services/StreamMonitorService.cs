@@ -25,6 +25,8 @@ namespace MomentumDiscordBot.Services
         private readonly ILogger _logger;
         private readonly List<string> _streamSoftBanList = new List<string>();
 
+        public List<string> StreamSoftBanList => _streamSoftBanList;
+
         private readonly TimeSpan _updateInterval;
         private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
         public readonly TwitchApiService TwitchApiService;
@@ -275,6 +277,7 @@ namespace MomentumDiscordBot.Services
                     }
 
                     await _textChannel.DeleteMessageAsync(message);
+                    messages.Remove(message);
                 }
                 catch
                 {
@@ -305,6 +308,8 @@ namespace MomentumDiscordBot.Services
                         }
 
                         await _textChannel.DeleteMessageAsync(message);
+
+                        messages.Remove(message);
                     }
                 }
             }

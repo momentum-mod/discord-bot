@@ -91,5 +91,24 @@ namespace MomentumDiscordBot.Commands.Admin
 
             await context.RespondAsync(embed: embed);
         }
+        
+        [Command("softlist")]
+        [Description("Get a list of Twitch users soft banned from the livestream channel")]
+        public async Task ListTwitchSoftBansAsync(CommandContext context)
+        {
+            var banUsernameTasks = StreamMonitorService.StreamSoftBanList.Select(async x =>
+                await StreamMonitorService.TwitchApiService.GetStreamerNameAsync(x));
+            
+            var usernames = await Task.WhenAll(banUsernameTasks);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = "Twitch Soft Banned IDs",
+                Description = Formatter.Sanitize(string.Join(Environment.NewLine, usernames)),
+                Color = MomentumColor.Blue
+            }.Build();
+
+            await context.RespondAsync(embed: embed);
+        }
     }
 }
