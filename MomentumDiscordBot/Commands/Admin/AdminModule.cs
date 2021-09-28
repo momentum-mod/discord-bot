@@ -10,17 +10,7 @@ namespace MomentumDiscordBot.Commands.Admin
 {
     public class AdminModule : AdminModuleBase
     {
-        public StreamMonitorService StreamMonitorService { get; set; }
         public DiscordClient DiscordClient { get; set; }
-
-        [Command("updatestreams")]
-        [Description("Force an update of Twitch livestreams")]
-        public async Task ForceUpdateStreamsAsync(CommandContext context)
-        {
-            StreamMonitorService.UpdateCurrentStreamersAsync(null);
-
-            await ReplyNewEmbedAsync(context, "Updating Livestreams", MomentumColor.Blue);
-        }
 
         [Command("forcereconnect")]
         [Description("Simulates the Discord API requesting a reconnect")]

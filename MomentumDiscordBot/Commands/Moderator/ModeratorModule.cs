@@ -5,13 +5,24 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
     public class ModeratorModule : ModeratorModuleBase
     {
+        public StreamMonitorService StreamMonitorService { get; set; }
+        
         public Configuration Config { get; set; }
 
+        [Command("updatestreams")]
+        [Description("Force an update of Twitch livestreams")]
+        public async Task ForceUpdateStreamsAsync(CommandContext context)
+        {
+            StreamMonitorService.UpdateCurrentStreamersAsync(null);
+
+            await ReplyNewEmbedAsync(context, "Updating Livestreams", MomentumColor.Blue);
+        }
 
         [Command("ban")]
         [Description("Bans a user, purging their messages")]
