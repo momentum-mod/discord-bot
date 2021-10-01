@@ -2,7 +2,7 @@
 
 ![Momentum Mod](https://momentum-mod.org/assets/images/logo.svg)
 
-> A Discord bot for Momentum Mod's Official Discord, running in a [dockerized](https://www.docker.com/) [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/) container, using [Discord.NET](https://discord.foxbot.me/).
+> A Discord bot for Momentum Mod's Official Discord, running in a [dockerized](https://www.docker.com/) [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/) container, using [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus).
 
 ![.NET Core](https://github.com/momentum-mod/discord-bot/workflows/.NET%20Core/badge.svg?branch=net-core)
 
