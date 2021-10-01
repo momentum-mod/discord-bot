@@ -26,7 +26,7 @@ A shell script is made to automate the process of building and running the Docke
 5. Navigate to the folder: `cd config`
 6. Create and fill out the following files:
 
-   `config.json`, containing data found in the [model file](https://github.com/momentum-mod/discord-bot/blob/net-core/src/MomentumDiscordBot/MomentumDiscordBot/Models/Config.cs) in valid JSON
+   `config.json`, containing data found in the [model file](https://github.com/momentum-mod/discord-bot/blob/net-core/MomentumDiscordBot/Models/Configuration.cs) in valid JSON
    
    `discordToken.txt`, enter your Discord bot token - ensure there are no newlines/whitespace
    
