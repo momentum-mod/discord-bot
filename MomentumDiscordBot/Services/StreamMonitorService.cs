@@ -165,10 +165,12 @@ namespace MomentumDiscordBot.Services
                         continue;
                     }
 
-                    // New stream, send a new message
+                    // Create discord message builder as SendMessageAsync can't take 3 overloads.
+                    var dmb = new DiscordMessageBuilder().WithContent(messageText).WithEmbed(embed).WithAllowedMentions(new IMention[] { new RoleMention(_config.LivestreamMentionRoleId) });
+
+                    // New stream, send the message builder above to the same channel.
                     var message =
-                        await _textChannel.SendMessageAsync(messageText, embed: embed,
-                            mentions: new IMention[] {new RoleMention(_config.LivestreamMentionRoleId)});
+                        await _textChannel.SendMessageAsync(dmb);
 
                     _cachedStreamsIds.Add(stream.Id, message.Id);
                 }
