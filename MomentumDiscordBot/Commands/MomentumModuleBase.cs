@@ -2,12 +2,13 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Serilog;
 
 namespace MomentumDiscordBot.Commands
 {
     [ModuleLifespan(ModuleLifespan.Transient)]
-    public class MomentumModuleBase : BaseCommandModule
+    public class MomentumModuleBase : ApplicationCommandModule
     {
         public ILogger Logger { get; set; }
 
@@ -20,6 +21,19 @@ namespace MomentumDiscordBot.Commands
             }.Build();
 
             return await context.RespondAsync(embed: embed);
+        }
+
+        protected async Task<DiscordMessage> SlashReplyNewEmbedAsync(InteractionContext context, string text, DiscordColor color)
+        {
+            await context.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Description = text,
+                Color = color
+            }.Build();
+
+            return await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
     }
 }
