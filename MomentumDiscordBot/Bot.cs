@@ -14,7 +14,7 @@ namespace MomentumDiscordBot
     public class Bot
     {
         private readonly Configuration _config;
-        private readonly DiscordClient _discordClient;
+        private readonly DiscordShardedClient _discordClient;
         private readonly ILogger _logger;
 
         public Bot(Configuration config, ILogger logger)
@@ -24,7 +24,7 @@ namespace MomentumDiscordBot
 
             var logFactory = new LoggerFactory().AddSerilog(logger);
 
-            _discordClient = new DiscordClient(new DiscordConfiguration
+            _discordClient = new DiscordShardedClient(new DiscordConfiguration
             {
                 Token = _config.BotToken,
                 TokenType = TokenType.Bot,
@@ -48,6 +48,6 @@ namespace MomentumDiscordBot
                 .BuildServiceProvider();
 
         public async Task StartAsync()
-            => await _discordClient.ConnectAsync();
+            => await _discordClient.StartAsync();
     }
 }
