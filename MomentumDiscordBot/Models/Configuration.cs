@@ -69,7 +69,7 @@ namespace MomentumDiscordBot.Models
 
         [Hidden]
         [JsonPropertyName("mysql_connection_string")]
-        public string MySqlConnectionString { get; set; }
+        public Microsoft.EntityFrameworkCore.ServerVersion MySqlConnectionString { get; set; }
 
         [JsonPropertyName("media_verified_role")]
         public ulong MediaVerifiedRoleId { get; set; }
