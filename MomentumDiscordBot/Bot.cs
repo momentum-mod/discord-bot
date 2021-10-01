@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MomentumDiscordBot.Models;
@@ -33,6 +34,11 @@ namespace MomentumDiscordBot
                 LoggerFactory = logFactory,
                 MessageCacheSize = 512,
                 Intents = DiscordIntents.All
+            });
+
+            var slash = _discordClient.UseSlashCommandsAsync(new SlashCommandsConfiguration
+            {
+                Services = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider()
             });
 
             var services = BuildServiceProvider();
