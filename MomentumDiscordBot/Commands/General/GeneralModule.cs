@@ -17,12 +17,5 @@ namespace MomentumDiscordBot.Commands.General
         {
             await SlashReplyNewEmbedAsync(context, Config.KeyBeggingResponse, MomentumColor.Blue);
         }
-
-        //[Command("key")]
-        //[Description("Give information on obtaining a game key")]
-        //public async Task KeyBeggingResponseAsync(CommandContext context)
-        //{
-        //    await ReplyNewEmbedAsync(context, Config.KeyBeggingResponse, MomentumColor.Blue);
-        //}
     }
 }
