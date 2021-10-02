@@ -166,7 +166,13 @@ namespace MomentumDiscordBot.Services
                     }
 
                     // Create discord message builder as SendMessageAsync can't take 3 overloads.
-                    var dmb = new DiscordMessageBuilder().WithContent(messageText).WithEmbed(embed).WithAllowedMentions(new IMention[] { new RoleMention(_config.LivestreamMentionRoleId) });
+                    var dmb = new DiscordMessageBuilder()
+                        .WithContent(messageText)
+                        .WithEmbed(embed)
+                        .WithAllowedMentions(new IMention[] 
+                        { 
+                            new RoleMention(_config.LivestreamMentionRoleId) 
+                        });
 
                     // New stream, send the message builder above to the same channel.
                     var message =
