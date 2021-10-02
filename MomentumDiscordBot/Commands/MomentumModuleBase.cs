@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -25,7 +26,7 @@ namespace MomentumDiscordBot.Commands
 
         protected async Task<DiscordMessage> SlashReplyNewEmbedAsync(InteractionContext context, string text, DiscordColor color)
         {
-            await context.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
+            await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -33,7 +34,8 @@ namespace MomentumDiscordBot.Commands
                 Color = color
             }.Build();
 
-            return await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+            return await context.EditResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(embed));
         }
     }
 }
