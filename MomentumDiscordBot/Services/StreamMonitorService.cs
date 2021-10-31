@@ -166,9 +166,18 @@ namespace MomentumDiscordBot.Services
                     }
 
                     // New stream, send a new message
+                    var messageBuilder = new DiscordMessageBuilder()
+                    {
+                        Content = messageText,
+                        Embed = embed,
+                        Mentions =
+                        {
+                            new RoleMention(_config.LivestreamMentionRoleId)
+                        }
+                    };
+
                     var message =
-                        await _textChannel.SendMessageAsync(messageText, embed: embed,
-                            mentions: new IMention[] {new RoleMention(_config.LivestreamMentionRoleId)});
+                        await _textChannel.SendMessageAsync(messageBuilder);
 
                     _cachedStreamsIds.Add(stream.Id, message.Id);
                 }

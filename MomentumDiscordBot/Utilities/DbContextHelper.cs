@@ -8,6 +8,6 @@ namespace MomentumDiscordBot.Utilities
     {
         public static MomentumDiscordDbContext GetNewDbContext(Configuration config) =>
             new MomentumDiscordDbContext(new DbContextOptionsBuilder<MomentumDiscordDbContext>()
-                .UseMySql(config.MySqlConnectionString).Options);
+                .UseMySql(config.MySqlConnectionString, ServerVersion.AutoDetect(config.MySqlConnectionString)).Options);
     }
 }
