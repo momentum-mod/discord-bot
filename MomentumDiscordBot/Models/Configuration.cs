@@ -37,13 +37,7 @@ namespace MomentumDiscordBot.Models
 
         [JsonPropertyName("stream_update_interval")]
         public int StreamUpdateInterval { get; set; }
-
-        [JsonPropertyName("key_emoji")] public string KeyEmojiString { get; set; }
-
-        [JsonPropertyName("key_begging_response")]
-        public string KeyBeggingResponse { get; set; }
-
-        [JsonPropertyName("key_regex")] public string KeyRegexString { get; set; }
+        
         [JsonPropertyName("join_log_channel")] public ulong JoinLogChannel { get; set; }
 
         [JsonPropertyName("message_history_channel")]
@@ -51,9 +45,6 @@ namespace MomentumDiscordBot.Models
 
         [JsonPropertyName("new_account_emote")]
         public string NewUserEmoteString { get; set; }
-
-        [JsonPropertyName("whitelist_key_begging_roles")]
-        public ulong[] WhitelistKeyBeggingRoles { get; set; }
 
         [JsonPropertyName("minimum_stream_viewers_announce")]
         public int MinimumStreamViewersAnnounce { get; set; }
