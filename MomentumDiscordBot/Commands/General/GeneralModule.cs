@@ -9,12 +9,5 @@ namespace MomentumDiscordBot.Commands.General
     public class GeneralModule : MomentumModuleBase
     {
         public Configuration Config { get; set; }
-
-        [Command("key")]
-        [Description("Give information on obtaining a game key")]
-        public async Task KeyBeggingResponseAsync(CommandContext context)
-        {
-            await ReplyNewEmbedAsync(context, Config.KeyBeggingResponse, MomentumColor.Blue);
-        }
     }
 }
