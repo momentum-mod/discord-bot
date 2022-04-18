@@ -21,8 +21,8 @@ A shell script is made to automate the process of building and running the Docke
 
 1. Clone the repo using Git CLI
 2. Navigate to the root folder: `cd discord-bot`
-3. Make the script executable: `chmod +x runDocker.sh`
-4. Make a folder called config in the root directory called config: `mkdir config`
+3. Make the script executable: `chmod +x buildAndRunDocker.sh`
+4. Make a folder called config in the root directory: `mkdir config`
 5. Navigate to the folder: `cd config`
 6. Create and fill out the following files:
 
@@ -33,7 +33,7 @@ A shell script is made to automate the process of building and running the Docke
    `twitchApiClientId.txt`, enter your Twitch API Client ID
    
 7. Navigate up to the root directory: `..`
-8. Run the bot: `./runDocker.sh`
+8. Run the bot: `./buildAndRunDocker.sh`
 
 ## Contributing
 
