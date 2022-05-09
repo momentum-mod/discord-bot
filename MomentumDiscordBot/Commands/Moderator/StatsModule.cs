@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
@@ -11,14 +10,15 @@ using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
-    [Group("stats")]
+    [SlashCommandGroup("stats", "stats commands")]
     public class StatsModule : ModeratorModuleBase
     {
         public Configuration Config { get; set; }
 
-        [Command("user")]
-        public async Task UserStatsAsync(CommandContext context, DiscordMember member)
+        [SlashCommand("user", "show user stats")]
+        public async Task UserStatsAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
+            DiscordMember member = (DiscordMember)user;
             var totalMessageCount = await StatsUtility.GetTotalMessageCount(Config);
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == member.Id);
 
@@ -39,11 +39,11 @@ namespace MomentumDiscordBot.Commands.Moderator
                         => currentString + Environment.NewLine +
                            $"{context.Client.FindChannel(nextChannel.Id).Mention} - {nextChannel.MessageCount} messages"));
 
-            await context.RespondAsync(embed: embedBuilder.Build());
+            await context.CreateResponseAsync(embed: embedBuilder.Build());
         }
 
-        [Command("channel")]
-        public async Task ChannelStatsAsync(CommandContext context, DiscordChannel channel)
+        [SlashCommand("channel", "show channel stats")]
+        public async Task ChannelStatsAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
         {
             if (channel.Type != ChannelType.Text)
             {
@@ -69,7 +69,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                         => currentString + Environment.NewLine +
                            $"{context.Guild.Members.Values.FirstOrDefault(x => x.Id == nextUser.Id)?.Mention ?? nextUser.Id.ToString()} - {nextUser.MessageCount} messages"));
 
-            await context.RespondAsync(embed: embedBuilder.Build());
+            await context.CreateResponseAsync(embed: embedBuilder.Build());
         }
     }
 }

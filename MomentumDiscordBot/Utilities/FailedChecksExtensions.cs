@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using MomentumDiscordBot.Commands.Checks;
 
 namespace MomentumDiscordBot.Utilities
@@ -17,7 +18,19 @@ namespace MomentumDiscordBot.Utilities
             return ReasonPrefix + string.Join(Environment.NewLine + ReasonPrefix, reasons);
         }
 
+        public static string ToCleanResponse(this IEnumerable<SlashCheckBaseAttribute> failedChecks)
+        {
+            var reasons = failedChecks.Select(x => x.ToCleanReason());
+
+            return ReasonPrefix + string.Join(Environment.NewLine + ReasonPrefix, reasons);
+        }
+
         private static string ToCleanReason(this CheckBaseAttribute check)
+        {
+            return check.ToString();
+        }
+
+        private static string ToCleanReason(this SlashCheckBaseAttribute check)
         {
             if (check is DescriptiveCheckBaseAttribute descriptiveCheck)
             {

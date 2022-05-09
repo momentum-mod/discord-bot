@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 
@@ -7,15 +7,16 @@ namespace MomentumDiscordBot.Commands.Checks
 {
     public class RequireUserAdminRoleAttribute : RequireUserRoleAttribute
     {
-        public override async Task<bool> ExecuteCheckAsync(CommandContext context, bool help)
+
+        public override async Task<bool> ExecuteChecksAsync(InteractionContext context)
         {
-            var baseExecutionResult = await base.ExecuteCheckAsync(context, help);
+            var baseExecutionResult = await base.ExecuteChecksAsync(context);
             if (baseExecutionResult)
             {
                 return true;
             }
 
-            var config = context.CommandsNext.Services.GetRequiredService<Configuration>();
+            var config = context.Services.GetRequiredService<Configuration>();
             
             return context.User.Id == config.DeveloperID;
         }

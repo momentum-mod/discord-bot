@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
@@ -11,17 +10,15 @@ using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Commands.Admin
 {
-    [Group("twitchBan")]
+    [SlashCommandGroup("twitchBan", "twitch ban commands")]
     public class AdminTwitchBanModule : AdminModuleBase
     {
         public Configuration Config { get; set; }
         public StreamMonitorService StreamMonitorService { get; set; }
 
 
-        [Command("add")]
-        [Aliases("create")]
-        [Description("Hard ban a twitch user from the livestream channel")]
-        public async Task AddTwitchBanAsync(CommandContext context, [RemainingText] string username)
+        [SlashCommand("add", "Hard ban a twitch user from the livestream channel")]
+        public async Task AddTwitchBanAsync(InteractionContext context, [Option("RemainingText", "RemainingText")] string username)
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
 
@@ -45,10 +42,8 @@ namespace MomentumDiscordBot.Commands.Admin
             await ReplyNewEmbedAsync(context, $"Banned user with ID: {userToBanId}", DiscordColor.Orange);
         }
 
-        [Command("remove")]
-        [Aliases("delete", "del", "rem")]
-        [Description("Hard unban a twitch user from the livestream channel")]
-        public async Task RemoveTwitchBanAsync(CommandContext context, [RemainingText] string username)
+        [SlashCommand("remove", "Hard unban a twitch user from the livestream channel")]
+        public async Task RemoveTwitchBanAsync(InteractionContext context, [Option("RemainingText", "RemainingText")] string username)
         {
             var bans = (Config.TwitchUserBans ?? new string[0]).ToList();
 
@@ -71,10 +66,8 @@ namespace MomentumDiscordBot.Commands.Admin
             await ReplyNewEmbedAsync(context, $"Unbanned user with ID: {userToUnbanId}", DiscordColor.Orange);
         }
 
-        [Command("list")]
-        [Aliases("ls", "get")]
-        [Description("Get a list of Twitch users hard banned from the livestream channel")]
-        public async Task ListTwitchBanAsync(CommandContext context)
+        [SlashCommand("list", "Get a list of Twitch users hard banned from the livestream channel")]
+        public async Task ListTwitchBanAsync(InteractionContext context)
         {
             var bans = Config.TwitchUserBans ?? new string[0];
 
@@ -89,12 +82,11 @@ namespace MomentumDiscordBot.Commands.Admin
                 Color = MomentumColor.Blue
             }.Build();
 
-            await context.RespondAsync(embed: embed);
+            await context.CreateResponseAsync(embed: embed);
         }
         
-        [Command("softlist")]
-        [Description("Get a list of Twitch users soft banned from the livestream channel")]
-        public async Task ListTwitchSoftBansAsync(CommandContext context)
+        [SlashCommand("softlist", "Get a list of Twitch users soft banned from the livestream channel")]
+        public async Task ListTwitchSoftBansAsync(InteractionContext context)
         {
             var banUsernameTasks = StreamMonitorService.StreamSoftBanList.Select(async x =>
                 await StreamMonitorService.TwitchApiService.GetStreamerNameAsync(x));
@@ -108,7 +100,7 @@ namespace MomentumDiscordBot.Commands.Admin
                 Color = MomentumColor.Blue
             }.Build();
 
-            await context.RespondAsync(embed: embed);
+            await context.CreateResponseAsync(embed: embed);
         }
     }
 }

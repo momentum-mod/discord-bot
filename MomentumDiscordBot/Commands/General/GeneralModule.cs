@@ -1,8 +1,4 @@
-﻿using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
-using MomentumDiscordBot.Constants;
-using MomentumDiscordBot.Models;
+﻿using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Commands.General
 {

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
@@ -10,16 +9,14 @@ using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Commands.Admin
 {
-    [Group("mentionRoles")]
+    [SlashCommandGroup("mentionRoles", "mention role commands")]
     public class AdminMentionRolesModule : AdminModuleBase
     {
         public Configuration Config { get; set; }
         public ReactionBasedRoleService ReactionBasedRoleService { get; set; }
 
-        [Command("add")]
-        [Aliases("create")]
-        [Description("Create a role for mentioning, and add it to the react channel")]
-        public async Task CreateMentionRoleAsync(CommandContext context, DiscordRole role)
+        [SlashCommand("add", "Create a role for mentioning, and add it to the react channel")]
+        public async Task CreateMentionRoleAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
         {
             if (Config.MentionRoles != null)
             {
@@ -47,10 +44,8 @@ namespace MomentumDiscordBot.Commands.Admin
             await ReactionBasedRoleService.SendRoleEmbed(role);
         }
 
-        [Command("remove")]
-        [Aliases("delete", "del", "rem")]
-        [Description("Removes a role for mentioning, and removes it from the react channel")]
-        public async Task RemoveMentionRoleAsync(CommandContext context, DiscordRole role)
+        [SlashCommand("remove", "Removes a role for mentioning, and removes it from the react channel")]
+        public async Task RemoveMentionRoleAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
         {
             if (Config.MentionRoles != null && Config.MentionRoles.Length > 0)
             {
@@ -62,10 +57,8 @@ namespace MomentumDiscordBot.Commands.Admin
             await ReplyNewEmbedAsync(context, "Done", MomentumColor.Blue);
         }
 
-        [Command("list")]
-        [Aliases("ls", "get")]
-        [Description("Get a list of the mention roles")]
-        public async Task ListMentionRolesAsync(CommandContext context)
+        [SlashCommand("list", "Get a list of the mention roles")]
+        public async Task ListMentionRolesAsync(InteractionContext context)
         {
             var mentionRoles = context.Guild.Roles.Where(x => Config.MentionRoles.Contains(x.Key));
             var embed = new DiscordEmbedBuilder
@@ -75,7 +68,7 @@ namespace MomentumDiscordBot.Commands.Admin
                 Color = MomentumColor.Blue
             }.Build();
 
-            await context.RespondAsync(embed: embed);
+            await context.CreateResponseAsync(embed: embed);
         }
     }
 }

@@ -1,17 +1,17 @@
 ﻿using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using Serilog;
 
 namespace MomentumDiscordBot.Commands
 {
-    [ModuleLifespan(ModuleLifespan.Transient)]
-    public class MomentumModuleBase : BaseCommandModule
+    [SlashModuleLifespan(SlashModuleLifespan.Transient)]
+    public class MomentumModuleBase : ApplicationCommandModule
     {
         public ILogger Logger { get; set; }
 
-        protected async Task<DiscordMessage> ReplyNewEmbedAsync(CommandContext context, string text, DiscordColor color)
+        protected async Task ReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
         {
             var embed = new DiscordEmbedBuilder
             {
@@ -19,7 +19,21 @@ namespace MomentumDiscordBot.Commands
                 Color = color
             }.Build();
 
-            return await context.RespondAsync(embed: embed);
+            await context.CreateResponseAsync(embed: embed);
+        }
+
+        protected async Task<DiscordMessage> SlashReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
+        {
+            await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Description = text,
+                Color = color
+            }.Build();
+
+            return await context.EditResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(embed));
         }
     }
 }
