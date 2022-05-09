@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using MomentumDiscordBot.Constants;
@@ -11,15 +10,15 @@ using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
-    [Group("trust")]
+    [SlashCommandGroup("trust", "media trust commands")]
     public class ModeratorMediaTrustModule : ModeratorModuleBase
     {
         public Configuration Config { get; set; }
 
-        [Command("status")]
-        [Description("Checks to see a member's media trust status")]
-        public async Task MediaStatusAsync(CommandContext context, DiscordMember member)
+        [SlashCommand("status", "Checks to see a member's media trust status")]
+        public async Task MediaStatusAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
+            DiscordMember member = (DiscordMember)user;
             var embedBuilder = new DiscordEmbedBuilder
             {
                 Title = "Media Trust Status",
@@ -57,7 +56,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                     .AddField("Total Messages", totalMessageCount.ToString())
                     .AddField("Meets Requirements",
                         (oldestMessageSpan.TotalDays > Config.MediaMinimumDays &&
-                         totalMessageCount > Config.MediaMinimumMessages).ToString())
+                        totalMessageCount > Config.MediaMinimumMessages).ToString())
                     .AddField("Has Trusted Role", hasTrustedRole.ToString())
                     .AddField("Has Blacklisted Role", hasBlacklistedRole.ToString());
 
@@ -72,13 +71,13 @@ namespace MomentumDiscordBot.Commands.Moderator
                 }
             }
 
-            await context.RespondAsync(embed: embedBuilder.Build());
+            await context.CreateResponseAsync(embed: embedBuilder.Build());
         }
 
-        [Command("give")]
-        [Description("Manually trusts a member, if applicable, removing the blacklist")]
-        public async Task TrustUserAsync(CommandContext context, DiscordMember member)
+        [SlashCommand("give", "Manually trusts a member, if applicable, removing the blacklist")]
+        public async Task TrustUserAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
+            DiscordMember member = (DiscordMember)user;
             var trustedRole = context.Guild.GetRole(Config.MediaVerifiedRoleId);
             var blacklistRole = context.Guild.GetRole(Config.MediaBlacklistedRoleId);
 
@@ -88,10 +87,10 @@ namespace MomentumDiscordBot.Commands.Moderator
             await ReplyNewEmbedAsync(context, "Trusted " + member.Mention, MomentumColor.Blue);
         }
 
-        [Command("blacklist")]
-        [Description("Manually blacklist a member, if applicable, removing the trust")]
-        public async Task BlacklistUserAsync(CommandContext context, DiscordMember member)
+        [SlashCommand("blacklist", "Manually blacklist a member, if applicable, removing the trust")]
+        public async Task BlacklistUserAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
+            DiscordMember member = (DiscordMember)user;
             var trustedRole = context.Guild.GetRole(Config.MediaVerifiedRoleId);
             var blacklistRole = context.Guild.GetRole(Config.MediaBlacklistedRoleId);
 

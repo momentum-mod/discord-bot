@@ -4,8 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
@@ -13,14 +12,13 @@ using HiddenAttribute = MomentumDiscordBot.Models.HiddenAttribute;
 
 namespace MomentumDiscordBot.Commands.Admin
 {
-    [Group("config")]
+    [SlashCommandGroup("config", "show and modify the bot config")]
     public class AdminConfigModule : AdminModuleBase
     {
         public Configuration Config { get; set; }
 
-        [Command("ls")]
-        [DSharpPlus.CommandsNext.Attributes.Description("List config options")]
-        public async Task GetConfigOptionsAsync(CommandContext context, string search = null)
+        [SlashCommand("ls", "List config options")]
+        public async Task GetConfigOptionsAsync(InteractionContext context, [Option("search", "search")] string search = null)
         {
             var configProperties = Config.GetType().GetProperties()
                 .Where(x => !x.GetCustomAttributes().Any(x => x.GetType() == typeof(HiddenAttribute))).ToArray();
@@ -35,9 +33,8 @@ namespace MomentumDiscordBot.Commands.Admin
                 MomentumColor.Blue);
         }
 
-        [Command("set")]
-        [DSharpPlus.CommandsNext.Attributes.Description("Sets config option")]
-        public async Task SetConfigOptionAsync(CommandContext context, string key, [RemainingText] string value)
+        [SlashCommand("set", "Sets config option")]
+        public async Task SetConfigOptionAsync(InteractionContext context, [Option("key", "key")] string key, [Option("RemainingText", "RemainingText")] string value)
         {
             var configProperties = Config.GetType().GetProperties();
 
@@ -77,9 +74,8 @@ namespace MomentumDiscordBot.Commands.Admin
             }
         }
 
-        [Command("get")]
-        [DSharpPlus.CommandsNext.Attributes.Description("Gets config option")]
-        public async Task GetConfigOptionAsync(CommandContext context, string key)
+        [SlashCommand("get", "Gets config option")]
+        public async Task GetConfigOptionAsync(InteractionContext context, [Option("key", "key")] string key)
         {
             var configProperty = Config.GetType().GetProperties().Where(x =>
                 !x.GetCustomAttributes().Any(x => x.GetType() == typeof(HiddenAttribute)) &&

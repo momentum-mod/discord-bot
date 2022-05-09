@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
@@ -12,7 +12,7 @@ namespace MomentumDiscordBot.Commands.Checks
     {
         protected Func<Configuration, ulong> RoleIdSelector;
 
-        public override Task<bool> ExecuteCheckAsync(CommandContext context, bool help)
+        public override Task<bool> ExecuteChecksAsync(InteractionContext context)
         {
             var config = context.Services.GetRequiredService<Configuration>();
             return Task.FromResult(RequireRole(context.User, RoleIdSelector(config)));

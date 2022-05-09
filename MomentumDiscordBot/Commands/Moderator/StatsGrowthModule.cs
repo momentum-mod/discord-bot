@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
@@ -14,22 +13,21 @@ using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
-    [Group("growth")]
+    [SlashCommandGroup("growth", "Compare message count")]
     public class StatsGrowthModule : ModeratorModuleBase
     {
         public Configuration Config { get; set; }
 
-        [Command("user")]
-        [Description("Compares a user's message count in two groups of 30 day periods")]
-        public async Task UserStatsAsync(CommandContext context, DiscordMember member)
+        [SlashCommand("user", "Compares a user's message count in two groups of 30 day periods")]
+        public async Task UserStatsAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
+            DiscordMember member = (DiscordMember)user;
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == member.Id);
-            await context.RespondAsync(embed: GetGrowthEmbed(userStats, member.Mention));
+            await context.CreateResponseAsync(embed: GetGrowthEmbed(userStats, member.Mention));
         }
 
-        [Command("channel")]
-        [Description("Compares a channels's message count in two groups of 30 day periods")]
-        public async Task ChannelStatsAsync(CommandContext context, DiscordChannel channel)
+        [SlashCommand("channel", "Compares a channels's message count in two groups of 30 day periods")]
+        public async Task ChannelStatsAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
         {
             if (channel.Type != ChannelType.Text)
             {
@@ -38,7 +36,7 @@ namespace MomentumDiscordBot.Commands.Moderator
             }
 
             var channelStats = await StatsUtility.GetMessages(Config, x => x.ChannelId == channel.Id);
-            await context.RespondAsync(embed: GetGrowthEmbed(channelStats, channel.Mention));
+            await context.CreateResponseAsync(embed: GetGrowthEmbed(channelStats, channel.Mention));
         }
 
         private DiscordEmbedBuilder GetGrowthEmbed(List<DailyMessageCount> filteredMessages, string mention)

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
-using MomentumDiscordBot.Constants;
-using MomentumDiscordBot.Services;
+using DSharpPlus.SlashCommands;
 
 namespace MomentumDiscordBot.Commands.Admin
 {
@@ -12,18 +9,16 @@ namespace MomentumDiscordBot.Commands.Admin
     {
         public DiscordClient DiscordClient { get; set; }
 
-        [Command("forcereconnect")]
-        [Description("Simulates the Discord API requesting a reconnect")]
-        public async Task ForceReconnectAsync(CommandContext context, int seconds)
+        [SlashCommand("forcereconnect", "Simulates the Discord API requesting a reconnect")]
+        public async Task ForceReconnectAsync(InteractionContext context, [Option("seconds", "seconds")] long seconds)
         {
             await DiscordClient.DisconnectAsync();
-            await Task.Delay(seconds * 1000);
+            await Task.Delay((int)(seconds * 1000));
             await DiscordClient.ReconnectAsync();
         }
         
-        [Command("forcerestart")]
-        [Description("Forces the bot to exit the process, and have Docker auto-restart it")]
-        public Task ForceRestartAsync(CommandContext context)
+        [SlashCommand("forcerestart", "Forces the bot to exit the process, and have Docker auto-restart it")]
+        public Task ForceRestartAsync(InteractionContext context)
         {
             Logger.Warning("{User} forced the bot to restart", context.User);
             
