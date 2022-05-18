@@ -18,10 +18,17 @@ namespace MomentumDiscordBot
 
             SelfLog.Enable(Console.WriteLine);
 
-            using var logger = new LoggerConfiguration()
+            var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .WriteTo.Seq(config.SeqAddress, LogEventLevel.Information, apiKey: config.SeqToken)
+                .WriteTo.Console();
+
+            if (!string.IsNullOrEmpty(config.SeqAddress))
+            {
+                loggerConfig
+                    .WriteTo.Seq(config.SeqAddress, LogEventLevel.Information, apiKey: config.SeqToken);
+            }
+
+            using var logger = loggerConfig
                 .Enrich.WithProperty("Environment", config.Environment)
                 .Enrich.WithProperty("Application", "Discord Bot")
                 .CreateLogger();
