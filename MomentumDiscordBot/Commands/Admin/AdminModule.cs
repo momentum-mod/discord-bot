@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.Entities;
 
 namespace MomentumDiscordBot.Commands.Admin
 {
@@ -17,13 +18,22 @@ namespace MomentumDiscordBot.Commands.Admin
             await DiscordClient.ReconnectAsync();
         }
         
-        [SlashCommand("forcerestart", "Forces the bot to exit the process, and have Docker auto-restart it")]
+        public const string ForcerestartCommandName = "forcerestart";
+        [SlashCommand(ForcerestartCommandName, "Forces the bot to exit the process, and have Docker auto-restart it")]
         public Task ForceRestartAsync(InteractionContext context)
         {
             Logger.Warning("{User} forced the bot to restart", context.User);
             
-            // Safe exit
-            Environment.Exit(0);
+            _ = Task.Run(async () =>
+            {
+                await ReplyNewEmbedAsync(context, "Restarting ...", DiscordColor.Orange);
+            });
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(5 * 1000);
+                // Safe exit
+                Environment.Exit(0);
+            });
 
             return Task.CompletedTask;
         }
