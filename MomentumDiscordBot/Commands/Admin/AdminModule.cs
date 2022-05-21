@@ -19,13 +19,13 @@ namespace MomentumDiscordBot.Commands.Admin
             await DiscordClient.ConnectAsync();
             await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Reconnected!"));
         }
-        
+
         public const string ForcerestartCommandName = "forcerestart";
         [SlashCommand(ForcerestartCommandName, "Forces the bot to exit the process, and have Docker auto-restart it")]
         public Task ForceRestartAsync(InteractionContext context)
         {
             Logger.Warning("{User} forced the bot to restart", context.User);
-            
+
             _ = Task.Run(async () =>
             {
                 await ReplyNewEmbedAsync(context, "Restarting ...", DiscordColor.Orange);

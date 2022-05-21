@@ -27,68 +27,65 @@ namespace MomentumDiscordBot.Services
                 Services = services
             });
 
-
             _config = config;
             _discordClient = discordClient;
 
-            commands.RegisterCommands(Assembly.GetEntryAssembly());
+            commands.RegisterCommands(Assembly.GetEntryAssembly(), config.GuildID);
 
             commands.SlashCommandErrored += _commands_SlashCommandErrored;
-            commands.ContextMenuErrored += _commands_ContextMenuErrored; 
+            commands.ContextMenuErrored += _commands_ContextMenuErrored;
             discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
         }
 
         private Task _commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
         {
-            _ = Task.Run(async () =>
-            {
-                if (e.Exception is SlashExecutionChecksFailedException exception)
-                {
-                    var embed = new DiscordEmbedBuilder
-                    {
-                        Title = "Access Denied",
-                        Description = exception.FailedChecks.ToCleanResponse(),
-                        Color = MomentumColor.Red
-                    };
-
-                    await e.Context.CreateResponseAsync(embed: embed);
-                }
-                else
-                {
-                    e.Context.Client.Logger.LogError(
-                        $"{e.Context.User.Username} tried executing '{e.Context.CommandName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
-                        DateTime.Now);
-                }
-            });
-
-            return Task.CompletedTask;
+            return handleException(sender, e.Exception, e.Context);
         }
         private Task _commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
         {
+            return handleException(sender, e.Exception, e.Context);
+        }
+
+        private Task handleException(SlashCommandsExtension sender, Exception exception, BaseContext context)
+        {
             _ = Task.Run(async () =>
             {
-                if (e.Exception is ContextMenuExecutionChecksFailedException exception)
+                string response = null;
+                bool isChecksFailedException = true;
+                switch (exception)
+                {
+                    case SlashExecutionChecksFailedException exception:
+                        response = exception.FailedChecks.ToCleanResponse();
+                        break;
+                    case ContextMenuExecutionChecksFailedException exception:
+                        response = exception.FailedChecks.ToCleanResponse();
+                        break;
+                    default:
+                        isChecksFailedException = false;
+                        break;
+                }
+
+                if (isChecksFailedException)
                 {
                     var embed = new DiscordEmbedBuilder
                     {
                         Title = "Access Denied",
-                        Description = exception.FailedChecks.ToCleanResponse(),
+                        Description = response,
                         Color = MomentumColor.Red
                     };
 
-                    await e.Context.CreateResponseAsync(embed: embed);
+                    await context.CreateResponseAsync(embed: embed);
                 }
                 else
                 {
-                    e.Context.Client.Logger.LogError(
-                        $"{e.Context.User.Username} tried executing '{e.Context.CommandName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
+                    context.Client.Logger.LogError(
+                        $"{context.User.Username} tried executing '{context.CommandName ?? "<unknown command>"}' but it errored: {exception.GetType()}: {exception.Message ?? "<no message>"}",
                         DateTime.Now);
                 }
             });
 
             return Task.CompletedTask;
         }
-
         private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
 
@@ -111,7 +108,7 @@ namespace MomentumDiscordBot.Services
                 var (result, restartMessage) = await TryFindRestartMessageAsync(message);
                 if (!result) continue;
                 // restart message found
-                if(restartMessage != null)
+                if (restartMessage != null)
                 {
                     // restartMessage is null when we already responded
 

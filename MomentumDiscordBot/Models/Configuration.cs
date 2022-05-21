@@ -1,16 +1,37 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Constants;
+using System.Collections.Concurrent;
 
 namespace MomentumDiscordBot.Models
 {
+    public class CustomCommand
+    {
+        public CustomCommand(string title, string description, string user)
+        {
+            this.Title = title;
+            this.Description = description;
+            this.User = user;
+            this.CreationTimestamp = DateTime.Now;
+        }
+        [JsonPropertyName("title")] public string Title { get; set; }
+        [JsonPropertyName("description")] public string Description { get; set; }
+        [JsonPropertyName("user")] public string User { get; set; }
+        [JsonPropertyName("creation_timestamp")] public DateTime CreationTimestamp { get; set; }
+    }
     public class Configuration
     {
+        public Configuration()
+        {
+            CustomCommands = new ConcurrentDictionary<string, CustomCommand>();
+        }
         [JsonPropertyName("environment")] public string Environment { get; set; }
         [JsonPropertyName("bot_token")] public string BotToken { get; set; }
+        [JsonPropertyName("guild_id")] public ulong GuildID { get; set; }
 
         [JsonPropertyName("twitch_api_client_id")]
         public string TwitchApiClientId { get; set; }
@@ -37,7 +58,7 @@ namespace MomentumDiscordBot.Models
 
         [JsonPropertyName("stream_update_interval")]
         public int StreamUpdateInterval { get; set; }
-        
+
         [JsonPropertyName("join_log_channel")] public ulong JoinLogChannel { get; set; }
 
         [JsonPropertyName("message_history_channel")]
@@ -78,6 +99,8 @@ namespace MomentumDiscordBot.Models
         [JsonIgnore] public DiscordEmoji FaqRoleEmoji => DiscordEmoji.FromUnicode(FaqRoleEmojiString);
         [JsonIgnore] public DiscordEmoji AltAccountEmoji => DiscordEmoji.FromUnicode(AltAccountEmojiString);
 
+        [JsonPropertyName("custom_commands")]
+        public ConcurrentDictionary<string, CustomCommand> CustomCommands { get; set; }
         public static async Task<Configuration> LoadFromFileAsync()
         {
             if (!File.Exists(PathConstants.ConfigFilePath))
@@ -93,7 +116,7 @@ namespace MomentumDiscordBot.Models
 
         public async Task SaveToFileAsync()
         {
-            await using var fileStream = File.Open(PathConstants.ConfigFilePath, FileMode.Create);
+            await using var fileStream = File.Open(PathConstants.ConfigFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
 
             await JsonSerializer.SerializeAsync(fileStream, this, new JsonSerializerOptions
             {
