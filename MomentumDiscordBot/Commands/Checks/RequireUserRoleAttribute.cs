@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
-using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;

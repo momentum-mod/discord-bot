@@ -26,7 +26,7 @@ namespace MomentumDiscordBot.Utilities
         public static bool RequireRole(this DiscordUser user, ulong roleId)
         {
             // Check if this user is a Guild User, which is the only context where roles exist
-            if (!(user is DiscordMember member))
+            if (user is not DiscordMember member)
             {
                 return false;
             }
