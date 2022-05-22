@@ -13,9 +13,11 @@ namespace MomentumDiscordBot.Commands.Admin
         [SlashCommand("forcereconnect", "Simulates the Discord API requesting a reconnect")]
         public async Task ForceReconnectAsync(InteractionContext context, [Option("seconds", "seconds")] long seconds)
         {
+            await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             await DiscordClient.DisconnectAsync();
             await Task.Delay((int)(seconds * 1000));
-            await DiscordClient.ReconnectAsync();
+            await DiscordClient.ConnectAsync();
+            await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Reconnected!"));
         }
         
         public const string ForcerestartCommandName = "forcerestart";
