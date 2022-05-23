@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    image: ghcr.io/momentum-mod/discord-bot/mmod-discord-bot:net-core
+  db:
+    env_file:
+      - .env.prod

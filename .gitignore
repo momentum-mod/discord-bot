@@ -423,9 +423,11 @@ $RECYCLE.BIN/
 .idea/
 *.sln.iml
 
-##
-## Visual Studio Code
-##
+# Visual Studio Code
 .vscode/
-
+ 
+# Config Files
 config/
+ 
+# Docker Environment Files
+.env*

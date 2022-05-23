@@ -1,8 +1,22 @@
-version: '3.4'
+version: '3.8'
 
 services:
-  discord-bot:
-    image: docker.pkg.github.com/momentum-mod/discord-bot/mmod-discord-bot:net-core
-    container_name: MomentumDiscordBot
+  db:
+    image: mysql:8
+    restart: unless-stopped
     volumes:
-      - config:app/config
+      - bot-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 5s
+      retries: 10
+  discord-bot:
+    container_name: MomentumDiscordBot
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./config:/app/config
+volumes:
+  bot-data:

@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  db:
+    env_file:
+      - .env.dev
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  discord-bot:
+    build:
+      context: .
+      dockerfile: ./MomentumDiscordBot/dev.Dockerfile
