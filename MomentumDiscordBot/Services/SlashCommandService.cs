@@ -20,6 +20,7 @@ namespace MomentumDiscordBot.Services
         private readonly Configuration _config;
         private readonly DiscordClient _discordClient;
         private DiscordChannel _textChannel;
+
         public SlashCommandService(Configuration config, DiscordClient discordClient, IServiceProvider services)
         {
             var commands = discordClient.UseSlashCommands(new SlashCommandsConfiguration
@@ -37,28 +38,34 @@ namespace MomentumDiscordBot.Services
             discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
         }
 
-        private Task Commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
+        private  Task Commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
         {
             return HandleException(e.Exception, e.Context);
         }
-        private Task Commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
+        private  Task Commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
         {
             return HandleException(e.Exception, e.Context);
         }
 
-        private static Task HandleException(Exception exception, BaseContext context)
+        private Task HandleException(Exception exception, BaseContext context)
         {
             _ = Task.Run(async () =>
             {
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Color = MomentumColor.Red
+                };
+
                 string response = null;
-                bool isChecksFailedException = true;
+
+                var isChecksFailedException = true;
                 switch (exception)
                 {
-                    case SlashExecutionChecksFailedException exception:
-                        response = exception.FailedChecks.ToCleanResponse();
+                    case SlashExecutionChecksFailedException e:
+                        response = e.FailedChecks.ToCleanResponse();
                         break;
-                    case ContextMenuExecutionChecksFailedException exception:
-                        response = exception.FailedChecks.ToCleanResponse();
+                    case ContextMenuExecutionChecksFailedException e:
+                        response = e.FailedChecks.ToCleanResponse();
                         break;
                     default:
                         isChecksFailedException = false;
@@ -67,20 +74,39 @@ namespace MomentumDiscordBot.Services
 
                 if (isChecksFailedException)
                 {
-                    var embed = new DiscordEmbedBuilder
-                    {
-                        Title = "Access Denied",
-                        Description = response,
-                        Color = MomentumColor.Red
-                    };
+                    embedBuilder
+                        .WithTitle("Access Denied")
+                        .WithDescription(response);
 
-                    await context.CreateResponseAsync(embed: embed);
+                    await context.CreateResponseAsync(embed: embedBuilder);
                 }
+
                 else
                 {
+                    var message =
+                        $"{context.User.Username}#{context.User.Discriminator} tried executing '{context.CommandName ?? "<unknown command>"}' but it errored:\n\n{exception.GetType()}: {exception.Message}";
+
+                    embedBuilder
+                        .WithTitle("Bot Error")
+                        .WithDescription(message);
+
                     context.Client.Logger.LogError(
-                        $"{context.User.Username} tried executing '{context.CommandName ?? "<unknown command>"}' but it errored: {exception.GetType()}: {exception.Message ?? "<no message>"}",
+                        message,
                         DateTime.Now);
+
+                    var botChannel = _discordClient.FindChannel(_config.AdminBotChannel);
+
+                    if (botChannel is null) return;
+
+                    try
+                    {
+                        await botChannel.SendMessageAsync(embedBuilder.Build());
+                    }
+                    catch (Exception)
+                    {
+                        context.Client.Logger.LogError(
+                            "Tried posting an message error in admin channel, but it errored!");
+                    }
                 }
             });
 
