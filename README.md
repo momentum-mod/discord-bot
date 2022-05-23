@@ -10,33 +10,35 @@
 
 The bot is used to manage and accompany the Discord server:
 
- * Monitor Twitch livestreams playing Momentum Mod
- * Get custom notification roles
- * Force users to read the FAQ
- * [Planned] Integrate with the website's API, providing relative discord commands.
+* Monitor Twitch livestreams playing Momentum Mod
+* Get custom notification roles
+* Force users to read the FAQ
 
-## Installing the Bot
+## Dependencies
 
-A shell script is made to automate the process of building and running the Docker image.
+* [Docker Compose V3.8+](https://docs.docker.com/compose/install/)
 
-1. Clone the repo using Git CLI
-2. Navigate to the root folder: `cd discord-bot`
-3. Make the script executable: `chmod +x buildAndRunDocker.sh`
-4. Make a folder called config in the root directory: `mkdir config`
-5. Navigate to the folder: `cd config`
-6. Create and fill out the following files:
+## Dev Setup
 
-   `config.json`, containing data found in the [model file](https://github.com/momentum-mod/discord-bot/blob/net-core/MomentumDiscordBot/Models/Configuration.cs) in valid JSON
-   
-   `discordToken.txt`, enter your Discord bot token - ensure there are no newlines/whitespace
-   
-   `twitchApiClientId.txt`, enter your Twitch API Client ID
-   
-7. Navigate up to the root directory: `..`
-8. Run the bot: `./buildAndRunDocker.sh`
+Firstly, you will need to make a test Discord server with the various roles and channels used by the bot.
+
+Then, clone the repo using a CLI.
+
+1. Navigate to the root folder: `cd discord-bot`
+2. Copy env.TEMPLATE to .env.dev: `cp env.TEMPLATE .env.dev`
+3. In config/, copy config.template.json.TEMPLATE to config.json: `cd config/ && cp config.json.TEMPLATE config.json`
+4. Fill out the config.json file with your test server's settings. Your `mysql_connection_string` should correspond with
+   the MySQL env vars in .env.dev
+5. Build and run the Docker containers using Docker Compose with `docker-compose up -d`. For testing changes, you'll
+   need to rebuild with `docker-compose build`.
 
 ## Contributing
 
-Pull Requests are highly appreciated! Just branch off of net-core, make your edits, and open a Pull Request into net-core describing what you changed. Pages could be edited directly through GitHub, or you can download your fork and edit through a program like [Visual Studio Code](https://code.visualstudio.com/).
+Contributions are welcome, though we encourage you either tackle existing issues or ask about ideas in
+the [Momentum Mod Discord server](https://discord.gg/momentummod) first.
 
-If you need a guide for how to contribute, try looking at past pull-requests, or asking around in the [Momentum Mod Discord server](https://discord.gg/V4gS7Qg).
+Whilst we originally planned to include integrations with Momentum Mod's official API for stat tracking, WR
+announcements, etc., we've since decided to move that work to
+a [separate repository](https://github.com/momentum-mod/discord-bot-public). Therefore we expect to make relatively few
+additions in the future, mostly just small housekeeping features.
+
