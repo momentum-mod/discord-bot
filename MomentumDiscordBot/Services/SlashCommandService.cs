@@ -34,6 +34,7 @@ namespace MomentumDiscordBot.Services
             commands.RegisterCommands(Assembly.GetEntryAssembly());
 
             commands.SlashCommandErrored += _commands_SlashCommandErrored;
+            commands.ContextMenuErrored += _commands_ContextMenuErrored; 
             discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
         }
 
@@ -42,6 +43,31 @@ namespace MomentumDiscordBot.Services
             _ = Task.Run(async () =>
             {
                 if (e.Exception is SlashExecutionChecksFailedException exception)
+                {
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Access Denied",
+                        Description = exception.FailedChecks.ToCleanResponse(),
+                        Color = MomentumColor.Red
+                    };
+
+                    await e.Context.CreateResponseAsync(embed: embed);
+                }
+                else
+                {
+                    e.Context.Client.Logger.LogError(
+                        $"{e.Context.User.Username} tried executing '{e.Context.CommandName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
+                        DateTime.Now);
+                }
+            });
+
+            return Task.CompletedTask;
+        }
+        private Task _commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
+        {
+            _ = Task.Run(async () =>
+            {
+                if (e.Exception is ContextMenuExecutionChecksFailedException exception)
                 {
                     var embed = new DiscordEmbedBuilder
                     {

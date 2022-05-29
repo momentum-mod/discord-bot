@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using MomentumDiscordBot.Models;
+using MomentumDiscordBot.Utilities;
 
 namespace MomentumDiscordBot.Commands.Checks
 {
@@ -15,18 +16,17 @@ namespace MomentumDiscordBot.Commands.Checks
         public override Task<bool> ExecuteChecksAsync(InteractionContext context)
         {
             var config = context.Services.GetRequiredService<Configuration>();
-            return Task.FromResult(RequireRole(context.User, RoleIdSelector(config)));
+            return Task.FromResult(context.User.RequireRole(RoleIdSelector(config)));
         }
+    }
+    public abstract class ContextMenuRequireUserRoleAttribute : ContextMenuDescriptiveCheckBaseAttribute
+    {
+        protected Func<Configuration, ulong> RoleIdSelector;
 
-        private static bool RequireRole(DiscordUser user, ulong roleId)
+        public override Task<bool> ExecuteChecksAsync(ContextMenuContext context)
         {
-            // Check if this user is a Guild User, which is the only context where roles exist
-            if (!(user is DiscordMember member))
-            {
-                return false;
-            }
-
-            return member.Roles.Any(role => role.Id == roleId);
+            var config = context.Services.GetRequiredService<Configuration>();
+            return Task.FromResult(context.User.RequireRole(RoleIdSelector(config)));
         }
     }
 }

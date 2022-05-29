@@ -23,6 +23,17 @@ namespace MomentumDiscordBot.Utilities
         public static bool IsSelf(this DiscordUser user, DiscordClient discordClient)
             => discordClient.CurrentUser.Id == user.Id;
 
+        public static bool RequireRole(this DiscordUser user, ulong roleId)
+        {
+            // Check if this user is a Guild User, which is the only context where roles exist
+            if (!(user is DiscordMember member))
+            {
+                return false;
+            }
+
+            return member.Roles.Any(role => role.Id == roleId);
+        }
+
         public static Permissions GetDangerousPermissions(this Permissions guildPermissions)
             => DangerousGuildPermissions & guildPermissions;
 

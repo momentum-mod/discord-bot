@@ -6,4 +6,8 @@ namespace MomentumDiscordBot.Commands.Checks
     {
         public string FailureResponse { get; set; }
     }
+    public abstract class ContextMenuDescriptiveCheckBaseAttribute :  ContextMenuCheckBaseAttribute
+    {
+        public string FailureResponse { get; set; }
+    }
 }
