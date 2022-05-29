@@ -4,5 +4,6 @@ namespace MomentumDiscordBot.Commands.Moderator
 {
     [RequireUserModeratorRole]
     [RequireAdminBotChannel]
+    [ContextMenuRequireUserModeratorRole]
     public class ModeratorModuleBase : MomentumModuleBase { }
 }

@@ -25,6 +25,13 @@ namespace MomentumDiscordBot.Utilities
             return ReasonPrefix + string.Join(Environment.NewLine + ReasonPrefix, reasons);
         }
 
+        public static string ToCleanResponse(this IEnumerable<ContextMenuCheckBaseAttribute> failedChecks)
+        {
+            var reasons = failedChecks.Select(x => x.ToCleanReason());
+
+            return ReasonPrefix + string.Join(Environment.NewLine + ReasonPrefix, reasons);
+        }
+
         private static string ToCleanReason(this CheckBaseAttribute check)
         {
             return check.ToString();
@@ -33,6 +40,15 @@ namespace MomentumDiscordBot.Utilities
         private static string ToCleanReason(this SlashCheckBaseAttribute check)
         {
             if (check is DescriptiveCheckBaseAttribute descriptiveCheck)
+            {
+                return descriptiveCheck.FailureResponse;
+            }
+
+            return check.ToString();
+        }
+        private static string ToCleanReason(this ContextMenuCheckBaseAttribute check)
+        {
+            if (check is ContextMenuDescriptiveCheckBaseAttribute descriptiveCheck)
             {
                 return descriptiveCheck.FailureResponse;
             }
