@@ -38,7 +38,6 @@ namespace MomentumDiscordBot.Models
 
         [JsonPropertyName("twitch_api_token")] public string TwitchApiToken { get; set; }
         [JsonPropertyName("admin_id")] public ulong AdminRoleID { get; set; }
-        [JsonPropertyName("command_prefix")] public string CommandPrefix { get; set; }
 
         [JsonPropertyName("livestream_mention_role_id")]
         public ulong LivestreamMentionRoleId { get; set; }
