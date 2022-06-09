@@ -55,17 +55,24 @@ namespace MomentumDiscordBot.Commands.Admin
 
                 if (configParameterType == typeof(string))
                 {
-                    setter.Invoke(Config, new[] {value});
+                    setter.Invoke(Config, new[] { value });
                 }
                 else
                 {
-                    var convertedValue = TypeDescriptor.GetConverter(configParameterType).ConvertFromString(value);
+                    try
+                    {
+                        var convertedValue = TypeDescriptor.GetConverter(configParameterType).ConvertFromString(value);
+                        setter.Invoke(Config, new[] { convertedValue });
+                    }
+                    catch (FormatException)
+                    {
 
-                    setter.Invoke(Config, new[] {convertedValue});
-                    await Config.SaveToFileAsync();
+                        await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}", MomentumColor.Red);
+                        return;
+                    }
                 }
 
-
+                await Config.SaveToFileAsync();
                 await ReplyNewEmbedAsync(context, $"Set '{selectedProperty.Name}' to '{value}'", MomentumColor.Blue);
             }
             else
