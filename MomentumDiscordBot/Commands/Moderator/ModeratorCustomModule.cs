@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -8,6 +9,7 @@ using DSharpPlus.Entities;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Commands.Autocomplete;
+using MomentumDiscordBot.Commands.General;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
@@ -21,29 +23,43 @@ namespace MomentumDiscordBot.Commands.Moderator
         {
             DiscordMessage message = context.TargetMessage;
             string name = "RENAME ME! " + message.Id;
-            string title;
-            string description;
-            if (message.Embeds.Any())
+
+            string title = "";
+            string description = message.Content;
+            string buttonUrl = null;
+            string buttonLabel = null;
+            string thumbnailUrl = null;
+
+            if (message.Interaction is { Name: GeneralModule.SayCommandName })
             {
-                var embed = message.Embeds.First();
-                title = embed.Title;
-                description = embed.Description;
+                if (message.Embeds.Any())
+                {
+                    var embed = message.Embeds[0];
+                    title = embed.Title;
+                    description = embed.Description;
+                    if (embed.Thumbnail is not null)
+                        thumbnailUrl = embed.Thumbnail.Url.ToString();
+                }
+                var component = message.Components.SelectMany(x => x.Components).FirstOrDefault(x => x is DiscordLinkButtonComponent);
+                if (component is DiscordLinkButtonComponent button)
+                {
+                    buttonUrl = button.Url;
+                    buttonLabel = button.Label;
+                }
             }
-            else
-            {
-                title = "";
-                description = message.Content;
-            }
+
             DiscordEmbedBuilder embedBuilder;
-            if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, context.User.Mention)))
+            if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, buttonUrl, buttonLabel, thumbnailUrl, context.User.Mention)))
             {
                 await Config.SaveToFileAsync();
                 embedBuilder = new DiscordEmbedBuilder
                 {
+                    Title = "",
                     Description = "Command '" + name
                                     + "' created from message: " + message.JumpLink.ToString()
                                     + "\nnow rename it with '/custom rename'",
-                    Color = MomentumColor.Blue
+                    Color = MomentumColor.Blue,
+
                 };
             }
             else
@@ -54,7 +70,6 @@ namespace MomentumDiscordBot.Commands.Moderator
                     Color = MomentumColor.Red
                 };
             }
-
             await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
         }
 

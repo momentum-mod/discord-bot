@@ -11,15 +11,26 @@ namespace MomentumDiscordBot.Models
 {
     public class CustomCommand
     {
-        public CustomCommand(string title, string description, string user)
+        public CustomCommand()
+        { }
+        public CustomCommand(string title, string description, string user) : this(title, description, null, null, null, user)
+        { }
+
+        public CustomCommand(string title, string description, string buttonUrl, string buttonLabel, string thumbnailUrl, string user)
         {
             this.Title = title;
             this.Description = description;
+            this.ButtonUrl = buttonUrl;
+            this.ButtonLabel = buttonLabel;
+            this.ThumbnailUrl = thumbnailUrl;
             this.User = user;
             this.CreationTimestamp = DateTime.Now;
         }
         [JsonPropertyName("title")] public string Title { get; set; }
         [JsonPropertyName("description")] public string Description { get; set; }
+        [JsonPropertyName("button_url")] public string ButtonUrl { get; set; }
+        [JsonPropertyName("button_label")] public string ButtonLabel { get; set; }
+        [JsonPropertyName("thumbnail_url")] public string ThumbnailUrl { get; set; }
         [JsonPropertyName("user")] public string User { get; set; }
         [JsonPropertyName("creation_timestamp")] public DateTime CreationTimestamp { get; set; }
     }
