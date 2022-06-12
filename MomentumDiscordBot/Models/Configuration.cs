@@ -32,6 +32,8 @@ namespace MomentumDiscordBot.Models
         [JsonPropertyName("button_label")] public string ButtonLabel { get; set; }
         [JsonPropertyName("thumbnail_url")] public string ThumbnailUrl { get; set; }
         [JsonPropertyName("user")] public string User { get; set; }
+
+        [Hidden]
         [JsonPropertyName("creation_timestamp")] public DateTime CreationTimestamp { get; set; }
     }
     public class Configuration

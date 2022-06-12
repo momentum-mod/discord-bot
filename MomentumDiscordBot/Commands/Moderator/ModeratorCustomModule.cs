@@ -157,5 +157,103 @@ namespace MomentumDiscordBot.Commands.Moderator
 
             await context.CreateResponseAsync(embed: embedBuilder.Build());
         }
+
+        [SlashCommand("edit", "change a custom commands")]
+        public async Task EditCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "name of the custom command")] string name, [ChoiceProvider(typeof(CustomCommandPropertyChoiceProvider))][Option("key", "what you want to change")] string key, [Option("value", "the new value")] string value = null)
+        {
+            if (Config.CustomCommands.TryGetValue(name, out CustomCommand command))
+            {
+                var commandProperties = command.GetType().GetProperties();
+
+                var selectedProperty =
+                    commandProperties.FirstOrDefault(x => x.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+
+                if (selectedProperty != null)
+                {
+                    var setter = selectedProperty.GetSetMethod();
+                    var setterParameters = setter.GetParameters();
+                    if (setterParameters.Length != 1)
+                    {
+                        throw new Exception("Expected 1 parameter for the config setter");
+                    }
+
+                    var configParameterType = setterParameters[0].ParameterType;
+
+                    if (configParameterType == typeof(string))
+                    {
+                        setter.Invoke(command, new[] { value });
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (value is not null)
+                            {
+                                var convertedValue = TypeDescriptor.GetConverter(configParameterType).ConvertFromString(value);
+                                setter.Invoke(command, new[] { convertedValue });
+                            }
+                            else
+                                setter.Invoke(command, Array.Empty<object>());
+                        }
+                        catch (FormatException)
+                        {
+                            await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}", MomentumColor.Red);
+                            return;
+                        }
+
+                    }
+                    var buttonUrlProperty = typeof(CustomCommand).GetProperty(nameof(CustomCommand.ButtonUrl));
+                    if (command.ThumbnailUrl is null
+                            && selectedProperty == buttonUrlProperty
+                            && Uri.IsWellFormedUriString(command.ButtonUrl, UriKind.Absolute))
+                    {
+                        var link = new Uri(command.ButtonUrl);
+                        if (link.Host == "www.youtube.com")
+                        {
+                            var query = System.Web.HttpUtility.ParseQueryString(link.Query);
+                            string id = query["v"];
+                            if (id is not null)
+                                command.ThumbnailUrl = $"https://img.youtube.com/vi/{id}/0.jpg";
+                        }
+                    }
+
+                    await Config.SaveToFileAsync();
+                    await ReplyNewEmbedAsync(context, $"Set '{selectedProperty.Name}' to '{value}'", MomentumColor.Blue);
+                }
+                else
+                {
+                    await ReplyNewEmbedAsync(context, $"No config property found for '{key}'", DiscordColor.Orange);
+                }
+            }
+            else
+            {
+                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist", MomentumColor.Red);
+            }
+        }
+        [SlashCommand("info", "prints command properties")]
+        public async Task InfoCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "name of the custom command")] string name)
+        {
+            if (Config.CustomCommands.TryGetValue(name, out CustomCommand command))
+            {
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = $"Command '{name}' properties",
+                    Color = MomentumColor.Blue,
+
+                };
+                var commandProperties = command.GetType().GetProperties();
+                foreach (var property in commandProperties)
+                {
+                    object value = property.GetValue(command, null);
+                    string valueStr = value is null ? "<null>" : value.ToString();
+                    embedBuilder.AddField(property.Name, $"'{valueStr}'");
+                }
+                await context.CreateResponseAsync(embed: embedBuilder.Build());
+            }
+            else
+            {
+                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist", MomentumColor.Red);
+            }
+        }
     }
 }

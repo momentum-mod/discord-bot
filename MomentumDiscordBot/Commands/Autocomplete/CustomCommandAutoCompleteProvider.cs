@@ -1,10 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using DSharpPlus.Entities;
-using MomentumDiscordBot.Models;
 using DSharpPlus.SlashCommands;
+using MomentumDiscordBot.Models;
 
 namespace MomentumDiscordBot.Commands.Autocomplete
 {
@@ -27,6 +28,19 @@ namespace MomentumDiscordBot.Commands.Autocomplete
                 }
             }
             return Task.FromResult(choices.Select(command => new DiscordAutoCompleteChoice(command, command)));
+        }
+    }
+
+    public class CustomCommandPropertyChoiceProvider : IChoiceProvider
+    {
+        public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
+        {
+            var properties = typeof(CustomCommand).GetProperties();
+            var choices = properties.Where(x => !x.GetCustomAttributes()
+                                    .Any(x => x.GetType() == typeof(HiddenAttribute)))
+                                    .Take(25)
+                                    .Select(property => new DiscordApplicationCommandOptionChoice(property.Name, property.Name));
+            return Task.FromResult(choices);
         }
     }
 }
