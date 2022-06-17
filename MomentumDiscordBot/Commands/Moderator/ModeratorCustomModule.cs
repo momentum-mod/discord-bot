@@ -13,12 +13,12 @@ using MomentumDiscordBot.Commands.General;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
-    [SlashCommandGroup("custom", "custom commands moderators can add during runtime and print a fixed response with /say")]
+    [SlashCommandGroup("custom", "Custom commands moderators can add during runtime and print a fixed response with /say")]
     public class CustomCommandModule : ModeratorModuleBase
     {
         public Configuration Config { get; set; }
 
-        [ContextMenu(ApplicationCommandType.MessageContextMenu, "add as custom command")]
+        [ContextMenu(ApplicationCommandType.MessageContextMenu, "Add as custom command")]
         public async Task MessageMenu(ContextMenuContext context)
         {
             DiscordMessage message = context.TargetMessage;
@@ -56,8 +56,8 @@ namespace MomentumDiscordBot.Commands.Moderator
                 {
                     Title = "",
                     Description = "Command '" + name
-                                    + "' created from message: " + message.JumpLink.ToString()
-                                    + "\nnow rename it with '/custom rename'",
+                                    + "' created from message: " + message.JumpLink
+                                    + "\n.Now, rename it with '/custom rename'.",
                     Color = MomentumColor.Blue,
 
                 };
@@ -73,27 +73,27 @@ namespace MomentumDiscordBot.Commands.Moderator
             await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
         }
 
-        [SlashCommand("add", "creates a new custom commands")]
-        public async Task AddCustomCommandAsync(InteractionContext context, [Option("name", "name of the new command")] string name, [Option("title", "embed title")] string title, [Option("description", "embed description")] string description = null)
+        [SlashCommand("add", "Creates a new custom commands")]
+        public async Task AddCustomCommandAsync(InteractionContext context, [Option("name", "Name of the new command")] string name, [Option("title", "Embed title")] string title, [Option("description", "Embed description")] string description = null)
         {
             if (Config.CustomCommands.ContainsKey(name))
                 await ReplyNewEmbedAsync(context, $"Command '{name}' already exists!", MomentumColor.Red);
             else if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, context.User.Mention)))
             {
                 await Config.SaveToFileAsync();
-                await ReplyNewEmbedAsync(context, $"Command '{name}' added", MomentumColor.Blue);
+                await ReplyNewEmbedAsync(context, $"Command '{name}' added.", MomentumColor.Blue);
             }
             else
-                await ReplyNewEmbedAsync(context, "Failed to add command", MomentumColor.Red);
+                await ReplyNewEmbedAsync(context, "Failed to add command.", MomentumColor.Red);
         }
 
-        [SlashCommand("remove", "deletes a custom commands")]
-        public async Task RemoveCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "name of the custom command")] string name)
+        [SlashCommand("remove", "Deletes a custom commands")]
+        public async Task RemoveCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "Name of the custom command")] string name)
         {
             if (Config.CustomCommands.TryRemove(name, out _))
             {
                 await Config.SaveToFileAsync();
-                await ReplyNewEmbedAsync(context, $"Command '{name}' removed", MomentumColor.Blue);
+                await ReplyNewEmbedAsync(context, $"Command '{name}' removed.", MomentumColor.Blue);
             }
             else
             {
@@ -101,8 +101,8 @@ namespace MomentumDiscordBot.Commands.Moderator
             }
         }
 
-        [SlashCommand("rename", "deletes a custom commands")]
-        public async Task RenameCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("oldName", "name of the custom command")] string oldName, [Option("newName", "the new name")] string newName)
+        [SlashCommand("rename", "Deletes a custom commands")]
+        public async Task RenameCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("oldName", "Name of the custom command")] string oldName, [Option("newName", "The new name")] string newName)
         {
             if (Config.CustomCommands.ContainsKey(newName))
                 await ReplyNewEmbedAsync(context, "Command '" + newName + "' already exists!", MomentumColor.Red);
@@ -119,17 +119,17 @@ namespace MomentumDiscordBot.Commands.Moderator
                 else
                 {
                     await Config.SaveToFileAsync();
-                    await ReplyNewEmbedAsync(context, $"Command '{oldName}' was renamed to '{newName}'", MomentumColor.Blue);
+                    await ReplyNewEmbedAsync(context, $"Command '{oldName}' was renamed to '{newName}'.", MomentumColor.Blue);
                 }
             }
             else
             {
-                await ReplyNewEmbedAsync(context, $"Command '{oldName}' doesn't exist", MomentumColor.Red);
+                await ReplyNewEmbedAsync(context, $"Command '{oldName}' doesn't exist.", MomentumColor.Red);
             }
         }
 
-        [SlashCommand("list", "lists all custom commands")]
-        public async Task ListCustomCommandAsync(InteractionContext context, [Option("page", "if there are more than 25 command you can specify which part you want")] long page = 1)
+        [SlashCommand("list", "Lists all custom commands")]
+        public async Task ListCustomCommandAsync(InteractionContext context, [Option("page", "Which page to show, if > 25 commands.")] long page = 1)
         {
             string title = "Info Commands";
             const int itemsPerPage = 25;
@@ -152,14 +152,14 @@ namespace MomentumDiscordBot.Commands.Moderator
             foreach (var command in commands)
             {
                 var unixTimestamp = ((DateTimeOffset)command.Value.CreationTimestamp).ToUnixTimeSeconds();
-                embedBuilder.AddField(command.Key, $"added  <t:{unixTimestamp}:R> by {command.Value.User ?? "<unknown>"}");
+                embedBuilder.AddField(command.Key, $"Added  <t:{unixTimestamp}:R> by {command.Value.User ?? "<unknown>"}.");
             }
 
             await context.CreateResponseAsync(embed: embedBuilder.Build());
         }
 
-        [SlashCommand("edit", "change a custom commands")]
-        public async Task EditCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "name of the custom command")] string name, [ChoiceProvider(typeof(CustomCommandPropertyChoiceProvider))][Option("key", "what you want to change")] string key, [Option("value", "the new value")] string value = null)
+        [SlashCommand("edit", "Change a custom commands")]
+        public async Task EditCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "Name of the custom command")] string name, [ChoiceProvider(typeof(CustomCommandPropertyChoiceProvider))][Option("key", "What you want to change")] string key, [Option("value", "The new value")] string value = null)
         {
             if (Config.CustomCommands.TryGetValue(name, out CustomCommand command))
             {
@@ -174,7 +174,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                     var setterParameters = setter.GetParameters();
                     if (setterParameters.Length != 1)
                     {
-                        throw new Exception("Expected 1 parameter for the config setter");
+                        throw new Exception("Expected 1 parameter for the config setter.");
                     }
 
                     var configParameterType = setterParameters[0].ParameterType;
@@ -197,7 +197,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                         }
                         catch (FormatException)
                         {
-                            await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}", MomentumColor.Red);
+                            await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}.", MomentumColor.Red);
                             return;
                         }
 
@@ -218,20 +218,20 @@ namespace MomentumDiscordBot.Commands.Moderator
                     }
 
                     await Config.SaveToFileAsync();
-                    await ReplyNewEmbedAsync(context, $"Set '{selectedProperty.Name}' to '{value}'", MomentumColor.Blue);
+                    await ReplyNewEmbedAsync(context, $"Set '{selectedProperty.Name}' to '{value}'.", MomentumColor.Blue);
                 }
                 else
                 {
-                    await ReplyNewEmbedAsync(context, $"No config property found for '{key}'", DiscordColor.Orange);
+                    await ReplyNewEmbedAsync(context, $"No config property found for '{key}'.", DiscordColor.Orange);
                 }
             }
             else
             {
-                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist", MomentumColor.Red);
+                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist.", MomentumColor.Red);
             }
         }
-        [SlashCommand("info", "prints command properties")]
-        public async Task InfoCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "name of the custom command")] string name)
+        [SlashCommand("info", "Prints command properties")]
+        public async Task InfoCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "Name of the custom command")] string name)
         {
             if (Config.CustomCommands.TryGetValue(name, out CustomCommand command))
             {
@@ -252,7 +252,7 @@ namespace MomentumDiscordBot.Commands.Moderator
             }
             else
             {
-                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist", MomentumColor.Red);
+                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist.", MomentumColor.Red);
             }
         }
     }

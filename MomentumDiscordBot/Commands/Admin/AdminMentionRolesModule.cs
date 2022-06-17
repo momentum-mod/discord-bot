@@ -39,7 +39,7 @@ namespace MomentumDiscordBot.Commands.Admin
                 Config.MentionRoles = new[] {role.Id};
             }
 
-            await ReplyNewEmbedAsync(context, "Done", MomentumColor.Blue);
+            await ReplyNewEmbedAsync(context, "Done.", MomentumColor.Blue);
 
             await ReactionBasedRoleService.SendRoleEmbed(role);
         }

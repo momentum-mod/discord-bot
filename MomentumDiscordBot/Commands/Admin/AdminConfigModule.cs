@@ -48,7 +48,7 @@ namespace MomentumDiscordBot.Commands.Admin
                 var setterParameters = setter.GetParameters();
                 if (setterParameters.Length != 1)
                 {
-                    throw new Exception("Expected 1 parameter for the config setter");
+                    throw new Exception("Expected 1 parameter for the config setter.");
                 }
 
                 var configParameterType = setterParameters[0].ParameterType;
@@ -67,7 +67,7 @@ namespace MomentumDiscordBot.Commands.Admin
                     catch (FormatException)
                     {
 
-                        await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}", MomentumColor.Red);
+                        await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}.", MomentumColor.Red);
                         return;
                     }
                 }
@@ -90,11 +90,11 @@ namespace MomentumDiscordBot.Commands.Admin
 
             if (!configProperty.Any())
             {
-                await ReplyNewEmbedAsync(context, $"Could not find a config option for '{key}'", DiscordColor.Orange);
+                await ReplyNewEmbedAsync(context, $"Could not find a config option for '{key}'.", DiscordColor.Orange);
             }
             else if (configProperty.Count > 1)
             {
-                await ReplyNewEmbedAsync(context, $"More than one matching key found for '{key}'", DiscordColor.Orange);
+                await ReplyNewEmbedAsync(context, $"More than one matching key found for '{key}'.", DiscordColor.Orange);
             }
             else
             {
