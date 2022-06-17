@@ -213,7 +213,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                             var query = System.Web.HttpUtility.ParseQueryString(link.Query);
                             string id = query["v"];
                             if (id is not null)
-                                command.ThumbnailUrl = $"https://img.youtube.com/vi/{id}/0.jpg";
+                                command.ThumbnailUrl = $"https://img.youtube.com/vi/{id}/mqdefault.jpg";
                         }
                     }
 
