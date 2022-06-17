@@ -18,8 +18,10 @@ namespace MomentumDiscordBot.Commands.General
         public Configuration Config { get; set; }
 
         public const string SayCommandName = "say";
-        [SlashCommand(SayCommandName, "executes a custom command")]
-        public async Task ExecCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("option", "name of the custom command")] string name)
+
+        [SlashCommand(SayCommandName, "Executes a custom command")]
+        public async Task ExecCustomCommandAsync(InteractionContext context,
+            [Autocomplete(typeof(AutoCompleteProvider))] [Option("option", "Name of the custom command")] string name)
         {
             CustomCommand command;
             if (Config.CustomCommands.TryGetValue(name, out command))
@@ -29,6 +31,7 @@ namespace MomentumDiscordBot.Commands.General
                     //discord refuses to send messages without content
                     command.Title = "<title here!>";
                 }
+
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = command.Title,
@@ -44,21 +47,27 @@ namespace MomentumDiscordBot.Commands.General
                         Width = 160
                     };
                 }
+
                 var message = new DiscordMessageBuilder()
-                                .AddEmbed(embedBuilder.Build());
+                    .AddEmbed(embedBuilder.Build());
 
                 if (Uri.IsWellFormedUriString(command.ButtonUrl, UriKind.Absolute))
-                    message.AddComponents(new DiscordLinkButtonComponent(command.ButtonUrl, command.ButtonLabel ?? "link"));
-                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(message));
+                    message.AddComponents(new DiscordLinkButtonComponent(command.ButtonUrl,
+                        command.ButtonLabel ?? "Link"));
+                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder(message));
             }
             else
             {
-                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist", MomentumColor.Red);
+                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist!", MomentumColor.Red);
             }
         }
 
-        [SlashCommand("timestamp", "prints a discord timestamp")]
-        public static async Task TimestampCommandAsync(InteractionContext context, [Option("timestamp", "the time you want to convert")] string timestamp, [Autocomplete(typeof(TimezoneAutoCompleteProvider))][Option("timezone", "the timezone you are in")] string timezone)
+        [SlashCommand("timestamp", "Prints a timestamp, then when pasted in a message will be converted to all users local timezone")]
+        public static async Task TimestampCommandAsync(InteractionContext context,
+            [Option("timestamp", "The time you want to convert")] string timestamp,
+            [Autocomplete(typeof(TimezoneAutoCompleteProvider))] [Option("timezone", "Your local timezone")]
+            string timezone)
         {
             var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
             //set culture so we know if 06.12.2022 is june or december
@@ -68,7 +77,10 @@ namespace MomentumDiscordBot.Commands.General
             {
                 embedBuilder = new DiscordEmbedBuilder
                 {
-                    Title = $"Can't convert '{timestamp}'",
+                    Title =
+                        $"Can't convert '{timestamp}'.",
+                    Description = "Make sure to order dates as your would in your native language.\n" +
+                                  $"This command uses https://docs.microsoft.com/en-us/dotnet/api/System.DateTime.TryParse with the locale provided by your Discord client.",
                     Color = MomentumColor.Red
                 };
                 await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
@@ -81,9 +93,11 @@ namespace MomentumDiscordBot.Commands.General
                 var time = dt.TimeOfDay;
                 dt = today + time;
             }
+
             var dtNew = TimeZoneInfo.ConvertTimeToUtc(dt, timeZoneInfo);
             var unixTimestamp = ((DateTimeOffset)dtNew).ToUnixTimeSeconds();
-            string[] formats = {
+            string[] formats =
+            {
                 "",
                 ":t",
                 ":T",
@@ -92,11 +106,11 @@ namespace MomentumDiscordBot.Commands.General
                 ":f",
                 ":F",
                 ":R",
-                };
+            };
             embedBuilder = new DiscordEmbedBuilder
             {
-                Title = $"{timestamp} {timezone}",
-                Description = $"{dt.ToLongDateString()} {dt.ToLongTimeString()}",
+                Title = $"Unix Timestamp for {timestamp} in {timezone}",
+                Description = $"Parsed as: {dt.ToLongDateString()} {dt.ToLongTimeString()}.",
                 Color = MomentumColor.Blue
             };
             foreach (string format in formats)
@@ -104,6 +118,7 @@ namespace MomentumDiscordBot.Commands.General
                 var discordTimestamp = $"<t:{unixTimestamp}{format}>";
                 embedBuilder.AddField($"{discordTimestamp}", $"\\{discordTimestamp}");
             }
+
             await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
         }
     }
