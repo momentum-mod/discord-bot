@@ -427,7 +427,7 @@ $RECYCLE.BIN/
 .vscode/
  
 # Config Files
-config/
+config/config.json
  
 # Docker Environment Files
 .env*
