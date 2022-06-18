@@ -1,11 +1,10 @@
 {
   "environment": "",
   "bot_token": "",
-  "guild_id": "",
+  "guild_id": 0,
   "twitch_api_client_id": "",
   "twitch_api_token": "",
   "admin_id": 0,
-  "command_prefix": "!",
   "livestream_mention_role_id": 0,
   "mention_role_emoji": "\u2705",
   "faq_role_emoji": "\u2705",
@@ -13,16 +12,12 @@
   "moderator_id": 0,
   "streamer_channel": 0,
   "roles_channel": 0,
-  "twitch_user_bans": [
-  ],
+  "twitch_user_bans": [],
   "admin_bot_channel": 0,
   "stream_update_interval": 5,
   "join_log_channel": 0,
   "message_history_channel": 0,
   "new_account_emote": ":saxophone:",
-  "whitelist_key_begging_roles": [
-    0
-  ],
   "minimum_stream_viewers_announce": 0,
   "faq_channel": 0,
   "faq_role": 0,
