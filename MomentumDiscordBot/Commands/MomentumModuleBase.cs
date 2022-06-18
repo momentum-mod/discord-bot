@@ -11,7 +11,7 @@ namespace MomentumDiscordBot.Commands
     {
         public ILogger Logger { get; set; }
 
-        protected async Task ReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
+        protected static async Task ReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
         {
             var embed = new DiscordEmbedBuilder
             {
@@ -22,7 +22,7 @@ namespace MomentumDiscordBot.Commands
             await context.CreateResponseAsync(embed: embed);
         }
 
-        protected async Task<DiscordMessage> SlashReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
+        protected static async Task<DiscordMessage> SlashReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
         {
             await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 

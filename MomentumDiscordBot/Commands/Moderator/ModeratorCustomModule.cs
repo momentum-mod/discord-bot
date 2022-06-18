@@ -109,8 +109,7 @@ namespace MomentumDiscordBot.Commands.Moderator
 
             else if (Config.CustomCommands.ContainsKey(oldName))
             {
-                CustomCommand command;
-                if (!Config.CustomCommands.TryGetValue(oldName, out command))
+                if (!Config.CustomCommands.TryGetValue(oldName, out CustomCommand command))
                     await ReplyNewEmbedAsync(context, "Failed to get old command value.", MomentumColor.Red);
                 else if (!Config.CustomCommands.TryAdd(newName, command))
                     await ReplyNewEmbedAsync(context, "Failed to add new command.", MomentumColor.Red);
@@ -133,7 +132,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         {
             string title = "Info Commands";
             const int itemsPerPage = 25;
-            int pages = (int)Math.Ceiling((double)Config.CustomCommands.Count() / itemsPerPage);
+            int pages = (int)Math.Ceiling((double)Config.CustomCommands.Count / itemsPerPage);
             IEnumerable<KeyValuePair<string, CustomCommand>> commands = Config.CustomCommands.OrderByDescending(x => x.Value.CreationTimestamp);
             if (page < 1)
                 page = 1;

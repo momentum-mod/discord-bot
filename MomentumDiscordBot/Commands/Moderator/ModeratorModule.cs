@@ -25,7 +25,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [SlashCommand("ban", "Bans a user, purging their messages")]
-        public async Task BanAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
+        public static async Task BanAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
             DiscordMember member = (DiscordMember)user;
             await member.BanAsync(7, $"Banned by {context.User} using !ban");
@@ -34,7 +34,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [SlashCommand("membercount", "Get the number of members with a role")]
-        public async Task GetMembersWithRoleAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
+        public static async Task GetMembersWithRoleAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
         {
             var (_, guildRole) = context.Guild.Roles.FirstOrDefault(x => x.Key == role.Id);
 
@@ -51,7 +51,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [SlashCommand("status", "Sets the bots status")]
-        public async Task StatusAsync(InteractionContext context,
+        public static async Task StatusAsync(InteractionContext context,
             [Option("status", "status")] string status,
             [ChoiceProvider(typeof(ActivityTypeChoiceProvider))][Option("type", "ActivityType")] string type = null)
         {
@@ -63,7 +63,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
         
         [SlashCommand("clearstatus", "Clears the bots status")]
-        public async Task ClearStatusAsync(InteractionContext context)
+        public static async Task ClearStatusAsync(InteractionContext context)
         {
             await context.Client.UpdateStatusAsync(new DiscordActivity());
             await ReplyNewEmbedAsync(context, "Status cleared.", MomentumColor.Blue);

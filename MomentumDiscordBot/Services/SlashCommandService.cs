@@ -32,21 +32,21 @@ namespace MomentumDiscordBot.Services
 
             commands.RegisterCommands(Assembly.GetEntryAssembly(), config.GuildID);
 
-            commands.SlashCommandErrored += _commands_SlashCommandErrored;
-            commands.ContextMenuErrored += _commands_ContextMenuErrored;
-            discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
+            commands.SlashCommandErrored += Commands_SlashCommandErrored;
+            commands.ContextMenuErrored += Commands_ContextMenuErrored;
+            discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
         }
 
-        private Task _commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
+        private Task Commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
         {
-            return handleException(sender, e.Exception, e.Context);
+            return HandleException(e.Exception, e.Context);
         }
-        private Task _commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
+        private Task Commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
         {
-            return handleException(sender, e.Exception, e.Context);
+            return HandleException(e.Exception, e.Context);
         }
 
-        private Task handleException(SlashCommandsExtension sender, Exception exception, BaseContext context)
+        private static Task HandleException(Exception exception, BaseContext context)
         {
             _ = Task.Run(async () =>
             {
@@ -86,7 +86,7 @@ namespace MomentumDiscordBot.Services
 
             return Task.CompletedTask;
         }
-        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        private Task DiscordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
 
             _ = Task.Run(async () =>
@@ -124,7 +124,7 @@ namespace MomentumDiscordBot.Services
             }
         }
 
-        private async Task<(bool result, DiscordMessage restartMessage)> TryFindRestartMessageAsync(DiscordMessage input)
+        private static async Task<(bool result, DiscordMessage restartMessage)> TryFindRestartMessageAsync(DiscordMessage input)
         {
             var message = await input.Channel.GetMessageAsync(input.Id);
 

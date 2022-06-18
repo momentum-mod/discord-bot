@@ -13,7 +13,7 @@ namespace MomentumDiscordBot.Commands.Moderator
     public class ModeratorDiscordEntityModule : ModeratorModuleBase
     {
         [SlashCommand("user", "Provides information about a user")]
-        public async Task GetUserInfoAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
+        public static async Task GetUserInfoAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
             DiscordMember member = (DiscordMember)user;
             var avatarUrl = member.AvatarUrl ?? member.DefaultAvatarUrl;
@@ -61,7 +61,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [SlashCommand("channel", "Provides information about a channel")]
-        public async Task GetChannelInfoAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
+        public static async Task GetChannelInfoAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
         {
             var embed = new DiscordEmbedBuilder
             {
@@ -82,7 +82,7 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [SlashCommand("role", "Provides information about a role")]
-        public async Task GetRoleInfoAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
+        public static async Task GetRoleInfoAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
         {
             var embed = new DiscordEmbedBuilder
             {
@@ -97,26 +97,26 @@ namespace MomentumDiscordBot.Commands.Moderator
         }
 
         [ContextMenu(ApplicationCommandType.MessageContextMenu, "message info")]
-        public async Task GetMessageInfoAsync(ContextMenuContext context)
+        public static async Task GetMessageInfoAsync(ContextMenuContext context)
         {
-                DiscordMessage message = context.TargetMessage;
-                var embed = new DiscordEmbedBuilder
+            DiscordMessage message = context.TargetMessage;
+            var embed = new DiscordEmbedBuilder
+            {
+                Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
-                    Author = new DiscordEmbedBuilder.EmbedAuthor
-                    {
-                        Name = message.Author.Username,
-                        IconUrl = message.Author.AvatarUrl ?? message.Author.DefaultAvatarUrl
-                    },
-                    Description = "Message: " + string.Join("", message.Content.Take(1024)),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = message.Id.ToString()
-                    }
-                };
+                    Name = message.Author.Username,
+                    IconUrl = message.Author.AvatarUrl ?? message.Author.DefaultAvatarUrl
+                },
+                Description = "Message: " + string.Join("", message.Content.Take(1024)),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = message.Id.ToString()
+                }
+            };
 
-                embed.AddField("Jump", message.JumpLink.ToString());
+            embed.AddField("Jump", message.JumpLink.ToString());
 
-                await context.CreateResponseAsync(embed: embed);
+            await context.CreateResponseAsync(embed: embed);
         }
     }
 }

@@ -99,7 +99,7 @@ namespace MomentumDiscordBot.Commands.Admin
             else
             {
                 await ReplyNewEmbedAsync(context,
-                    Formatter.Sanitize(configProperty[0].GetGetMethod().Invoke(Config, new object[0]).ToString()),
+                    Formatter.Sanitize(configProperty[0].GetGetMethod().Invoke(Config, Array.Empty<object>()).ToString()),
                     MomentumColor.Blue);
             }
         }

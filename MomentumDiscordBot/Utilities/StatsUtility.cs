@@ -27,7 +27,7 @@ namespace MomentumDiscordBot.Utilities
             this List<(T Grouping, long MessageCount)> topStats,
             string title,
             Func<(T Grouping, long MessageCount), string> elementStringConverterFunc) =>
-            new DiscordEmbedBuilder
+            new()
             {
                 Title = title,
                 Description = string.Join(Environment.NewLine,

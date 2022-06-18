@@ -19,16 +19,15 @@ namespace MomentumDiscordBot.Services
     [Microservice(MicroserviceType.InjectAndInitialize)]
     public class StreamMonitorService
     {
-        private readonly ulong _channelId;
         private readonly Configuration _config;
         private readonly DiscordClient _discordClient;
         private readonly ILogger _logger;
-        private readonly List<string> _streamSoftBanList = new List<string>();
+        private readonly List<string> _streamSoftBanList = new();
 
         public List<string> StreamSoftBanList => _streamSoftBanList;
 
         private readonly TimeSpan _updateInterval;
-        private readonly SemaphoreSlim semaphoreSlimLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim semaphoreSlimLock = new(1, 1);
         public readonly TwitchApiService TwitchApiService;
 
         // <StreamID, MessageID>
@@ -47,9 +46,8 @@ namespace MomentumDiscordBot.Services
 
             TwitchApiService = twitchApiService;
 
-            _channelId = _config.MomentumModStreamerChannelId;
             _updateInterval = TimeSpan.FromMinutes(_config.StreamUpdateInterval);
-            _discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
+            _discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
 
             _discordClient.SocketOpened += (s, e) =>
             {
@@ -69,7 +67,7 @@ namespace MomentumDiscordBot.Services
             _textChannel = _discordClient.FindChannel(_config.MomentumModStreamerChannelId);
         }
 
-        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        private Task DiscordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -211,20 +209,20 @@ namespace MomentumDiscordBot.Services
                 $"{Formatter.Sanitize(stream.UserName)} has gone live! {mentionRole.Mention}";
 
             var embed = new DiscordEmbedBuilder
+            {
+                Title = Formatter.Sanitize(stream.Title),
+                Color = new DiscordColor(145, 70, 255),
+                Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
-                    Title = Formatter.Sanitize(stream.Title),
-                    Color = new DiscordColor(145, 70, 255),
-                    Author = new DiscordEmbedBuilder.EmbedAuthor
-                    {
-                        Name = stream.UserName,
-                        IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
-                        Url = $"https://twitch.tv/{stream.UserLogin}"
-                    },
-                    ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" +
+                    Name = stream.UserName,
+                    IconUrl = await TwitchApiService.GetStreamerIconUrlAsync(stream.UserId),
+                    Url = $"https://twitch.tv/{stream.UserLogin}"
+                },
+                ImageUrl = stream.ThumbnailUrl.Replace("{width}", "1280").Replace("{height}", "720") + "?q=" +
                                Environment.TickCount,
-                    Url = $"https://twitch.tv/{stream.UserLogin}",
-                    Timestamp = DateTimeOffset.Now
-                }.AddField("🔴 Viewers", stream.ViewerCount.ToString(), true)
+                Url = $"https://twitch.tv/{stream.UserLogin}",
+                Timestamp = DateTimeOffset.Now
+            }.AddField("🔴 Viewers", stream.ViewerCount.ToString(), true)
                 .AddField("🎦 Uptime", (DateTime.UtcNow - stream.StartedAt).ToPrettyFormat(2), true)
                 .WithFooter("Streaming " + await TwitchApiService.GetGameNameAsync(stream.GameId))
                 .Build();
@@ -232,7 +230,7 @@ namespace MomentumDiscordBot.Services
             return new KeyValuePair<DiscordEmbed, string>(embed, messageText);
         }
 
-        private bool IsHardBanned(Stream stream) => (_config.TwitchUserBans ?? new string[0]).Contains(stream.UserId);
+        private bool IsHardBanned(Stream stream) => (_config.TwitchUserBans ?? Array.Empty<string>()).Contains(stream.UserId);
 
         private bool IsSoftBanned(Stream stream) => _streamSoftBanList.Contains(stream.Id);
 
@@ -350,7 +348,7 @@ namespace MomentumDiscordBot.Services
                         if (message.Embeds.Count == 1)
                         {
                             var matchingStream =
-                                streams.FirstOrDefault(y => y.UserName == message.Embeds.First().Author?.Name);
+                                streams.FirstOrDefault(y => y.UserName == message.Embeds[0].Author?.Name);
                             if (matchingStream == null)
                             {
                                 // No matching stream

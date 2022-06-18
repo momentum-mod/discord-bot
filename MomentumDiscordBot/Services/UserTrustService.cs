@@ -21,10 +21,10 @@ namespace MomentumDiscordBot.Services
             _discordClient = discordClient;
             _config = config;
 
-            _discordClient.MessageCreated += _discordClient_MessageCreated;
+            _discordClient.MessageCreated += DiscordClient_MessageCreated;
         }
 
-        private Task _discordClient_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+        private Task DiscordClient_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -42,7 +42,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private void LogMessageCount(MomentumDiscordDbContext dbContext, DiscordMessage message)
+        private static void LogMessageCount(MomentumDiscordDbContext dbContext, DiscordMessage message)
         {
             var user = dbContext.DailyMessageCount
                 .SingleOrDefault(x => x.UserId == message.Author.Id &&
@@ -74,7 +74,7 @@ namespace MomentumDiscordBot.Services
         private async Task CheckVerifiedRoleAsync(MomentumDiscordDbContext dbContext, DiscordMessage message)
         {
             // If they already have the verified role, or they have the blacklist role, no need to check
-            if (!(message.Author is DiscordMember member))
+            if (message.Author is not DiscordMember member)
             {
                 return;
             }
