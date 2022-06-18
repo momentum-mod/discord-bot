@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DSharpPlus;
 using System.Globalization;
+using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Models;
@@ -23,8 +23,7 @@ namespace MomentumDiscordBot.Commands.General
             [Autocomplete(typeof(AutoCompleteProvider))][Option("option", "Name of the custom command")] string name,
             [Autocomplete(typeof(MessageAutoCompleteProvider))][Option("reply", "Reply to this message")] string replyMessageId = null)
         {
-            CustomCommand command;
-            if (Config.CustomCommands.TryGetValue(name, out command))
+            if (Config.CustomCommands.TryGetValue(name, out CustomCommand command))
             {
                 if (string.IsNullOrWhiteSpace(command.Title) && string.IsNullOrWhiteSpace(command.Description))
                 {

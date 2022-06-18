@@ -26,12 +26,12 @@ namespace MomentumDiscordBot.Services
             _config = config;
 
             _discordClient = discordClient;
-            _discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
-            _discordClient.MessageReactionAdded += _discordClient_MessageReactionAdded;
-            _discordClient.MessageReactionRemoved += _discordClient_MessageReactionRemoved;
+            _discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
+            _discordClient.MessageReactionAdded += DiscordClient_MessageReactionAdded;
+            _discordClient.MessageReactionRemoved += DiscordClient_MessageReactionRemoved;
         }
 
-        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        private Task DiscordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -145,7 +145,7 @@ namespace MomentumDiscordBot.Services
 
             if (message.Embeds.Count == 1)
             {
-                var embed = message.Embeds.First();
+                var embed = message.Embeds[0];
                 var guild = _textChannel.Guild;
 
                 // No library provided way to parse the role, the mention should never change, as it uses the ID
@@ -158,7 +158,7 @@ namespace MomentumDiscordBot.Services
             return (false, null);
         }
 
-        private Task _discordClient_MessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
+        private Task DiscordClient_MessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -191,7 +191,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
+        private Task DiscordClient_MessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
         {
             _ = Task.Run(async () =>
             {

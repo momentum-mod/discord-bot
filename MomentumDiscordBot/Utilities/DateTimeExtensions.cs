@@ -71,7 +71,7 @@ namespace MomentumDiscordBot.Utilities
                 thirdSpace = output.Length;
             }
 
-            return output.Substring(0, thirdSpace).Trim();
+            return output[..thirdSpace].Trim();
         }
     }
 }

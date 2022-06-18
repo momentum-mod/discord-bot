@@ -15,8 +15,7 @@ namespace MomentumDiscordBot.Services
     {
         private readonly TwitchAPI _apiService;
 
-        private readonly ConcurrentDictionary<string, string> _categoryNames =
-            new ConcurrentDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _categoryNames = new();
 
         private readonly ILogger _logger;
         private readonly string _momentumModGameId = null;
@@ -34,7 +33,7 @@ namespace MomentumDiscordBot.Services
 
         public async Task<string> GetMomentumModIdAsync()
         {
-            var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> {"Momentum Mod"});
+            var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> { "Momentum Mod" });
             return games.Games.First().Id;
         }
 
@@ -46,7 +45,7 @@ namespace MomentumDiscordBot.Services
             }
 
 
-            var game = await _apiService.Helix.Games.GetGamesAsync(new List<string> {id});
+            var game = await _apiService.Helix.Games.GetGamesAsync(new List<string> { id });
 
             _categoryNames.TryAdd(id, game.Games.First().Name);
             return game.Games.First().Name;
@@ -72,7 +71,7 @@ namespace MomentumDiscordBot.Services
         {
             try
             {
-                var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> {id});
+                var users = await _apiService.Helix.Users.GetUsersAsync(new List<string> { id });
 
                 // Selected through ID, should only return one
                 var user = users.Users.First();
@@ -87,7 +86,7 @@ namespace MomentumDiscordBot.Services
 
         public async Task<string> GetStreamerIDAsync(string name)
         {
-            var response = await _apiService.Helix.Users.GetUsersAsync(logins: new List<string> {name});
+            var response = await _apiService.Helix.Users.GetUsersAsync(logins: new List<string> { name });
             var users = response.Users;
 
             if (users.Length == 0)
@@ -105,7 +104,7 @@ namespace MomentumDiscordBot.Services
 
         public async Task<string> GetStreamerNameAsync(string id)
         {
-            var response = await _apiService.Helix.Users.GetUsersAsync(new List<string> {id});
+            var response = await _apiService.Helix.Users.GetUsersAsync(new List<string> { id });
             var users = response.Users;
 
             if (users.Length == 0)

@@ -10,7 +10,7 @@ namespace MomentumDiscordBot.Commands.Admin
     {
 
         [SlashCommand("lock", "Locks users from being verified from the FAQ channel, use when getting spammed by user bots")]
-        public async Task LockFaqAsync(InteractionContext context)
+        public static async Task LockFaqAsync(InteractionContext context)
         {
             await ReplyNewEmbedAsync(context, "Since carlbot handles the FAQ roles now, in the case of a raid, please edit the `@everyone` permission override to deny viewing the channel - this will disable new user from being verified.",
                 MomentumColor.Blue);

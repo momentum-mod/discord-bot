@@ -39,10 +39,10 @@ namespace MomentumDiscordBot.Commands.Moderator
             await context.CreateResponseAsync(embed: GetGrowthEmbed(channelStats, channel.Mention));
         }
 
-        private DiscordEmbedBuilder GetGrowthEmbed(List<DailyMessageCount> filteredMessages, string mention)
+        private static DiscordEmbedBuilder GetGrowthEmbed(List<DailyMessageCount> filteredMessages, string mention)
         {
             // Filters the past 30 days
-            var thisMonthMessages = filteredMessages.Where(x => x.Date.Ticks > DateTime.UtcNow.Subtract(new TimeSpan(30, 0,0,0)).Ticks)
+            var thisMonthMessages = filteredMessages.Where(x => x.Date.Ticks > DateTime.UtcNow.Subtract(new TimeSpan(30, 0, 0, 0)).Ticks)
                 .Aggregate((long)0, (totalCount, nextCount) => totalCount + nextCount.MessageCount);
 
             // Filters the past 60 days, but not the past 30

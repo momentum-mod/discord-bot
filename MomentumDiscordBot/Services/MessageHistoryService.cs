@@ -20,13 +20,13 @@ namespace MomentumDiscordBot.Services
             _discordClient = discordClient;
             _config = config;
 
-            _discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
-            _discordClient.MessageDeleted += _discordClient_MessageDeleted;
-            _discordClient.MessageUpdated += _discordClient_MessageUpdated;
-            _discordClient.MessagesBulkDeleted += _discordClient_MessagesBulkDeleted;
+            _discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
+            _discordClient.MessageDeleted += DiscordClient_MessageDeleted;
+            _discordClient.MessageUpdated += DiscordClient_MessageUpdated;
+            _discordClient.MessagesBulkDeleted += DiscordClient_MessagesBulkDeleted;
         }
 
-        private Task _discordClient_MessagesBulkDeleted(DiscordClient sender, MessageBulkDeleteEventArgs e)
+        private Task DiscordClient_MessagesBulkDeleted(DiscordClient sender, MessageBulkDeleteEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -39,7 +39,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        private Task DiscordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             var channel = _discordClient.FindChannel(_config.MessageHistoryChannel);
             if (channel.Type == ChannelType.Text)
@@ -50,7 +50,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
+        private Task DiscordClient_MessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -65,10 +65,10 @@ namespace MomentumDiscordBot.Services
                 if (e.MessageBefore != null)
                 {
                     var embedBuilder = new DiscordEmbedBuilder
-                        {
-                            Title = "Message Edited - Old Message Content",
-                            Color = MomentumColor.Blue
-                        }
+                    {
+                        Title = "Message Edited - Old Message Content",
+                        Color = MomentumColor.Blue
+                    }
                         .WithDescription(Formatter.MaskedUrl("Jump to Message", e.MessageBefore.JumpLink))
                         .AddMessageContent(e.MessageBefore);
 
@@ -84,7 +84,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
+        private Task DiscordClient_MessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
         {
             _ = Task.Run(async () =>
             {

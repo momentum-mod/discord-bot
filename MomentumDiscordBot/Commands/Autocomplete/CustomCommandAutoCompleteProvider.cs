@@ -11,20 +11,19 @@ namespace MomentumDiscordBot.Commands.Autocomplete
 {
     public class AutoCompleteProvider : IAutocompleteProvider
     {
-        private IEnumerable<string> findCommand(IEnumerable<string> commands, string s)
+        private static IEnumerable<string> FindCommand(IEnumerable<string> commands, string s)
         {
             return commands.Where(x => x.Contains(s)).Take(25).OrderBy(x => x);
         }
         public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext context)
         {
             var commands = context.Services.GetRequiredService<Configuration>().CustomCommands.Keys;
-            var choices = findCommand(commands, context.OptionValue.ToString());
+            var choices = FindCommand(commands, context.OptionValue.ToString());
             if (!choices.Any())
             {
-                DiscordEmoji emoji;
-                if (DiscordEmoji.TryFromName(context.Client, context.OptionValue.ToString(), out emoji))
+                if (DiscordEmoji.TryFromName(context.Client, context.OptionValue.ToString(), out DiscordEmoji emoji))
                 {
-                    choices = findCommand(commands, emoji.ToString());
+                    choices = FindCommand(commands, emoji.ToString());
                 }
             }
             return Task.FromResult(choices.Select(command => new DiscordAutoCompleteChoice(command, command)));

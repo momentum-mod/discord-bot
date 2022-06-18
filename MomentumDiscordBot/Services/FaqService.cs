@@ -16,8 +16,8 @@ namespace MomentumDiscordBot.Services
     {
         private readonly Configuration _config;
         private readonly DiscordClient _discordClient;
-        private readonly SemaphoreSlim _semaphoreLock = new SemaphoreSlim(1, 1);
-        private List<ulong> _faqLockInformed = new List<ulong>();
+        private readonly SemaphoreSlim _semaphoreLock = new(1, 1);
+        private List<ulong> _faqLockInformed = new();
         private DiscordMessage _lastMessage;
         private DiscordChannel _textChannel;
 
@@ -26,8 +26,8 @@ namespace MomentumDiscordBot.Services
             _config = config;
 
             _discordClient = discordClient;
-            _discordClient.GuildDownloadCompleted += _discordClient_GuildsDownloaded;
-            _discordClient.MessageReactionAdded += _discordClient_MessageReactionAdded;
+            _discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
+            _discordClient.MessageReactionAdded += DiscordClient_MessageReactionAdded;
         }
 
         public bool IsEnabled { get; private set; } = true;
@@ -107,7 +107,7 @@ namespace MomentumDiscordBot.Services
             _semaphoreLock.Release();
         }
 
-        private Task _discordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        private Task DiscordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -118,7 +118,7 @@ namespace MomentumDiscordBot.Services
             return Task.CompletedTask;
         }
 
-        private Task _discordClient_MessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
+        private Task DiscordClient_MessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -126,7 +126,7 @@ namespace MomentumDiscordBot.Services
                 _semaphoreLock.Release();
 
                 if (e.Channel.Id != _textChannel.Id || e.Emoji != _config.FaqRoleEmoji ||
-                    !(e.User is DiscordMember member))
+                    (e.User is not DiscordMember member))
                 {
                     return;
                 }
