@@ -60,7 +60,13 @@ namespace MomentumDiscordBot.Commands.Moderator
                 : new DiscordActivity(status);
             await context.Client.UpdateStatusAsync(activity);
             await ReplyNewEmbedAsync(context, $"Status set to '{status}'.", MomentumColor.Blue);
-
+        }
+        
+        [SlashCommand("clearstatus", "Clears the bots status")]
+        public async Task ClearStatusAsync(InteractionContext context)
+        {
+            await context.Client.UpdateStatusAsync(new DiscordActivity());
+            await ReplyNewEmbedAsync(context, "Status cleared.", MomentumColor.Blue);
         }
     }
 }
