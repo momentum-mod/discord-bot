@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using System.Globalization;
-using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using MomentumDiscordBot.Models;
@@ -21,7 +20,8 @@ namespace MomentumDiscordBot.Commands.General
 
         [SlashCommand(SayCommandName, "Executes a custom command")]
         public async Task ExecCustomCommandAsync(InteractionContext context,
-            [Autocomplete(typeof(AutoCompleteProvider))] [Option("option", "Name of the custom command")] string name)
+            [Autocomplete(typeof(AutoCompleteProvider))][Option("option", "Name of the custom command")] string name,
+            [Autocomplete(typeof(MessageAutoCompleteProvider))][Option("reply", "Reply to this message")] string replyMessageId = null)
         {
             CustomCommand command;
             if (Config.CustomCommands.TryGetValue(name, out command))
@@ -54,8 +54,36 @@ namespace MomentumDiscordBot.Commands.General
                 if (Uri.IsWellFormedUriString(command.ButtonUrl, UriKind.Absolute))
                     message.AddComponents(new DiscordLinkButtonComponent(command.ButtonUrl,
                         command.ButtonLabel ?? "Link"));
-                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder(message));
+                if (ulong.TryParse(replyMessageId, out ulong id))
+                {
+                    DiscordMessage replyMessage;
+                    try
+                    {
+                        // check if the selected message is from this channel
+                        replyMessage = await context.Channel.GetMessageAsync(id);
+                    }
+                    catch (DSharpPlus.Exceptions.NotFoundException)
+                    {
+                        await context.CreateResponseAsync(new DiscordEmbedBuilder
+                        {
+                            Title = $"Can't find message {id} in this channel.",
+                            Color = MomentumColor.Red
+                        }, true);
+                        return;
+                    }
+                    await context.Channel.SendMessageAsync(message.WithReply(id, true));
+                    await context.CreateResponseAsync(new DiscordEmbedBuilder
+                    {
+                        Title = $"Replied to message {id}.",
+                        Description = $"{replyMessage.JumpLink}",
+                        Color = MomentumColor.Blue
+                    }, true);
+                }
+                else
+                {
+                    await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder(message));
+                }
             }
             else
             {
