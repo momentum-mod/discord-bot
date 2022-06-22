@@ -48,6 +48,15 @@ namespace MomentumDiscordBot.Commands.General
                     };
                 }
 
+                if (replyMessageId is not null)
+                {
+                    embedBuilder.Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"{context.User.Username}:{context.User.Discriminator} used /{context.CommandName} {name}",
+                        IconUrl = context.User.AvatarUrl
+                    };
+                }
+
                 var message = new DiscordMessageBuilder()
                     .AddEmbed(embedBuilder.Build());
 
