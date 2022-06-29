@@ -11,7 +11,12 @@ namespace MomentumDiscordBot.Commands
     {
         public ILogger Logger { get; set; }
 
-        protected static async Task ReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
+        protected static async Task ReplyNewEmbedAsync(InteractionContext context, string text, DiscordColor color, bool ephemeral = false)
+        {
+            await ReplyNewEmbedAsync(context.Interaction, text, color, ephemeral);
+        }
+
+        protected static async Task ReplyNewEmbedAsync(DiscordInteraction inter, string text, DiscordColor color, bool ephemeral = false)
         {
             var embed = new DiscordEmbedBuilder
             {
@@ -19,7 +24,12 @@ namespace MomentumDiscordBot.Commands
                 Color = color
             }.Build();
 
-            await context.CreateResponseAsync(embed: embed);
+            await ReplyNewEmbedAsync(inter, embed, ephemeral);
+        }
+
+        protected static async Task ReplyNewEmbedAsync(DiscordInteraction inter, DiscordEmbed embed, bool ephemeral = false)
+        {
+            await inter.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed: embed).AsEphemeral(ephemeral));
         }
 
         protected static async Task<DiscordMessage> SlashReplyNewEmbedAsync(InteractionContext context, [Option("text", "text")] string text, [Option("color", "color")] DiscordColor color)
