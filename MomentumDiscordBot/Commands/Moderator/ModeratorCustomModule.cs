@@ -2,10 +2,12 @@ using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Commands.Autocomplete;
@@ -13,10 +15,22 @@ using MomentumDiscordBot.Commands.General;
 
 namespace MomentumDiscordBot.Commands.Moderator
 {
+
     [SlashCommandGroup("custom", "Custom commands moderators can add during runtime and print a fixed response with /say")]
     public class CustomCommandModule : ModeratorModuleBase
     {
+        const int modalTitleMaxLength = 45;
+        const int embedTitleMaxLength = 256;
+
+        static int modalIdCounter = 0;
         public Configuration Config { get; set; }
+
+        public static string CreateModalId(string name)
+        {
+            //the modalIdCounter is added in case one user starts multiple waits (i. e. cancels the popup and tries again)
+            int id = Interlocked.Increment(ref modalIdCounter);
+            return $"id-modal-{name}{id}";
+        }
 
         [ContextMenu(ApplicationCommandType.MessageContextMenu, "Add as custom command")]
         public async Task MessageMenu(ContextMenuContext context)
@@ -48,43 +62,119 @@ namespace MomentumDiscordBot.Commands.Moderator
                 }
             }
 
-            DiscordEmbedBuilder embedBuilder;
-            if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, buttonUrl, buttonLabel, thumbnailUrl, context.User.Mention)))
-            {
-                await Config.SaveToFileAsync();
-                embedBuilder = new DiscordEmbedBuilder
-                {
-                    Title = "",
-                    Description = "Command '" + name
-                                    + "' created from message: " + message.JumpLink
-                                    + "\n.Now, rename it with '/custom rename'.",
-                    Color = MomentumColor.Blue,
+            const string nameFieldID = "name";
+            string modalId = CreateModalId("ascustom");
+            var modal = new DiscordInteractionResponseBuilder()
+                .WithTitle("Custom command name")
+                .WithCustomId(modalId)
+                .AddComponents(new TextInputComponent(
+                    label: "Name",
+                    customId: nameFieldID,
+                    max_length: 100,
+                    style: TextInputStyle.Short));
 
-                };
-            }
-            else
+            bool success = false;
+            await context.CreateResponseAsync(InteractionResponseType.Modal, modal);
+            var interactivity = context.Client.GetInteractivity();
+            do
             {
-                embedBuilder = new DiscordEmbedBuilder
+                var response = await interactivity.WaitForModalAsync(modalId, user: context.User, timeoutOverride: TimeSpan.FromSeconds(30));
+                DiscordEmbedBuilder embedBuilder;
+                if (response.TimedOut)
                 {
-                    Description = "Failed to add command",
-                    Color = MomentumColor.Red
-                };
-            }
-            await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
+                    //can't respond to anything here
+                    return;
+                }
+
+                name = response.Result.Values[nameFieldID];
+
+                if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, buttonUrl, buttonLabel, thumbnailUrl, context.User.Mention)))
+                {
+                    await Config.SaveToFileAsync();
+                    embedBuilder = new DiscordEmbedBuilder
+                    {
+                        Title = "",
+                        Description = "Command '" + name
+                                        + "' created from message: " + message.JumpLink,
+                        Color = MomentumColor.Blue,
+                    };
+                    await ReplyNewEmbedAsync(response.Result.Interaction, embedBuilder.Build(), true);
+                    success = true;
+                }
+                else
+                {
+                    //the popup shows "something went wrong" here.
+                }
+            } while (!success);
         }
 
         [SlashCommand("add", "Creates a new custom commands")]
-        public async Task AddCustomCommandAsync(InteractionContext context, [Option("name", "Name of the new command")] string name, [Option("title", "Embed title")] string title, [Option("description", "Embed description")] string description = null)
+        public async Task AddCustomCommandAsync(InteractionContext context, [Option("name", "Name of the new command")] string name)
         {
             if (Config.CustomCommands.ContainsKey(name))
-                await ReplyNewEmbedAsync(context, $"Command '{name}' already exists!", MomentumColor.Red);
-            else if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, context.User.Mention)))
+            {
+                await ReplyNewEmbedAsync(context, $"Command '{name}' already exists!", MomentumColor.Red, true);
+                return;
+            }
+
+            const string titleFieldID = "id-title";
+            const string descriptionFieldID = "id-description";
+            string modalId = CreateModalId("customadd");
+            string modalTitle = $"Add custom command '{name}'";
+            if (modalTitle.Length > modalTitleMaxLength)
+            {
+                const string suffix = "...'";
+                modalTitle = string.Join("", modalTitle.Take(modalTitleMaxLength - suffix.Length)) + suffix;
+            }
+            var modal = new DiscordInteractionResponseBuilder()
+                .WithTitle(modalTitle)
+                .WithCustomId(modalId)
+                .AddComponents(new TextInputComponent(
+                    label: "Title",
+                    customId: titleFieldID,
+                    max_length: embedTitleMaxLength,
+                    style: TextInputStyle.Short))
+                .AddComponents(new TextInputComponent(
+                    label: "Description",
+                    customId: descriptionFieldID,
+                    required: false,
+                    style: TextInputStyle.Paragraph));
+
+            await context.CreateResponseAsync(InteractionResponseType.Modal, modal);
+            var interactivity = context.Client.GetInteractivity();
+            var response = await interactivity.WaitForModalAsync(modalId, user: context.User, timeoutOverride: TimeSpan.FromSeconds(5 * 60));
+            DiscordEmbedBuilder embedBuilder;
+            if (response.TimedOut)
+            {
+                //can't respond to anything here
+                return;
+            }
+
+            string title = response.Result.Values[titleFieldID];
+            string description = response.Result.Values[descriptionFieldID];
+
+            bool ephemeral;
+            if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, context.User.Mention)))
             {
                 await Config.SaveToFileAsync();
-                await ReplyNewEmbedAsync(context, $"Command '{name}' added.", MomentumColor.Blue);
+                embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = $"Command '{name}' added.",
+                    Color = MomentumColor.Blue,
+                };
+                ephemeral = false;
             }
             else
-                await ReplyNewEmbedAsync(context, "Failed to add command.", MomentumColor.Red);
+            {
+                embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = $"Failed to add command. '{name}' already exists.",
+                    Color = MomentumColor.Red,
+                };
+                ephemeral = true;
+            }
+
+            await ReplyNewEmbedAsync(response.Result.Interaction, embedBuilder.Build(), ephemeral);
         }
 
         [SlashCommand("remove", "Deletes a custom commands")]
@@ -160,12 +250,47 @@ namespace MomentumDiscordBot.Commands.Moderator
         [SlashCommand("edit", "Change a custom commands")]
         public async Task EditCustomCommandAsync(InteractionContext context, [Autocomplete(typeof(AutoCompleteProvider))][Option("name", "Name of the custom command")] string name, [ChoiceProvider(typeof(CustomCommandPropertyChoiceProvider))][Option("key", "What you want to change")] string key, [Option("value", "The new value")] string value = null)
         {
+            DiscordInteraction inter = context.Interaction;
             if (Config.CustomCommands.TryGetValue(name, out CustomCommand command))
             {
                 var commandProperties = command.GetType().GetProperties();
 
                 var selectedProperty =
                     commandProperties.FirstOrDefault(x => x.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+                if (key == nameof(CustomCommand.Description))
+                {
+                    const string valueFieldID = "id-value";
+                    string modalId = CreateModalId("customedit");
+
+                    string modalTitle = $"Edit custom command '{name}'";
+                    if (modalTitle.Length > modalTitleMaxLength)
+                    {
+                        const string suffix = "...'";
+                        modalTitle = string.Join("", modalTitle.Take(modalTitleMaxLength - suffix.Length)) + suffix;
+                    }
+                    var modal = new DiscordInteractionResponseBuilder()
+                        .WithTitle(modalTitle)
+                        .WithCustomId(modalId)
+                        .AddComponents(new TextInputComponent(
+                            label: key,
+                            customId: valueFieldID,
+                            value: command.Description,
+                            required: false,
+                            style: TextInputStyle.Paragraph));
+
+                    await context.CreateResponseAsync(InteractionResponseType.Modal, modal);
+                    var interactivity = context.Client.GetInteractivity();
+                    var response = await interactivity.WaitForModalAsync(modalId, user: context.User, timeoutOverride: TimeSpan.FromSeconds(5 * 60));
+                    if (response.TimedOut)
+                    {
+                        //can't respond to anything here
+                        return;
+                    }
+
+                    inter = response.Result.Interaction;
+                    value = response.Result.Values[valueFieldID];
+
+                }
 
                 if (selectedProperty != null)
                 {
@@ -196,7 +321,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                         }
                         catch (FormatException)
                         {
-                            await ReplyNewEmbedAsync(context, $"Can't convert '{value}' to '{selectedProperty.PropertyType}.", MomentumColor.Red);
+                            await ReplyNewEmbedAsync(inter, $"Can't convert '{value}' to '{selectedProperty.PropertyType}.", MomentumColor.Red);
                             return;
                         }
 
@@ -217,16 +342,16 @@ namespace MomentumDiscordBot.Commands.Moderator
                     }
 
                     await Config.SaveToFileAsync();
-                    await ReplyNewEmbedAsync(context, $"Set '{selectedProperty.Name}' to '{value}'.", MomentumColor.Blue);
+                    await ReplyNewEmbedAsync(inter, $"Set '{selectedProperty.Name}' to '{value}'.", MomentumColor.Blue);
                 }
                 else
                 {
-                    await ReplyNewEmbedAsync(context, $"No config property found for '{key}'.", DiscordColor.Orange);
+                    await ReplyNewEmbedAsync(inter, $"No config property found for '{key}'.", DiscordColor.Orange);
                 }
             }
             else
             {
-                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist.", MomentumColor.Red);
+                await ReplyNewEmbedAsync(inter, $"Command '{name}' doesn't exist.", MomentumColor.Red);
             }
         }
         [SlashCommand("info", "Prints command properties")]
