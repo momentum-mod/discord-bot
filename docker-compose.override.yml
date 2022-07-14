@@ -9,4 +9,4 @@ services:
   discord-bot:
     build:
       context: .
-      dockerfile: ./MomentumDiscordBot/dev.Dockerfile
+      dockerfile: ./MomentumDiscordBot/Dockerfile
