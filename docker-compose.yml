@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   db:
+    container_name: MomentumDiscordBotDB
     image: mysql:8
     restart: unless-stopped
     volumes:
