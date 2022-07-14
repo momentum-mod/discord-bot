@@ -52,7 +52,7 @@ namespace MomentumDiscordBot.Commands.General
                 {
                     embedBuilder.Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
-                        Text = $"{context.User.Username}:{context.User.Discriminator} used /{context.CommandName} {name}",
+                        Text = $"{context.User.Username}#{context.User.Discriminator} used /{context.CommandName} {name}",
                         IconUrl = context.User.AvatarUrl
                     };
                 }
