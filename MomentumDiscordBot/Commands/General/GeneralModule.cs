@@ -95,7 +95,7 @@ namespace MomentumDiscordBot.Commands.General
             }
             else
             {
-                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist!", MomentumColor.Red);
+                await ReplyNewEmbedAsync(context, $"Command '{name}' doesn't exist!", MomentumColor.Red, true);
             }
         }
 
