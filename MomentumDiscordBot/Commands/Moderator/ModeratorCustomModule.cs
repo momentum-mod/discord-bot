@@ -21,6 +21,7 @@ namespace MomentumDiscordBot.Commands.Moderator
     {
         const int modalTitleMaxLength = 45;
         const int embedTitleMaxLength = 256;
+        const int embedFieldMaxLength = 1024;
 
         static int modalIdCounter = 0;
         public Configuration Config { get; set; }
@@ -370,6 +371,11 @@ namespace MomentumDiscordBot.Commands.Moderator
                 {
                     object value = property.GetValue(command, null);
                     string valueStr = value is null ? "<null>" : value.ToString();
+                    const string trim = "...";
+                    if (valueStr.Length + 2 > embedFieldMaxLength)
+                    {
+                        valueStr = valueStr[..(embedFieldMaxLength - 2 - trim.Length)] + trim;
+                    }
                     embedBuilder.AddField(property.Name, $"'{valueStr}'");
                 }
                 await context.CreateResponseAsync(embed: embedBuilder.Build());
