@@ -10,7 +10,9 @@ using MomentumDiscordBot.Services;
 
 namespace MomentumDiscordBot.Commands.Admin
 {
-    [SlashCommandGroup("twitchBan", "twitch ban commands")]
+    // only twitch for now but calling this group "stream"
+    // so the autocompletion shows updatestreams as well
+    [SlashCommandGroup("streamBan", "twitch ban commands")]
     public class AdminTwitchBanModule : AdminModuleBase
     {
         public Configuration Config { get; set; }

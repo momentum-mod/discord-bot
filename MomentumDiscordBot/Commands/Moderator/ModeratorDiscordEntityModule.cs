@@ -60,61 +60,24 @@ namespace MomentumDiscordBot.Commands.Moderator
             await context.CreateResponseAsync(embed: embed);
         }
 
-        [SlashCommand("channel", "Provides information about a channel")]
-        public static async Task GetChannelInfoAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
-        {
-            var embed = new DiscordEmbedBuilder
-            {
-                Title = channel.Type switch
-                {
-                    ChannelType.Category => $"Category: {channel.Name}",
-                    ChannelType.Text => $"# {channel.Name}",
-                    ChannelType.Voice => $"🔊 {channel.Name}",
-                    _ => channel.Name
-                },
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = channel.Id.ToString()
-                }
-            };
-
-            await context.CreateResponseAsync(embed: embed);
-        }
-
         [SlashCommand("role", "Provides information about a role")]
         public static async Task GetRoleInfoAsync(InteractionContext context, [Option("role", "role")] DiscordRole role)
         {
+            string membersWithRoleMsg;
+            if (role.Name == "@everyone")
+            {
+                membersWithRoleMsg = $"There are {context.Guild.Members.Count} members in total.\n";
+            }
+            else
+            {
+                var membersWithRole = context.Guild.Members.Values.Count(x => x.Roles.Contains(role));
+                membersWithRoleMsg = $"{membersWithRole} users have {role.Mention}.\n";
+            }
             var embed = new DiscordEmbedBuilder
             {
-                Description = role.Mention,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = role.Id.ToString()
-                }
+                Description = membersWithRoleMsg +
+                              "See 'Members' page in the server settings for details"
             };
-
-            await context.CreateResponseAsync(embed: embed);
-        }
-
-        [ContextMenu(ApplicationCommandType.MessageContextMenu, "message info")]
-        public static async Task GetMessageInfoAsync(ContextMenuContext context)
-        {
-            DiscordMessage message = context.TargetMessage;
-            var embed = new DiscordEmbedBuilder
-            {
-                Author = new DiscordEmbedBuilder.EmbedAuthor
-                {
-                    Name = message.Author.Username,
-                    IconUrl = message.Author.AvatarUrl ?? message.Author.DefaultAvatarUrl
-                },
-                Description = "Message: " + string.Join("", message.Content.Take(1024)),
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = message.Id.ToString()
-                }
-            };
-
-            embed.AddField("Jump", message.JumpLink.ToString());
 
             await context.CreateResponseAsync(embed: embed);
         }
