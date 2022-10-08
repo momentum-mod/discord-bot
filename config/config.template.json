@@ -23,7 +23,6 @@
   "faq_role": 0,
   "developer_id": 0,
   "alt_account_emoji": ":leg:",
-  "mysql_connection_string": "server=db;database=bot_data;uid=bot;pwd=password;",
   "media_verified_role": 0,
   "media_blacklisted_role": 0,
   "media_minimum_days": 3,
