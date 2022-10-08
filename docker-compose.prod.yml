@@ -3,22 +3,3 @@ version: '3.8'
 services:
   discord-bot:
     image: ghcr.io/momentum-mod/discord-bot/mmod-discord-bot:net-core
-  db:
-    ports:
-      - 3306:3306 # Run unexposed on 3306 so cron backup can access
-  mysql-cron-backup:
-    image: fradelg/mysql-cron-backup
-    depends_on:
-      - db
-    volumes:
-      - ./backup:/backup
-    environment:
-      - MYSQL_HOST=MomentumDiscordBotDB
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASS=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MAX_BACKUPS=5
-      - INIT_BACKUP=1
-      - CRON_TIME=* * 0 * *
-      - GZIP_LEVEL=9
-    restart: unless-stopped
