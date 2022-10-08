@@ -13,7 +13,7 @@ namespace MomentumDiscordBot.Services
     {
         private readonly Configuration _config;
         private readonly DiscordClient _discordClient;
-        private DiscordChannel _textChannel;
+
         public InteractivityService(Configuration config, DiscordClient discordClient, IServiceProvider services)
         {
             discordClient.UseInteractivity(new InteractivityConfiguration()
