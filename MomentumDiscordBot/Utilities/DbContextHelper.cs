@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.IO;
+using Microsoft.EntityFrameworkCore;
+using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Models.Data;
 
@@ -8,6 +10,6 @@ namespace MomentumDiscordBot.Utilities
     {
         public static MomentumDiscordDbContext GetNewDbContext(Configuration config) =>
             new(new DbContextOptionsBuilder<MomentumDiscordDbContext>()
-                .UseMySql(config.MySqlConnectionString, ServerVersion.AutoDetect(config.MySqlConnectionString)).Options);
+                .UseSqlite($"Data Source={PathConstants.DbFilePath}").Options);
     }
 }

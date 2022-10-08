@@ -1,23 +1,9 @@
 version: '3.8'
 
 services:
-  db:
-    container_name: MomentumDiscordBotDB
-    image: mysql:8
-    restart: unless-stopped
-    volumes:
-      - bot-data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      timeout: 5s
-      retries: 10
   discord-bot:
     container_name: MomentumDiscordBot
     restart: always
-    depends_on:
-      db:
-        condition: service_healthy
     volumes:
       - ./config:/app/config
-volumes:
-  bot-data:
+      - ./data:/app/data
