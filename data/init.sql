@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `bot_data`.`message_count`
+CREATE TABLE IF NOT EXISTS `message_count`
 (
     `UserId`       bigint unsigned    NOT NULL,
     `ChannelId`    bigint unsigned    NOT NULL,
