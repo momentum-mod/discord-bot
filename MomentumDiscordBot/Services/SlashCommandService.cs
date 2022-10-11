@@ -6,11 +6,11 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.Logging;
 using MomentumDiscordBot.Constants;
 using MomentumDiscordBot.Models;
 using MomentumDiscordBot.Utilities;
 using MomentumDiscordBot.Commands.Admin;
+using Serilog;
 
 namespace MomentumDiscordBot.Services
 {
@@ -20,8 +20,10 @@ namespace MomentumDiscordBot.Services
         private readonly Configuration _config;
         private readonly DiscordClient _discordClient;
         private DiscordChannel _textChannel;
+        private readonly ILogger _logger;
 
-        public SlashCommandService(Configuration config, DiscordClient discordClient, IServiceProvider services)
+        public SlashCommandService(Configuration config, DiscordClient discordClient, IServiceProvider services,
+            ILogger logger)
         {
             var commands = discordClient.UseSlashCommands(new SlashCommandsConfiguration
             {
@@ -30,6 +32,7 @@ namespace MomentumDiscordBot.Services
 
             _config = config;
             _discordClient = discordClient;
+            _logger = logger;
 
             commands.RegisterCommands(Assembly.GetEntryAssembly(), config.GuildID);
 
@@ -38,11 +41,12 @@ namespace MomentumDiscordBot.Services
             discordClient.GuildDownloadCompleted += DiscordClient_GuildsDownloaded;
         }
 
-        private  Task Commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
+        private Task Commands_SlashCommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
         {
             return HandleException(e.Exception, e.Context);
         }
-        private  Task Commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
+
+        private Task Commands_ContextMenuErrored(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
         {
             return HandleException(e.Exception, e.Context);
         }
@@ -90,9 +94,7 @@ namespace MomentumDiscordBot.Services
                         .WithTitle("Bot Error")
                         .WithDescription(message);
 
-                    context.Client.Logger.LogError(
-                        message,
-                        DateTime.Now);
+                    _logger.Error(exception, message);
 
                     var botChannel = _discordClient.FindChannel(_config.AdminBotChannel);
 
@@ -104,7 +106,7 @@ namespace MomentumDiscordBot.Services
                     }
                     catch (Exception)
                     {
-                        context.Client.Logger.LogError(
+                        _logger.Error(
                             "Tried posting an message error in admin channel, but it errored!");
                     }
                 }
@@ -112,9 +114,9 @@ namespace MomentumDiscordBot.Services
 
             return Task.CompletedTask;
         }
+
         private Task DiscordClient_GuildsDownloaded(DiscordClient sender, GuildDownloadCompletedEventArgs e)
         {
-
             _ = Task.Run(async () =>
             {
                 _textChannel = await _discordClient.GetChannelAsync(_config.AdminBotChannel);
@@ -146,11 +148,13 @@ namespace MomentumDiscordBot.Services
                     };
                     await restartMessage.RespondAsync(embed: embed);
                 }
+
                 break;
             }
         }
 
-        private static async Task<(bool result, DiscordMessage restartMessage)> TryFindRestartMessageAsync(DiscordMessage input)
+        private static async Task<(bool result, DiscordMessage restartMessage)> TryFindRestartMessageAsync(
+            DiscordMessage input)
         {
             var message = await input.Channel.GetMessageAsync(input.Id);
 
@@ -160,10 +164,10 @@ namespace MomentumDiscordBot.Services
                 message = message.ReferencedMessage;
                 isReply = true;
             }
+
             if (message.Interaction is not { Name: AdminModule.ForcerestartCommandName }) return (false, null);
 
             return (true, isReply ? null : input);
-
         }
     }
 }
