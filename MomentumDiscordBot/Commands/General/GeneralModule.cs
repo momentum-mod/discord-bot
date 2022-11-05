@@ -99,30 +99,42 @@ namespace MomentumDiscordBot.Commands.General
             }
         }
 
-        [SlashCommand("timestamp", "Prints a timestamp, then when pasted in a message will be converted to all users local timezone")]
+        [SlashCommand("timestamp",
+            "Prints a timestamp, then when pasted in a message will be converted to all users local timezone")]
         public static async Task TimestampCommandAsync(InteractionContext context,
-            [Option("timestamp", "The time you want to convert")] string timestamp,
+            [Option("timestamp", "The time you want to convert")]
+            string timestamp,
             [Autocomplete(typeof(TimezoneAutoCompleteProvider))] [Option("timezone", "Your local timezone")]
             string timezone)
         {
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
-            //set culture so we know if 06.12.2022 is june or december
-            var culture = new CultureInfo(context.Interaction.Locale);
-            DiscordEmbedBuilder embedBuilder;
-            if (!DateTime.TryParse(timestamp, culture, DateTimeStyles.NoCurrentDateDefault, out DateTime dt))
+            TimeZoneInfo timeZoneInfo;
+
+            try
             {
-                embedBuilder = new DiscordEmbedBuilder
-                {
-                    Title =
-                        $"Can't convert '{timestamp}'.",
-                    Description = "Make sure to order dates as your would in your native language.\n" +
-                                  $"This command uses https://docs.microsoft.com/en-us/dotnet/api/System.DateTime.TryParse with the locale provided by your Discord client.",
-                    Color = MomentumColor.Red
-                };
-                await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                await TimestampConversionErrorMessage(context,
+                    "Invalid timezone, use one from the list of suggestions!",
+                    timestamp, timezone
+                );
                 return;
             }
-            else if (dt.Date == DateTime.MinValue)
+
+            //set culture so we know if 06.12.2022 is june or december
+            var culture = new CultureInfo(context.Interaction.Locale);
+            if (!DateTime.TryParse(timestamp, culture, DateTimeStyles.NoCurrentDateDefault, out DateTime dt))
+            {
+                await TimestampConversionErrorMessage(context,
+                    "Make sure to order dates as your would in your native language.\n" +
+                    "This command uses https://docs.microsoft.com/en-us/dotnet/api/System.DateTime.TryParse with the locale provided by your Discord client.",
+                    timestamp, timezone
+                );
+                return;
+            }
+
+            if (dt.Date == DateTime.MinValue)
             {
                 //set "today" depending on the timezone if only time was set
                 var today = TimeZoneInfo.ConvertTime(DateTime.Now, timeZoneInfo).Date;
@@ -143,7 +155,7 @@ namespace MomentumDiscordBot.Commands.General
                 ":F",
                 ":R",
             };
-            embedBuilder = new DiscordEmbedBuilder
+            var embedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Unix Timestamp for {timestamp} in {timezone}",
                 Description = $"Parsed as: {dt.ToLongDateString()} {dt.ToLongTimeString()}.",
@@ -155,6 +167,19 @@ namespace MomentumDiscordBot.Commands.General
                 embedBuilder.AddField($"{discordTimestamp}", $"\\{discordTimestamp}");
             }
 
+            await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
+        }
+
+        private static async Task TimestampConversionErrorMessage(InteractionContext context, string message,
+            string timestamp, string timezone)
+        {
+            var embedBuilder = new DiscordEmbedBuilder
+            {
+                Title =
+                    $"Can't convert timestamp '{timestamp}', timezone '{timezone}'.",
+                Description = message,
+                Color = MomentumColor.Red
+            };
             await context.CreateResponseAsync(embed: embedBuilder.Build(), true);
         }
     }
