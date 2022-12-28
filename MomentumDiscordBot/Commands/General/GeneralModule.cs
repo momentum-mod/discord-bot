@@ -46,6 +46,8 @@ namespace MomentumDiscordBot.Commands.General
                         Width = 160
                     };
                 }
+                if (Uri.IsWellFormedUriString(command.ImageUrl, UriKind.Absolute))
+                    embedBuilder.ImageUrl = command.ImageUrl;
 
                 if (replyMessageId is not null)
                 {

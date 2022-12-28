@@ -44,6 +44,7 @@ namespace MomentumDiscordBot.Commands.Moderator
             string buttonUrl = null;
             string buttonLabel = null;
             string thumbnailUrl = null;
+            string imageUrl = null;
 
             if (message.Interaction is { Name: GeneralModule.SayCommandName })
             {
@@ -54,6 +55,8 @@ namespace MomentumDiscordBot.Commands.Moderator
                     description = embed.Description;
                     if (embed.Thumbnail is not null)
                         thumbnailUrl = embed.Thumbnail.Url.ToString();
+                    if (embed.Image is not null)
+                        imageUrl = embed.Image.Url.ToString();
                 }
                 var component = message.Components.SelectMany(x => x.Components).FirstOrDefault(x => x is DiscordLinkButtonComponent);
                 if (component is DiscordLinkButtonComponent button)
@@ -89,7 +92,7 @@ namespace MomentumDiscordBot.Commands.Moderator
 
                 name = response.Result.Values[nameFieldID];
 
-                if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, buttonUrl, buttonLabel, thumbnailUrl, context.User.Mention)))
+                if (Config.CustomCommands.TryAdd(name, new CustomCommand(title, description, buttonUrl, buttonLabel, thumbnailUrl, imageUrl, context.User.Mention)))
                 {
                     await Config.SaveToFileAsync();
                     embedBuilder = new DiscordEmbedBuilder
