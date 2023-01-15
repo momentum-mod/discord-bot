@@ -18,6 +18,8 @@ namespace MomentumDiscordBot.Commands.Moderator
         [SlashCommand("status", "Checks to see a member's media trust status")]
         public async Task MediaStatusAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
+            await context.DeferAsync();
+
             DiscordMember member = (DiscordMember)user;
             var embedBuilder = new DiscordEmbedBuilder
             {
@@ -70,8 +72,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                     embedBuilder.Color = MomentumColor.Green;
                 }
             }
-
-            await context.CreateResponseAsync(embed: embedBuilder.Build());
+            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedBuilder));
         }
 
         [SlashCommand("give", "Manually trusts a member, if applicable, removing the blacklist")]

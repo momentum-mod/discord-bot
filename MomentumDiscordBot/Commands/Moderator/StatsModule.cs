@@ -18,7 +18,9 @@ namespace MomentumDiscordBot.Commands.Moderator
         [SlashCommand("user", "show user stats")]
         public async Task UserStatsAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
-            DiscordMember member = (DiscordMember)user;
+            await context.DeferAsync();
+
+            var member = (DiscordMember)user;
             var totalMessageCount = await StatsUtility.GetTotalMessageCount(Config);
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == member.Id);
 
@@ -38,13 +40,15 @@ namespace MomentumDiscordBot.Commands.Moderator
                     .Aggregate("", (currentString, nextChannel)
                         => currentString + Environment.NewLine +
                            $"{context.Client.FindChannel(nextChannel.Id).Mention} - {nextChannel.MessageCount} messages"));
-
-            await context.CreateResponseAsync(embed: embedBuilder.Build());
+            
+            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedBuilder));
         }
 
         [SlashCommand("channel", "show channel stats")]
         public async Task ChannelStatsAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
         {
+            await context.DeferAsync();
+
             if (channel.Type != ChannelType.Text)
             {
                 await ReplyNewEmbedAsync(context, "Channel must be a text channel.", DiscordColor.Orange);
@@ -69,7 +73,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                         => currentString + Environment.NewLine +
                            $"{context.Guild.Members.Values.FirstOrDefault(x => x.Id == nextUser.Id)?.Mention ?? nextUser.Id.ToString()} - {nextUser.MessageCount} messages"));
 
-            await context.CreateResponseAsync(embed: embedBuilder.Build());
+            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedBuilder));
         }
     }
 }
