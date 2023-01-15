@@ -6,6 +6,6 @@ namespace MomentumDiscordBot.Commands.Moderator
     [RequireAdminBotChannel]
     [ContextMenuRequireUserModeratorRole]
     // ContextMenus are used /info and /custom and *not* restricted to the bot channel
-    // they are not actually part of the commandgroup and show up seperatly in the integration settings
+    // they are not actually part of the commandgroup and show up separately in the integration settings
     public class ModeratorModuleBase : MomentumModuleBase { }
 }

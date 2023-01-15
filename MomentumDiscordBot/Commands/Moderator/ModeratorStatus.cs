@@ -13,7 +13,7 @@ namespace MomentumDiscordBot.Commands.Moderator
     [SlashCommandGroup("status", "bots status")]
     public class ModeratorStatus : ModeratorModuleBase
     {
-        [SlashCommand("set", "Sets the bots status")]
+        [SlashCommand("set", "Sets the bot's status")]
         public static async Task StatusAsync(InteractionContext context,
             [Option("status", "status")] string status,
             [ChoiceProvider(typeof(ActivityTypeChoiceProvider))][Option("type", "ActivityType")] string type = null)
@@ -25,7 +25,7 @@ namespace MomentumDiscordBot.Commands.Moderator
             await ReplyNewEmbedAsync(context, $"Status set to '{status}'.", MomentumColor.Blue);
         }
 
-        [SlashCommand("clear", "Clears the bots status")]
+        [SlashCommand("clear", "Clears the bot's status")]
         public static async Task ClearStatusAsync(InteractionContext context)
         {
             await context.Client.UpdateStatusAsync(new DiscordActivity());
