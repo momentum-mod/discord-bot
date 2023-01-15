@@ -21,14 +21,21 @@ namespace MomentumDiscordBot.Commands.Moderator
         [SlashCommand("user", "Compares a user's message count in two groups of 30 day periods")]
         public async Task UserStatsAsync(InteractionContext context, [Option("member", "member")] DiscordUser user)
         {
-            DiscordMember member = (DiscordMember)user;
+            await context.DeferAsync();
+
+            var member = (DiscordMember)user;
+
             var userStats = await StatsUtility.GetMessages(Config, x => x.UserId == member.Id);
-            await context.CreateResponseAsync(embed: GetGrowthEmbed(userStats, member.Mention));
+
+            await context.EditResponseAsync(
+                new DiscordWebhookBuilder().AddEmbed(GetGrowthEmbed(userStats, member.Mention)));
         }
 
         [SlashCommand("channel", "Compares a channels's message count in two groups of 30 day periods")]
         public async Task ChannelStatsAsync(InteractionContext context, [Option("channel", "channel")] DiscordChannel channel)
         {
+            await context.DeferAsync();
+
             if (channel.Type != ChannelType.Text)
             {
                 await ReplyNewEmbedAsync(context, "Channel must be a text channel.", DiscordColor.Orange);
@@ -36,7 +43,9 @@ namespace MomentumDiscordBot.Commands.Moderator
             }
 
             var channelStats = await StatsUtility.GetMessages(Config, x => x.ChannelId == channel.Id);
-            await context.CreateResponseAsync(embed: GetGrowthEmbed(channelStats, channel.Mention));
+
+            await context.EditResponseAsync(
+                new DiscordWebhookBuilder().AddEmbed(GetGrowthEmbed(channelStats, channel.Mention)));
         }
 
         private static DiscordEmbedBuilder GetGrowthEmbed(List<DailyMessageCount> filteredMessages, string mention)
