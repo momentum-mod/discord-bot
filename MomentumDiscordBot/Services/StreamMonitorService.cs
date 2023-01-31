@@ -37,6 +37,8 @@ namespace MomentumDiscordBot.Services
         private Timer _intervalFunctionTimer;
         private DiscordChannel _textChannel;
 
+        private List<GoneLiveEvent> _goneLiveEvents = new();
+
         public StreamMonitorService(DiscordClient discordClient, TwitchApiService twitchApiService,
             Configuration config, ILogger logger)
         {
@@ -157,6 +159,23 @@ namespace MomentumDiscordBot.Services
                 // New streams are not in the cache
                 if (!IsStreamInCache(stream))
                 {
+                    var goneLiveDuringBackoffCount = _goneLiveEvents
+                        .Count(x => x.StreamerId == stream.UserId 
+                                  && x.DateTime > DateTime.UtcNow.AddMinutes(_config.StreamReannounceBackoffMinutes));
+                    
+                    // Log the stream as gone live, new message & ping associated
+                    _goneLiveEvents.Add(new GoneLiveEvent
+                    {
+                        DateTime = DateTime.UtcNow,
+                        StreamerId = stream.UserId
+                    });
+
+                    if (goneLiveDuringBackoffCount > 1)
+                    {
+                        // Only log, don't message
+                        continue;
+                    }
+                    
                     // If the stream is not above the minimum viewers then ignore it, but we want to update a stream if it dips below
                     if (stream.ViewerCount < _config.MinimumStreamViewersAnnounce)
                     {
@@ -167,8 +186,12 @@ namespace MomentumDiscordBot.Services
                     var roleMention = new RoleMention(_config.LivestreamMentionRoleId);
                     var messageBuilder = new DiscordMessageBuilder()
                         .WithContent(messageText)
-                        .WithEmbed(embed)
-                        .WithAllowedMention(roleMention);
+                        .WithEmbed(embed);
+
+                    if (goneLiveDuringBackoffCount == 0)
+                    {
+                        messageBuilder.WithAllowedMention(roleMention);
+                    }
 
                     var message =
                         await _textChannel.SendMessageAsync(messageBuilder);
