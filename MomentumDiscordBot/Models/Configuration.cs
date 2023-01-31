@@ -75,6 +75,9 @@ namespace MomentumDiscordBot.Models
         
         [JsonPropertyName("stream_reannounce_backoff_minutes")]
         public int StreamReannounceBackoffMinutes { get; set; }
+        
+        [JsonPropertyName("stream_ping_backoff_minutes")]
+        public int StreamPingBackoffMinutes { get; set; }
 
         [JsonPropertyName("join_log_channel")] public ulong JoinLogChannel { get; set; }
 

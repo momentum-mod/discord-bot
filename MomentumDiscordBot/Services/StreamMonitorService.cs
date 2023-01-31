@@ -152,6 +152,13 @@ namespace MomentumDiscordBot.Services
 
         private async Task SendOrUpdateStreamEmbedsAsync(List<Stream> filteredStreams, List<DiscordMessage> messages)
         {
+            var oldestTimeToTrim = Math.Max(_config.StreamReannounceBackoffMinutes, _config.StreamPingBackoffMinutes);
+            
+            // Trim old gone live events - 2x the oldest time to trim
+            _goneLiveEvents = _goneLiveEvents
+                .Where(x => x.DateTime > DateTime.UtcNow.AddMinutes(-(oldestTimeToTrim * 2)))
+                .ToList();
+            
             foreach (var stream in filteredStreams)
             {
                 var (embed, messageText) = await GetStreamEmbed(stream);
@@ -159,9 +166,13 @@ namespace MomentumDiscordBot.Services
                 // New streams are not in the cache
                 if (!IsStreamInCache(stream))
                 {
-                    var goneLiveDuringBackoffCount = _goneLiveEvents
+                    var goneLiveDuringAnnounceBackoffCount = _goneLiveEvents
                         .Count(x => x.StreamerId == stream.UserId 
-                                  && x.DateTime > DateTime.UtcNow.AddMinutes(_config.StreamReannounceBackoffMinutes));
+                                  && x.DateTime > DateTime.UtcNow.AddMinutes(-_config.StreamReannounceBackoffMinutes));
+                    
+                    var goneLiveDuringPingBackoff = _goneLiveEvents
+                        .Any(x => x.StreamerId == stream.UserId 
+                                    && x.DateTime > DateTime.UtcNow.AddMinutes(-_config.StreamPingBackoffMinutes));
                     
                     // Log the stream as gone live, new message & ping associated
                     _goneLiveEvents.Add(new GoneLiveEvent
@@ -170,7 +181,7 @@ namespace MomentumDiscordBot.Services
                         StreamerId = stream.UserId
                     });
 
-                    if (goneLiveDuringBackoffCount > 1)
+                    if (goneLiveDuringAnnounceBackoffCount > 1)
                     {
                         // Only log, don't message
                         continue;
@@ -188,7 +199,7 @@ namespace MomentumDiscordBot.Services
                         .WithContent(messageText)
                         .WithEmbed(embed);
 
-                    if (goneLiveDuringBackoffCount == 0)
+                    if (goneLiveDuringAnnounceBackoffCount == 0 && !goneLiveDuringPingBackoff)
                     {
                         messageBuilder.WithAllowedMention(roleMention);
                     }
