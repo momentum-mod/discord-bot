@@ -18,7 +18,7 @@ namespace MomentumDiscordBot.Services
         private readonly ConcurrentDictionary<string, string> _categoryNames = new();
 
         private readonly ILogger _logger;
-        private readonly string _momentumModGameId = null;
+        private string _momentumModGameId = null;
 
         public TwitchApiService(ILogger logger, Configuration config)
         {
@@ -34,7 +34,8 @@ namespace MomentumDiscordBot.Services
         public async Task<string> GetMomentumModIdAsync()
         {
             var games = await _apiService.Helix.Games.GetGamesAsync(gameNames: new List<string> { "Momentum Mod" });
-            return games.Games.First().Id;
+            _momentumModGameId = games.Games.First().Id;
+            return _momentumModGameId;
         }
 
         public async Task<string> GetGameNameAsync(string id)
