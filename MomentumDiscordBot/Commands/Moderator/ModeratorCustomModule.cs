@@ -58,7 +58,7 @@ namespace MomentumDiscordBot.Commands.Moderator
                     if (embed.Image is not null)
                         imageUrl = embed.Image.Url.ToString();
                 }
-                var component = message.Components.SelectMany(x => x.Components).FirstOrDefault(x => x is DiscordLinkButtonComponent);
+                var component = message.Components.FirstOrDefault(x => x is DiscordLinkButtonComponent);
                 if (component is DiscordLinkButtonComponent button)
                 {
                     buttonUrl = button.Url;
