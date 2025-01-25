@@ -19,7 +19,6 @@ namespace MomentumDiscordBot.Services
             discordClient.UseInteractivity(new InteractivityConfiguration()
             {
                 Timeout = TimeSpan.FromSeconds(10),
-                AckPaginationButtons = true,
                 ResponseBehavior = InteractionResponseBehavior.Respond,
                 ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
             });
