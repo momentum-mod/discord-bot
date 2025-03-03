@@ -1,3 +1,8 @@
+# This repo is no longer being updated
+
+This project has been rewritten in TypeScript and moved to our [website](https://github.com/momentum-mod/website) monorepo,
+living in the [discord-bot-internal package](https://github.com/momentum-mod/website/tree/main/apps/discord-bot-internal).
+
 # Momentum Mod Discord Bot
 
 ![Momentum Mod](https://momentum-mod.org/assets/images/logo.svg)
